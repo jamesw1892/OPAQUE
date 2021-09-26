@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2021-09-23T01:04:08.094344+00:00",
+  "timestamp": "2021-09-26T01:01:59.597598+00:00",
   "repo": "cfrg/draft-irtf-cfrg-opaque",
   "labels": [
     {
@@ -5663,7 +5663,7 @@
       "id": "MDU6SXNzdWU5NjUyMjg2OTU=",
       "title": "MHF usage",
       "url": "https://github.com/cfrg/draft-irtf-cfrg-opaque/issues/245",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "chris-wood",
       "authorAssociation": "COLLABORATOR",
       "assignees": [
@@ -5672,8 +5672,8 @@
       "labels": [],
       "body": "OPAQUE currently assumes that the MHF output is pseudorandom, as it's currently used as the IKM input to the KDF:\r\n\r\n```\r\nrandomized_pwd = Extract(\"\", Harden(y, params))\r\n```\r\n\r\nWe could fix this by requiring the MHF to output something that's pseudorandom, or by changing how we invoke Extract, e.g.:\r\n\r\n```\r\nrandomized_pwd = Extract(Harden(y, params), y))\r\n```\r\n\r\ncc @cjpatton, @hugokraw \r\n",
       "createdAt": "2021-08-10T18:21:52Z",
-      "updatedAt": "2021-08-24T22:53:18Z",
-      "closedAt": null,
+      "updatedAt": "2021-09-23T12:02:28Z",
+      "closedAt": "2021-09-23T12:02:28Z",
       "comments": [
         {
           "author": "hugokraw",
@@ -5710,7 +5710,7 @@
       "id": "MDU6SXNzdWU5NjUyMjk4ODk=",
       "title": "Configuration agreement",
       "url": "https://github.com/cfrg/draft-irtf-cfrg-opaque/issues/246",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "chris-wood",
       "authorAssociation": "COLLABORATOR",
       "assignees": [
@@ -5719,8 +5719,8 @@
       "labels": [],
       "body": "The configurations section is the first place where client/server agreement on configurations is noted. We should promote this to an earlier part of the draft, and make clear that configuration negotiation is _not_ part of the protocol. (That would be done by any wrapper protocol, for example.)",
       "createdAt": "2021-08-10T18:23:07Z",
-      "updatedAt": "2021-08-24T22:53:18Z",
-      "closedAt": null,
+      "updatedAt": "2021-09-23T12:02:10Z",
+      "closedAt": "2021-09-23T12:02:10Z",
       "comments": [
         {
           "author": "bytemare",
@@ -5820,7 +5820,7 @@
       "id": "MDU6SXNzdWU5NjkzODI1NTc=",
       "title": "Internal mode private key seed length",
       "url": "https://github.com/cfrg/draft-irtf-cfrg-opaque/issues/249",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "chris-wood",
       "authorAssociation": "COLLABORATOR",
       "assignees": [
@@ -5829,8 +5829,8 @@
       "labels": [],
       "body": "The seed used to derive the private key in internal mode is currently `Nsk`:\r\n\r\n```\r\nseed = Expand(randomized_pwd, concat(nonce, \"PrivateKey\"), Nsk)\r\n```\r\n\r\nIf `Nsk` is large for the AKE, then this seed may be quite large, too. We probably don't need anything beyond 32 bytes of randomness here, regardless of the AKE protocol. Perhaps we drop `Nsk` here and just use a constant? Or introduce another constant instead?\r\n\r\nThe same question might also be asked of the `ikm` derivation:\r\n\r\n```\r\nikm = Expand(oprf_seed, concat(credential_identifier, \"OprfKey\"), Nok)\r\n```\r\n\r\ncc @hugokraw ",
       "createdAt": "2021-08-12T18:59:19Z",
-      "updatedAt": "2021-08-24T22:53:18Z",
-      "closedAt": null,
+      "updatedAt": "2021-09-23T12:02:18Z",
+      "closedAt": "2021-09-23T12:02:18Z",
       "comments": [
         {
           "author": "bytemare",
@@ -5953,7 +5953,7 @@
       "labels": [],
       "body": "We don't discuss this until we get to CreateCredentialResponse, so it comes out of nowhere. Let's see if we can bubble this up to the intro or protocol overview.",
       "createdAt": "2021-08-18T18:38:06Z",
-      "updatedAt": "2021-09-08T12:42:30Z",
+      "updatedAt": "2021-09-23T12:24:50Z",
       "closedAt": null,
       "comments": [
         {
@@ -5997,6 +5997,13 @@
           "body": "I think this is a great idea and totally agree we should take this approach!",
           "createdAt": "2021-09-08T12:42:30Z",
           "updatedAt": "2021-09-08T12:42:30Z"
+        },
+        {
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "body": "I don't think think the use of masking_key should be optional. The protocol is already complicated enough as-is, and forcing another (non-essential) decision onto implementers seems like it'll yield undesirable outcomes. Making it mandatory, as is the case now, removes that decision point and allows for safer server-side implementations.\r\n\r\n>  we need to say clearly that masking_key and its use is only needed against enumeration attacks, and not to refer to this masking as \"encryption\" or \"confidentiality\" as we do now in some of the text.\r\n\r\nYeah, this is a fine change to make. I'll cover that in the PR which addresses this issue.",
+          "createdAt": "2021-09-23T12:24:05Z",
+          "updatedAt": "2021-09-23T12:24:50Z"
         }
       ]
     },
@@ -6142,7 +6149,7 @@
       ],
       "body": "The TLS 1.3 RFC ([appendix C.1](https://datatracker.ietf.org/doc/html/rfc8446#appendix-C.1)) suggests using separate CSPRNGs to generate public and private values.\r\n\r\nIt could be interesting to add a similar recommendation.\r\n\r\nIn OPAQUE, I think the only public values are nonces (public keys are derived from private keys, so they don't count). Is there anything else?",
       "createdAt": "2021-09-08T13:03:17Z",
-      "updatedAt": "2021-09-22T22:29:35Z",
+      "updatedAt": "2021-09-23T01:23:39Z",
       "closedAt": null,
       "comments": [
         {
@@ -6151,6 +6158,13 @@
           "body": "@bytemare will you have time for this? If not, I can do it.",
           "createdAt": "2021-09-22T22:29:35Z",
           "updatedAt": "2021-09-22T22:29:35Z"
+        },
+        {
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Not immediately. If you'd like to do it, go for it :) ",
+          "createdAt": "2021-09-23T01:23:38Z",
+          "updatedAt": "2021-09-23T01:23:38Z"
         }
       ]
     },
@@ -6190,15 +6204,15 @@
       "id": "MDU6SXNzdWU5OTE1OTY4OTc=",
       "title": "Update spec to include Argon2 RFC",
       "url": "https://github.com/cfrg/draft-irtf-cfrg-opaque/issues/268",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "bytemare",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "Argon2 has now its RFC: https://www.rfc-editor.org/rfc/rfc9106.txt\r\n\r\nThe spec should be updated accordingly",
       "createdAt": "2021-09-08T23:02:00Z",
-      "updatedAt": "2021-09-08T23:02:56Z",
-      "closedAt": null,
+      "updatedAt": "2021-09-23T12:02:00Z",
+      "closedAt": "2021-09-23T12:02:00Z",
       "comments": []
     }
   ],
@@ -20071,7 +20085,7 @@
       ],
       "body": "Addresses #242 and moves around some things for clarity.\r\n\r\nThis PR derives from and depends on #265",
       "createdAt": "2021-09-09T04:23:15Z",
-      "updatedAt": "2021-09-22T23:49:23Z",
+      "updatedAt": "2021-09-24T07:16:04Z",
       "baseRepository": "cfrg/draft-irtf-cfrg-opaque",
       "baseRefName": "dbz/abstract-messages",
       "baseRefOid": "f177ce8cc256b43b93d4970f90e5a68417fabec0",
@@ -20211,6 +20225,106 @@
               "updatedAt": "2021-09-22T23:36:13Z"
             }
           ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4tZABp",
+          "commit": {
+            "abbreviatedOid": "c5b8dae"
+          },
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-09-23T01:22:34Z",
+          "updatedAt": "2021-09-23T01:22:34Z",
+          "comments": [
+            {
+              "originalPosition": 208,
+              "body": "Yeah, but I was hesitant in describing it here, since this part is generic without any details about the AKE. Specifying ServerFinish here will start talking about 3DH before the dedicated AKE section (if that makes sense)",
+              "createdAt": "2021-09-23T01:22:34Z",
+              "updatedAt": "2021-09-23T01:22:34Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4tagpk",
+          "commit": {
+            "abbreviatedOid": "c5b8dae"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-09-23T12:03:58Z",
+          "updatedAt": "2021-09-23T12:03:59Z",
+          "comments": [
+            {
+              "originalPosition": 54,
+              "body": "Right now, I lean towards it being totally absent, but we can always reassess in a followup PR.",
+              "createdAt": "2021-09-23T12:03:59Z",
+              "updatedAt": "2021-09-23T12:04:09Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4tdOUZ",
+          "commit": {
+            "abbreviatedOid": "c5b8dae"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-09-24T02:01:26Z",
+          "updatedAt": "2021-09-24T02:01:26Z",
+          "comments": [
+            {
+              "originalPosition": 208,
+              "body": "Well, wouldn't _any_ AKE need this final function on the server? How does the server get the session key otherwise?",
+              "createdAt": "2021-09-24T02:01:26Z",
+              "updatedAt": "2021-09-24T07:11:54Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4tdsTz",
+          "commit": {
+            "abbreviatedOid": "c5b8dae"
+          },
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-09-24T07:14:22Z",
+          "updatedAt": "2021-09-24T07:14:22Z",
+          "comments": [
+            {
+              "originalPosition": 208,
+              "body": "Of course, but the internals of this function differ from one AKE to the other",
+              "createdAt": "2021-09-24T07:14:22Z",
+              "updatedAt": "2021-09-24T07:14:22Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4tdsnu",
+          "commit": {
+            "abbreviatedOid": "c5b8dae"
+          },
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-09-24T07:16:04Z",
+          "updatedAt": "2021-09-24T07:16:04Z",
+          "comments": [
+            {
+              "originalPosition": 54,
+              "body": "Alright. I need to adapt the API to ask for the arguments that would otherwise be in the state",
+              "createdAt": "2021-09-24T07:16:04Z",
+              "updatedAt": "2021-09-24T07:16:04Z"
+            }
+          ]
         }
       ]
     },
@@ -20219,24 +20333,26 @@
       "id": "PR_kwDOD79ejs4sKUx-",
       "title": "Cite Argon2 RFC.",
       "url": "https://github.com/cfrg/draft-irtf-cfrg-opaque/pull/271",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "chris-wood",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "Closes #268.",
       "createdAt": "2021-09-22T22:14:14Z",
-      "updatedAt": "2021-09-22T23:16:52Z",
+      "updatedAt": "2021-09-23T12:02:00Z",
       "baseRepository": "cfrg/draft-irtf-cfrg-opaque",
       "baseRefName": "master",
       "baseRefOid": "ee8e545c956c4ccc693d603192f920179c1922e9",
       "headRepository": "cfrg/draft-irtf-cfrg-opaque",
       "headRefName": "caw/cite-argon2",
       "headRefOid": "da2ace69f143777abcac943fab1fee82aeccfaf8",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "closedAt": "2021-09-23T12:02:00Z",
+      "mergedAt": "2021-09-23T12:02:00Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "86a3394fd715f8685f7f37717b97351103bb0b59"
+      },
       "comments": [
         {
           "author": "bytemare",
@@ -20246,31 +20362,47 @@
           "updatedAt": "2021-09-22T23:16:52Z"
         }
       ],
-      "reviews": []
+      "reviews": [
+        {
+          "id": "PRR_kwDOD79ejs4tZE4a",
+          "commit": {
+            "abbreviatedOid": "da2ace6"
+          },
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-09-23T02:34:12Z",
+          "updatedAt": "2021-09-23T02:34:12Z",
+          "comments": []
+        }
+      ]
     },
     {
       "number": 272,
       "id": "PR_kwDOD79ejs4sKVE3",
       "title": "Note that configuration agreement is necessary for the protocol to run.",
       "url": "https://github.com/cfrg/draft-irtf-cfrg-opaque/pull/272",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "chris-wood",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "Closes #246.",
       "createdAt": "2021-09-22T22:16:28Z",
-      "updatedAt": "2021-09-22T23:17:56Z",
+      "updatedAt": "2021-09-23T12:02:10Z",
       "baseRepository": "cfrg/draft-irtf-cfrg-opaque",
       "baseRefName": "master",
       "baseRefOid": "ee8e545c956c4ccc693d603192f920179c1922e9",
       "headRepository": "cfrg/draft-irtf-cfrg-opaque",
       "headRefName": "caw/note-configs",
       "headRefOid": "f592d35353df18a16d0a8d459f21a3ea12cee976",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "closedAt": "2021-09-23T12:02:10Z",
+      "mergedAt": "2021-09-23T12:02:09Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "6da40b03b7860af3de5651701d322860bd116a39"
+      },
       "comments": [
         {
           "author": "bytemare",
@@ -20280,31 +20412,47 @@
           "updatedAt": "2021-09-22T23:17:56Z"
         }
       ],
-      "reviews": []
+      "reviews": [
+        {
+          "id": "PRR_kwDOD79ejs4tZE2X",
+          "commit": {
+            "abbreviatedOid": "f592d35"
+          },
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-09-23T02:33:53Z",
+          "updatedAt": "2021-09-23T02:33:53Z",
+          "comments": []
+        }
+      ]
     },
     {
       "number": 273,
       "id": "PR_kwDOD79ejs4sKV6q",
       "title": "Pin key derivation seed length to 32 bytes.",
       "url": "https://github.com/cfrg/draft-irtf-cfrg-opaque/pull/273",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "chris-wood",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "Closes #249.",
       "createdAt": "2021-09-22T22:23:42Z",
-      "updatedAt": "2021-09-22T23:33:52Z",
+      "updatedAt": "2021-09-23T12:02:19Z",
       "baseRepository": "cfrg/draft-irtf-cfrg-opaque",
       "baseRefName": "master",
       "baseRefOid": "ee8e545c956c4ccc693d603192f920179c1922e9",
       "headRepository": "cfrg/draft-irtf-cfrg-opaque",
       "headRefName": "caw/kdf-seed-constant",
       "headRefOid": "e7736037eaed11db3399367cfb3e156c640a3a68",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "closedAt": "2021-09-23T12:02:18Z",
+      "mergedAt": "2021-09-23T12:02:18Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "e999252a569c2c4aad5217986d98da1de0b1509c"
+      },
       "comments": [
         {
           "author": "bytemare",
@@ -20314,31 +20462,47 @@
           "updatedAt": "2021-09-22T23:33:51Z"
         }
       ],
-      "reviews": []
+      "reviews": [
+        {
+          "id": "PRR_kwDOD79ejs4tZE1A",
+          "commit": {
+            "abbreviatedOid": "e773603"
+          },
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-09-23T02:33:35Z",
+          "updatedAt": "2021-09-23T02:33:35Z",
+          "comments": []
+        }
+      ]
     },
     {
       "number": 274,
       "id": "PR_kwDOD79ejs4sKWcV",
       "title": "Harden the harden function.",
       "url": "https://github.com/cfrg/draft-irtf-cfrg-opaque/pull/274",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "chris-wood",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "Closes #245.",
       "createdAt": "2021-09-22T22:28:51Z",
-      "updatedAt": "2021-09-22T23:27:26Z",
+      "updatedAt": "2021-09-23T12:02:28Z",
       "baseRepository": "cfrg/draft-irtf-cfrg-opaque",
       "baseRefName": "master",
       "baseRefOid": "ee8e545c956c4ccc693d603192f920179c1922e9",
       "headRepository": "cfrg/draft-irtf-cfrg-opaque",
       "headRefName": "caw/harden-harden",
       "headRefOid": "cd8d16cfc55902add817827c5c66cf855fa2d190",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "closedAt": "2021-09-23T12:02:28Z",
+      "mergedAt": "2021-09-23T12:02:28Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "90d9754860fb813a707afd7f14ab02991e6d49a3"
+      },
       "comments": [
         {
           "author": "bytemare",
@@ -20348,6 +20512,46 @@
           "updatedAt": "2021-09-22T23:27:26Z"
         }
       ],
+      "reviews": [
+        {
+          "id": "PRR_kwDOD79ejs4tZEy0",
+          "commit": {
+            "abbreviatedOid": "cd8d16c"
+          },
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-09-23T02:33:02Z",
+          "updatedAt": "2021-09-23T02:33:02Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 275,
+      "id": "PR_kwDOD79ejs4sRXEb",
+      "title": "Adding deployment considerations for malicious servers",
+      "url": "https://github.com/cfrg/draft-irtf-cfrg-opaque/pull/275",
+      "state": "OPEN",
+      "author": "kevinlewi",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Adds two items to the deployment considerations section:\r\n\r\n- Additional client-side entropy: OPAQUE supports the ability to incorporate the\r\nclient identity alongside the password to be input to the OPRF. This provides additional\r\nclient-side entropy which can supplement the entropy that should be introduced by the\r\nserver during an honest execution of the protocol.\r\n- Client-side authentication of the server: Note that online guessing attacks\r\n(against any Asymmetric PAKE) can be done from both the client side and the server side.\r\nThis means that additional checks, such as implementing client-side authentication of\r\nthe server, should be considered in a production deployment of OPAQUE.\r\n\r\nCloses #264 .",
+      "createdAt": "2021-09-25T19:45:06Z",
+      "updatedAt": "2021-09-25T19:45:11Z",
+      "baseRepository": "cfrg/draft-irtf-cfrg-opaque",
+      "baseRefName": "master",
+      "baseRefOid": "90d9754860fb813a707afd7f14ab02991e6d49a3",
+      "headRepository": "kevinlewi/draft-irtf-cfrg-opaque",
+      "headRefName": "malicious_server",
+      "headRefOid": "718cf0dbfe926169ddf80e326679789541c590db",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
       "reviews": []
     }
   ]
