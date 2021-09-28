@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2021-09-26T01:01:59.597598+00:00",
+  "timestamp": "2021-09-28T01:01:03.377862+00:00",
   "repo": "cfrg/draft-irtf-cfrg-opaque",
   "labels": [
     {
@@ -20540,7 +20540,7 @@
       "labels": [],
       "body": "Adds two items to the deployment considerations section:\r\n\r\n- Additional client-side entropy: OPAQUE supports the ability to incorporate the\r\nclient identity alongside the password to be input to the OPRF. This provides additional\r\nclient-side entropy which can supplement the entropy that should be introduced by the\r\nserver during an honest execution of the protocol.\r\n- Client-side authentication of the server: Note that online guessing attacks\r\n(against any Asymmetric PAKE) can be done from both the client side and the server side.\r\nThis means that additional checks, such as implementing client-side authentication of\r\nthe server, should be considered in a production deployment of OPAQUE.\r\n\r\nCloses #264 .",
       "createdAt": "2021-09-25T19:45:06Z",
-      "updatedAt": "2021-09-25T19:45:11Z",
+      "updatedAt": "2021-09-27T13:25:05Z",
       "baseRepository": "cfrg/draft-irtf-cfrg-opaque",
       "baseRefName": "master",
       "baseRefOid": "90d9754860fb813a707afd7f14ab02991e6d49a3",
@@ -20552,7 +20552,53 @@
       "mergedBy": null,
       "mergeCommit": null,
       "comments": [],
-      "reviews": []
+      "reviews": [
+        {
+          "id": "PRR_kwDOD79ejs4tjJx7",
+          "commit": {
+            "abbreviatedOid": "718cf0d"
+          },
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-09-27T12:09:45Z",
+          "updatedAt": "2021-09-27T12:09:45Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOD79ejs4tjcBA",
+          "commit": {
+            "abbreviatedOid": "718cf0d"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "CHANGES_REQUESTED",
+          "body": "",
+          "createdAt": "2021-09-27T13:20:18Z",
+          "updatedAt": "2021-09-27T13:25:05Z",
+          "comments": [
+            {
+              "originalPosition": 7,
+              "body": "```suggestion\r\nserver during an honest execution of the protocol. This also provides domain separation between\r\ndifferent clients that might otherwise share the same password.\r\n```",
+              "createdAt": "2021-09-27T13:20:19Z",
+              "updatedAt": "2021-09-27T13:25:05Z"
+            },
+            {
+              "originalPosition": 10,
+              "body": "The phrase \"client-side authentication of the server\" is somewhat confusing to me. Perhaps we can say that the channel over which OPAQUE registration and login is run run is server-authenticated?",
+              "createdAt": "2021-09-27T13:23:48Z",
+              "updatedAt": "2021-09-27T13:25:05Z"
+            },
+            {
+              "originalPosition": 9,
+              "body": "I think this needs some more detail to be useful. In particular, I'd try to include that a malicious server can simulate honest responses in an attempt to learn the client's password.",
+              "createdAt": "2021-09-27T13:25:01Z",
+              "updatedAt": "2021-09-27T13:25:05Z"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
