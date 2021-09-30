@@ -2414,7 +2414,12 @@ Steps:
 </pre><a href="#section-6.2-1" class="pilcrow">¶</a>
 </div>
 <p id="section-6.2-2">Since the OPRF is a two-message protocol, KE3 has no element of the OPRF. We can
-therefore call the AKE's <code>ServerFinish()</code> directly and return its output.<a href="#section-6.2-2" class="pilcrow">¶</a></p>
+therefore call the AKE's <code>ServerFinish()</code> directly. The <code>ServerFinish()</code> function
+MUST take KE3 as input and MUST verify the client authentication material it contains
+before the <code>session_key</code> value can be used. This verification is paramount in order to
+ensure forward secrecy against active attackers.<a href="#section-6.2-2" class="pilcrow">¶</a></p>
+<p id="section-6.2-3">This function MUST NOT return the <code>session_key</code> value if the client authentication
+material is invalid, and may instead return an appropriate error message.<a href="#section-6.2-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="cred-retrieval">
