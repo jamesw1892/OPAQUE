@@ -1681,7 +1681,7 @@ engage in the AKE.<a href="#section-2.5-5.1" class="pilcrow">¶</a>
 <code>AuthFinish</code>, complete the protocol for the server.<a href="#section-2.5-5.2" class="pilcrow">¶</a>
 </li>
         </ul>
-<p id="section-2.5-6">Both ClientFinalize and ServerFinish return an error if authentication failed.
+<p id="section-2.5-6">Both ClientFinish and ServerFinish return an error if authentication failed.
 In this case, clients and servers MUST NOT use any outputs from the protocol,
 such as <code>session_key</code> or <code>export_key</code> (defined below).<a href="#section-2.5-6" class="pilcrow">¶</a></p>
 <p id="section-2.5-7">Prior to the execution of these functions, both the client and the server MUST
