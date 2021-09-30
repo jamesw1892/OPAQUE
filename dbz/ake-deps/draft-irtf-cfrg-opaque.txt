@@ -5,12 +5,12 @@
 Network Working Group                                        H. Krawczyk
 Internet-Draft                                       Algorand Foundation
 Intended status: Informational                               D. Bourdrez
-Expires: 26 March 2022                                                  
+Expires: 3 April 2022                                                   
                                                                  K. Lewi
                                                            Novi Research
                                                                C.A. Wood
                                                               Cloudflare
-                                                       22 September 2021
+                                                       30 September 2021
 
 
                   The OPAQUE Asymmetric PAKE Protocol
@@ -49,7 +49,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 26 March 2022.
+   This Internet-Draft will expire on 3 April 2022.
 
 Copyright Notice
 
@@ -218,26 +218,26 @@ Table of Contents
       functions operate on byte strings in big-endian byte order.
 
    *  concat(x0, ..., xN): Concatenate byte strings.  For example,
-      "concat(0x01, 0x0203, 0x040506) = 0x010203040506".
+      concat(0x01, 0x0203, 0x040506) = 0x010203040506.
 
    *  random(n): Generate a cryptographically secure pseudorandom byte
-      string of length "n" bytes.
+      string of length n bytes.
 
-   *  xor(a,b): Apply XOR to byte strings.  For example, "xor(0xF0F0,
-      0x1234) = 0xE2C4".  It is an error to call this function with
+   *  xor(a,b): Apply XOR to byte strings.  For example, xor(0xF0F0,
+      0x1234) = 0xE2C4.  It is an error to call this function with
       arguments of unequal length.
 
-   *  ct_equal(a, b): Return "true" if "a" is equal to "b", and false
+   *  ct_equal(a, b): Return true if a is equal to b, and false
       otherwise.  The implementation of this function must be constant-
-      time in the length of "a" and "b", which are assumed to be of
-      equal length, irrespective of the values "a" or "b".
+      time in the length of a and b, which are assumed to be of equal
+      length, irrespective of the values a or b.
 
    Except if said otherwise, random choices in this specification refer
    to drawing with uniform distribution from a given set (i.e., "random"
    is short for "uniformly random").  Random choices can be replaced
    with fresh outputs from a cryptographically strong pseudorandom
    generator, according to the requirements in [RFC4086], or
-   pseudorandom function.  For convenience, we define "nil" as a lack of
+   pseudorandom function.  For convenience, we define nil as a lack of
    value.
 
    All protocol messages and structures defined in this document use the
@@ -267,7 +267,7 @@ Table of Contents
 
    This section describes these protocols and primitives in more detail.
    Unless said otherwise, all random nonces used in these dependencies
-   and the rest of the OPAQUE protocol are of length "Nn" = 32 bytes.
+   and the rest of the OPAQUE protocol are of length Nn = 32 bytes.
 
 2.1.  Oblivious Pseudorandom Function
 
@@ -278,15 +278,14 @@ Table of Contents
    [I-D.irtf-cfrg-voprf], Version -07, with the following API and
    parameters:
 
-   *  Blind(x): Convert input "x" into an element of the OPRF group,
-      randomize it by some scalar "r", producing "M", and output ("r",
-      "M").
+   *  Blind(x): Convert input x into an element of the OPRF group,
+      randomize it by some scalar r, producing M, and output (r, M).
 
-   *  Evaluate(k, M): Evaluate input element "M" using private key "k",
-      yielding output element "Z".
+   *  Evaluate(k, M): Evaluate input element M using private key k,
+      yielding output element Z.
 
-   *  Finalize(x, r, Z): Finalize the OPRF evaluation using input "x",
-      random scalar "r", and evaluation output "Z", yielding output "y".
+   *  Finalize(x, r, Z): Finalize the OPRF evaluation using input x,
+      random scalar r, and evaluation output Z, yielding output y.
 
    *  DeriveKeyPair(seed): Derive a private and public key pair
       deterministically from a seed.
@@ -324,39 +323,38 @@ Table of Contents
    cryptographically strong keys.  This specification uses a KDF with
    the following API and parameters:
 
-   *  Extract(salt, ikm): Extract a pseudorandom key of fixed length
-      "Nx" bytes from input keying material "ikm" and an optional byte
-      string "salt".
+   *  Extract(salt, ikm): Extract a pseudorandom key of fixed length Nx
+      bytes from input keying material ikm and an optional byte string
+      salt.
 
-   *  Expand(prk, info, L): Expand a pseudorandom key "prk" using
-      optional string "info" into "L" bytes of output keying material.
+   *  Expand(prk, info, L): Expand a pseudorandom key prk using optional
+      string info into L bytes of output keying material.
 
-   *  Nx: The output size of the "Extract()" function in bytes.
+   *  Nx: The output size of the Extract() function in bytes.
 
    This specification also makes use of a Message Authentication Code
    (MAC) with the following API and parameters:
 
    *  MAC(key, msg): Compute a message authentication code over input
-      "msg" with key "key", producing a fixed-length output of "Nm"
-      bytes.
+      msg with key key, producing a fixed-length output of Nm bytes.
 
-   *  Nm: The output size of the "MAC()" function in bytes.
+   *  Nm: The output size of the MAC() function in bytes.
 
 2.3.  Hash Functions
 
    This specification makes use of a collision-resistant hash function
    with the following API and parameters:
 
-   *  Hash(msg): Apply a cryptographic hash function to input "msg",
-      producing a fixed-length digest of size "Nh" bytes.
+   *  Hash(msg): Apply a cryptographic hash function to input msg,
+      producing a fixed-length digest of size Nh bytes.
 
-   *  Nh: The output size of the "Hash()" function in bytes.
+   *  Nh: The output size of the Hash() function in bytes.
 
    A Memory Hard Function (MHF) is a slow and expensive cryptographic
    hash function with the following API:
 
    *  Harden(msg, params): Repeatedly apply a memory-hard function with
-      parameters "params" to strengthen the input "msg" against offline
+      parameters params to strengthen the input msg against offline
       dictionary attacks.  This function also needs to satisfy collision
       resistance.
 
@@ -366,14 +364,14 @@ Table of Contents
    material on the server and recovering it on the client.  This
    material is encapsulated in an envelope, whose structure, encoding,
    and size must be specified by the key recovery mechanism.  The size
-   of the envelope is denoted "Ne" and may vary between mechanisms.
+   of the envelope is denoted Ne and may vary between mechanisms.
 
    The key recovery storage mechanism takes as input a private seed and
    outputs an envelope.  The retrieval process takes as input a private
    seed and envelope and outputs authentication material.  The
    signatures for these functionalities are as follows:
 
-   *  Store(private_seed): build and return an "Envelope" structure and
+   *  Store(private_seed): build and return an Envelope structure and
       the client's public key.
 
    *  Recover(private_seed, envelope): recover and return the
@@ -400,29 +398,29 @@ Table of Contents
    Exchange (AKE) protocol which satisfies the forward secrecy and KCI
    properties discussed in Section 10.
 
-   The AKE must define three messages "AuthInit", "AuthResponse" and
-   "AuthFinish" and provide the following functions for the client:
+   The AKE must define three messages AuthInit, AuthResponse and
+   AuthFinish and provide the following functions for the client:
 
-   *  Start(): Initiate the AKE by producing message "AuthInit".
+   *  Start(): Initiate the AKE by producing message AuthInit.
 
    *  ClientFinish(client_identity, client_private_key, server_identity,
-      server_public_key, "AuthInit"): upon receipt of the server's
-      response "AuthResponse", complete the protocol for the client,
-      produce "AuthFinish".
+      server_public_key, AuthInit): upon receipt of the server's
+      response AuthResponse, complete the protocol for the client,
+      produce AuthFinish.
 
    The AKE protocol must provide the following functions for the server:
 
    *  Response(server_identity, server_private_key, client_identity,
-      client_public_key, "AuthInit"): upon receipt of a client's request
-      "AuthInit", engage in the AKE.
+      client_public_key, AuthInit): upon receipt of a client's request
+      AuthInit, engage in the AKE.
 
-   *  ServerFinish("AuthFinish"): upon receipt of a client's final AKE
-      message "AuthFinish", complete the protocol for the server.
+   *  ServerFinish(AuthFinish): upon receipt of a client's final AKE
+      message AuthFinish, complete the protocol for the server.
 
    Both ClientFinalize and ServerFinish return an error if
    authentication failed.  In this case, clients and servers MUST NOT
-   use any outputs from the protocol, such as "session_key" or
-   "export_key" (defined below).
+   use any outputs from the protocol, such as session_key or export_key
+   (defined below).
 
    Prior to the execution of these functions, both the client and the
    server MUST agree on a configuration; see Section 7 for details.
@@ -449,10 +447,10 @@ Table of Contents
    user identifier, and the server inputs its parameters, which includes
    its private key and other information.
 
-   The client output of this stage is a single value "export_key" that
-   the client may use for application-specific purposes, e.g., to
-   encrypt additional information for storage on the server.  The server
-   does not have access to this "export_key".
+   The client output of this stage is a single value export_key that the
+   client may use for application-specific purposes, e.g., to encrypt
+   additional information for storage on the server.  The server does
+   not have access to this export_key.
 
    The server output of this stage is a record corresponding to the
    client's registration that it stores in a credential file alongside
@@ -476,9 +474,9 @@ Table of Contents
          v                                         v
      export_key                                 record
 
-   These messages are named "RegistrationRequest",
-   "RegistrationResponse", and "Record", respectively.  Their contents
-   and wire format are defined in Section 5.1.
+   These messages are named RegistrationRequest, RegistrationResponse,
+   and Record, respectively.  Their contents and wire format are defined
+   in Section 5.1.
 
 3.2.  Online Authentication
 
@@ -488,11 +486,11 @@ Table of Contents
    As in the registration phase, the client inputs its credentials,
    including its password and user identifier, and the server inputs its
    parameters and the credential file record corresponding to the
-   client.  The client outputs two values, an "export_key" (matching
-   that from registration) and a "session_key", the latter of which is
-   the primary AKE output.  The server outputs a single value
-   "session_key" that matches that of the client.  Upon completion,
-   clients and servers can use these values as needed.
+   client.  The client outputs two values, an export_key (matching that
+   from registration) and a session_key, the latter of which is the
+   primary AKE output.  The server outputs a single value session_key
+   that matches that of the client.  Upon completion, clients and
+   servers can use these values as needed.
 
    The authenticated key exchange flow is shown below:
 
@@ -512,21 +510,20 @@ Table of Contents
          v                                         v
    (export_key, session_key)                  session_key
 
-   These messages are named "KE1", "KE2", and "KE3", respectively.  They
-   carry the messages of the concurrent execution of the key recovery
-   process (OPRF) and the authenticated key exchange (AKE):
+   These messages are named KE1, KE2, and KE3, respectively.  They carry
+   the messages of the concurrent execution of the key recovery process
+   (OPRF) and the authenticated key exchange (AKE):
 
-   *  "KE1" is composed of the "CredentialRequest" and "AuthInit"
+   *  KE1 is composed of the CredentialRequest and AuthInit messages
+
+   *  KE2 is composed of the CredentialResponse and AuthResponse
       messages
 
-   *  "KE2" is composed of the "CredentialResponse" and "AuthResponse"
-      messages
+   *  KE3 represents the AuthFinish message
 
-   *  "KE3" represents the "AuthFinish" message
-
-   The "CredentialRequest" and "CredentialResponse" message contents and
-   wire format are specified in Section 6.3, and those of "AuthInit",
-   "AuthResponse" and "AuthFinish" are specified in Section 6.4.1.
+   The CredentialRequest and CredentialResponse message contents and
+   wire format are specified in Section 6.3, and those of AuthInit,
+   AuthResponse and AuthFinish are specified in Section 6.4.1.
 
    The rest of this document describes the details of these stages in
    detail.  Section 4 describes how client credential information is
@@ -538,10 +535,10 @@ Table of Contents
 
 4.  Client Credential Storage and Key Recovery
 
-   OPAQUE makes use of a structure called "Envelope" to manage client
-   credentials.  The client creates its "Envelope" on registration and
+   OPAQUE makes use of a structure called Envelope to manage client
+   credentials.  The client creates its Envelope on registration and
    sends it to the server for storage.  On every login, the server sends
-   this "Envelope" to the client so it can recover its key material for
+   this Envelope to the client so it can recover its key material for
    use in the AKE.
 
    Future variants of OPAQUE may use different key recovery mechanisms.
@@ -570,7 +567,7 @@ Table of Contents
       server's public key.  See Section 10.3 for information about this
       identity.
 
-   These credential values are used in the "CleartextCredentials"
+   These credential values are used in the CleartextCredentials
    structure as follows:
 
    struct {
@@ -580,7 +577,7 @@ Table of Contents
    } CleartextCredentials;
 
    The function CreateCleartextCredentials constructs a
-   "CleartextCredentials" structure given application credential
+   CleartextCredentials structure given application credential
    information.
 
 CreateCleartextCredentials(server_public_key, client_public_key,
@@ -608,27 +605,27 @@ Steps:
 
    This specification defines a key recovery mechanism that uses the
    hardened OPRF output as a seed to directly derive the private and
-   public key using the "DeriveAuthKeyPair()" function defined in
+   public key using the DeriveAuthKeyPair() function defined in
    Section 6.4.2.
 
 4.1.1.  Envelope Structure
 
-   The key recovery mechanism defines its "Envelope" as follows:
+   The key recovery mechanism defines its Envelope as follows:
 
    struct {
      uint8 nonce[Nn];
      uint8 auth_tag[Nm];
    } Envelope;
 
-   nonce: A unique nonce of length "Nn" used to protect this Envelope.
+   nonce: A unique nonce of length Nn used to protect this Envelope.
 
    auth_tag: Authentication tag protecting the contents of the envelope,
-   covering the envelope nonce, and "CleartextCredentials".
+   covering the envelope nonce, and CleartextCredentials.
 
 4.1.2.  Envelope Creation
 
-   Clients create an "Envelope" at registration with the function
-   "Store" defined below.
+   Clients create an Envelope at registration with the function Store
+   defined below.
 
 Store(randomized_pwd, server_public_key, server_identity, client_identity)
 
@@ -660,8 +657,8 @@ Steps:
 
 4.1.3.  Envelope Recovery
 
-   Clients recover their "Envelope" during login with the "Recover"
-   function defined below.
+   Clients recover their Envelope during login with the Recover function
+   defined below.
 
 Recover(randomized_pwd, server_public_key, envelope,
                 server_identity, client_identity)
@@ -746,22 +743,14 @@ Steps:
                            record
                  ------------------------->
 
-   The client may utilize a state structure "RegistrationState" with the
-   following named fields:
-
-   *  password, the input password; and
-
-   *  blind, the random blinding scalar returned by "Blind()", of length
-      Nok.
-
    Section 5.2 describes details of the functions and the corresponding
    parameters referenced above.
 
    Both client and server MUST validate the other party's public key
    before use.  See Section 10.6 for more details.  Upon completion, the
    server stores the client's credentials for later use.  Moreover, the
-   client MAY use the output "export_key" for further application-
-   specific purposes; see Section 10.4.
+   client MAY use the output export_key for further application-specific
+   purposes; see Section 10.4.
 
 5.1.  Registration Messages
 
@@ -788,21 +777,18 @@ Steps:
    } RegistrationRecord;
 
    client_public_key  The client's encoded public key, corresponding to
-      the private key "client_private_key".
+      the private key client_private_key.
 
    masking_key  A key used by the server to preserve confidentiality of
       the envelope during login.
 
-   envelope  The client's "Envelope" structure.
+   envelope  The client's Envelope structure.
 
 5.2.  Registration Functions
 
 5.2.1.  CreateRegistrationRequest
 
    CreateRegistrationRequest(password)
-
-   State:
-   - state, a RegistrationState structure.
 
    Input:
    - password, an opaque byte string containing the client's password.
@@ -813,9 +799,8 @@ Steps:
 
    Steps:
    1. (blind, M) = Blind(password)
-   2. Populate state with RegistrationState(password, blind)
    2. Create RegistrationRequest request with M
-   3. Output request
+   3. Output (request, blind)
 
 5.2.2.  CreateRegistrationResponse
 
@@ -842,12 +827,11 @@ Steps:
    To create the user record used for further authentication, the client
    executes the following function.
 
-FinalizeRequest(response, server_identity, client_identity)
-
-State:
-- state, a RegistrationState structure.
+FinalizeRequest(password, blind, response, server_identity, client_identity)
 
 Input:
+- password, an opaque byte string containing the client's password.
+- blind, an OPRF scalar value.
 - response, a RegistrationResponse structure.
 - server_identity, the optional encoded server identity.
 - client_identity, the optional encoded client identity.
@@ -857,7 +841,7 @@ Output:
 - export_key, an additional client key.
 
 Steps:
-1. y = Finalize(state.password, state.blind, response.data)
+1. y = Finalize(password, blind, response.data)
 2. randomized_pwd = Extract("", Harden(y, params))
 3. (envelope, client_public_key, masking_key, export_key) =
     Store(randomized_pwd, response.server_public_key,
@@ -867,18 +851,17 @@ Steps:
 
    See Section 6 for details about the output export_key usage.
 
-   Upon completion of this function, the client MUST send "record" to
-   the server.
+   Upon completion of this function, the client MUST send record to the
+   server.
 
 5.3.  Finalize Registration
 
-   The server stores the "record" object as the credential file for each
-   client along with the associated "credential_identifier" and
-   "client_identity" (if different).  Note that the values "oprf_seed"
-   and "server_private_key" from the server's setup phase must also be
-   persisted.  The "oprf_seed" value SHOULD be used for all clients; see
-   Section 10.8.  The "server_private_key" may be unique for each
-   client.
+   The server stores the record object as the credential file for each
+   client along with the associated credential_identifier and
+   client_identity (if different).  Note that the values oprf_seed and
+   server_private_key from the server's setup phase must also be
+   persisted.  The oprf_seed value SHOULD be used for all clients; see
+   Section 10.8.  The server_private_key may be unique for each client.
 
 6.  Online Authenticated Key Exchange
 
@@ -924,7 +907,7 @@ Steps:
    The client receives two outputs: a session secret and an export key.
    The export key is only available to the client, and may be used for
    additional application-specific purposes, as outlined in
-   Section 10.4.  The output "export_key" MUST NOT be used in any way
+   Section 10.4.  The output export_key MUST NOT be used in any way
    before the protocol completes successfully.  See Appendix B for more
    details about this requirement.  The server receives a single output:
    a session secret matching the client's.
@@ -956,14 +939,14 @@ Steps:
                           session_key = ServerFinish(ke3)
 
    Both client and server may use implicit internal state objects to
-   keep necessary material for the OPRF and AKE, "client_state" and
-   "server_state", respectively.
+   keep necessary material for the OPRF and AKE, client_state and
+   server_state, respectively.
 
    The client state may have the following named fields:
 
    *  password, the input password; and
 
-   *  blind, the random blinding scalar returned by "Blind()", of length
+   *  blind, the random blinding scalar returned by Blind(), of length
       Nok; and
 
    *  client_ake_state, the client's AKE state if necessary.
@@ -1049,7 +1032,7 @@ Steps:
 3. Output KE2(response, ake_2)
 
    Since the OPRF is a two-message protocol, KE3 has no element of the
-   OPRF.  We can therefore call the AKE's "ServerFinish()" directly and
+   OPRF.  We can therefore call the AKE's ServerFinish() directly and
    return its output.
 
 6.3.  Credential Retrieval
@@ -1074,7 +1057,7 @@ Steps:
       masked_response field.
 
    masked_response  An encrypted form of the server's public key and the
-      client's "Envelope" structure.
+      client's Envelope structure.
 
 6.3.2.  Credential Retrieval Functions
 
@@ -1102,7 +1085,7 @@ Steps:
    created (corresponding to a client that has yet to register).
 
    In the case of an existing record with the corresponding identifier
-   "credential_identifier", the server invokes the following function to
+   credential_identifier, the server invokes the following function to
    produce a CredentialResponse:
 
 CreateCredentialResponse(request, server_public_key, record,
@@ -1191,14 +1174,14 @@ Steps:
    OPAQUE using 3DH, a 3-message AKE which satisfies the forward secrecy
    and KCI properties discussed in Section 10.
 
-   The AKE client state "client_ake_state" mentioned in Section 6 has
-   the following named fields:
+   The AKE client state client_ake_state mentioned in Section 6 has the
+   following named fields:
 
    *  client_secret, an opaque byte string of length Nsk; and
 
    *  ke1, a value of type KE1.
 
-   The server state "server_ake_state" mentioned in Section 6 has the
+   The server state server_ake_state mentioned in Section 6 has the
    following fields:
 
    *  expected_client_mac, an opaque byte string of length Nm; and
@@ -1246,14 +1229,14 @@ Steps:
    in this setting:
 
    *  RecoverPublicKey(private_key): Recover the public key related to
-      the input "private_key".
+      the input private_key.
 
    *  DeriveAuthKeyPair(seed): Derive a private and public
-      authentication key pair deterministically from the input "seed".
+      authentication key pair deterministically from the input seed.
 
    *  GenerateAuthKeyPair(): Return a randomly generated private and
       public key pair.  This can be implemented by generating a random
-      private key "sk", then computing "pk = RecoverPublicKey(sk)".
+      private key sk, then computing pk = RecoverPublicKey(sk).
 
    The implementation of DeriveAuthKeyPair is as follows:
 
@@ -1297,7 +1280,7 @@ Steps:
 
    Note that the Label parameter is not a NULL-terminated string.
 
-   OPAQUE-3DH can optionally include shared "context" information in the
+   OPAQUE-3DH can optionally include shared context information in the
    transcript, such as configuration parameters or application-specific
    info, e.g. "appXYZ-v1.2.3".
 
@@ -1499,10 +1482,10 @@ Steps:
       Section 2.  Examples include HKDF [RFC5869] for the KDF, HMAC
       [RFC2104] for the MAC, and SHA-256 and SHA-512 for the Hash
       functions.  If an extensible output function such as SHAKE128
-      [FIPS202] is used then the output length "Nh" MUST be chosen to
+      [FIPS202] is used then the output length Nh MUST be chosen to
       align with the target security level of the OPAQUE configuration.
       For example, if the target security parameter for the
-      configuration is 128-bits, then "Nh" SHOULD be at least 32 bytes.
+      configuration is 128-bits, then Nh SHOULD be at least 32 bytes.
 
    *  The MHF has fixed parameters, chosen by the application, and
       implements the interface in Section 2.  Examples include Argon2
@@ -1530,7 +1513,7 @@ Steps:
    Future configurations may specify different combinations of dependent
    algorithms, with the following considerations:
 
-   1.  The size of AKE public and private keys -- "Npk" and "Nsk",
+   1.  The size of AKE public and private keys -- Npk and Nsk,
        respectively -- must adhere to the output length limitations of
        the KDF Expand function.  If HKDF is used, this means Npk, Nsk <=
        255 * Nx, where Nx is the output size of the underlying hash
@@ -1538,7 +1521,7 @@ Steps:
 
    2.  The output size of the Hash function SHOULD be long enough to
        produce a key for MAC of suitable length.  For example, if MAC is
-       HMAC-SHA256, then "Nh" could be 32 bytes.
+       HMAC-SHA256, then Nh could be 32 bytes.
 
 8.  Application Considerations
 
@@ -1550,8 +1533,8 @@ Steps:
       where there are alternate client identities that accompany an
       account, such as a username or email address, this identifier can
       be set to those alternate values.  For simplicity, applications
-      may choose to set "credential_identifier" to be equal to
-      "client_identity".  Applications MUST NOT use the same credential
+      may choose to set credential_identifier to be equal to
+      client_identity.  Applications MUST NOT use the same credential
       identifier for multiple clients.
 
    *  Context information: As described in Section 7, applications may
@@ -2037,7 +2020,7 @@ C.1.  HMQV Instantiation Sketch
 
    An HMQV instantiation would work similar to OPAQUE-3DH, differing
    primarily in the key schedule [HMQV].  First, the key schedule
-   "preamble" value would use a different constant prefix -- "HMQV"
+   preamble value would use a different constant prefix -- "HMQV"
    instead of "3DH" -- as shown below.
 
    preamble = concat("HMQV",
@@ -2048,24 +2031,24 @@ C.1.  HMQV Instantiation Sketch
 
    Second, the IKM derivation would change.  Assuming HMQV is
    instantiated with a cyclic group of prime order p with bit length L,
-   clients would compute "IKM" as follows:
+   clients would compute IKM as follows:
 
    u' = (eskU + u \* skU) mod p
    IKM = (epkS \* pkS^s)^u'
 
-   Likewise, servers would compute "IKM" as follows:
+   Likewise, servers would compute IKM as follows:
 
    s' = (eskS + s \* skS) mod p
    IKM = (epkU \* pkU^u)^s'
 
-   In both cases, "u" would be computed as follows:
+   In both cases, u would be computed as follows:
 
    hashInput = concat(I2OSP(len(epkU), 2), epkU,
                       I2OSP(len(info), 2), info,
                       I2OSP(len("client"), 2), "client")
    u = Hash(hashInput) mod L
 
-   Likewise, "s" would be computed as follows:
+   Likewise, s would be computed as follows:
 
    hashInput = concat(I2OSP(len(epkS), 2), epkS,
                       I2OSP(len(info), 2), info,
@@ -2085,8 +2068,8 @@ C.2.  SIGMA-I Instantiation Sketch
    where the MAC is computed as in OPAQUE-3DH.
 
    The key schedule would also change.  Specifically, the key schedule
-   "preamble" value would use a different constant prefix -- "SIGMA-I"
-   instead of "3DH" -- and the "IKM" computation would use only the
+   preamble value would use a different constant prefix -- "SIGMA-I"
+   instead of "3DH" -- and the IKM computation would use only the
    ephemeral key shares exchanged between client and server.
 
 Appendix D.  Test Vectors
@@ -2100,11 +2083,10 @@ Appendix D.  Test Vectors
    Similarly, each fake test vector in Appendix D.2 specifies the
    configuration information, protocol inputs, and protocol outputs
    computed during authentication of an unknown or unregistered user.
-   Note that "masking_key", "client_private_key", and
-   "client_public_key" are used as additional inputs as described in
-   Section 6.3.2.2. "client_public_key" is used as the fake record's
-   public key, and "masking_key" for the fake record's masking key
-   parameter.
+   Note that masking_key, client_private_key, and client_public_key are
+   used as additional inputs as described in Section 6.3.2.2.
+   client_public_key is used as the fake record's public key, and
+   masking_key for the fake record's masking key parameter.
 
    All values are encoded in hexadecimal strings.  The configuration
    information includes the (OPRF, Hash, MHF, EnvelopeMode, Group)

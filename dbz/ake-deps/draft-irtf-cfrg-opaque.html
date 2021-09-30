@@ -19,11 +19,11 @@ hide the password from the server, even during password registration.
 This document specifies the core OPAQUE protocol and one instantiation
 based on 3DH. 
     " name="description">
-<meta content="xml2rfc 3.9.1" name="generator">
+<meta content="xml2rfc 3.10.0" name="generator">
 <meta content="Internet-Draft" name="keyword">
 <meta content="draft-irtf-cfrg-opaque-latest" name="ietf.draft">
 <!-- Generator version information:
-  xml2rfc 3.9.1
+  xml2rfc 3.10.0
     Python 3.9.5
     appdirs 1.4.4
     ConfigArgParse 1.3
@@ -1031,7 +1031,7 @@ address div.right {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Krawczyk, et al.</td>
-<td class="center">Expires 26 March 2022</td>
+<td class="center">Expires 3 April 2022</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1044,12 +1044,12 @@ address div.right {
 <dd class="internet-draft">draft-irtf-cfrg-opaque-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2021-09-22" class="published">22 September 2021</time>
+<time datetime="2021-09-30" class="published">30 September 2021</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Informational</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2022-03-26">26 March 2022</time></dd>
+<dd class="expires"><time datetime="2022-04-03">3 April 2022</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1109,7 +1109,7 @@ based on 3DH.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 26 March 2022.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 3 April 2022.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1137,241 +1137,241 @@ based on 3DH.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
         <a href="#" onclick="scroll(0,0)" class="toplink">▲</a><h2 id="name-table-of-contents">
 <a href="#name-table-of-contents" class="section-name selfRef">Table of Contents</a>
         </h2>
-<nav class="toc"><ul class="ulBare toc ulEmpty compact">
-<li class="ulBare toc ulEmpty compact" id="section-toc.1-1.1">
+<nav class="toc"><ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1">
             <p id="section-toc.1-1.1.1" class="keepWithNext"><a href="#section-1" class="xref">1</a>.  <a href="#name-introduction" class="xref">Introduction</a></p>
-<ul class="toc ulEmpty compact ulBare">
-<li class="toc ulEmpty compact ulBare" id="section-toc.1-1.1.2.1">
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.1">
                 <p id="section-toc.1-1.1.2.1.1" class="keepWithNext"><a href="#section-1.1" class="xref">1.1</a>.  <a href="#name-requirements-notation" class="xref">Requirements Notation</a></p>
 </li>
-              <li class="toc ulEmpty compact ulBare" id="section-toc.1-1.1.2.2">
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.2">
                 <p id="section-toc.1-1.1.2.2.1" class="keepWithNext"><a href="#section-1.2" class="xref">1.2</a>.  <a href="#name-notation" class="xref">Notation</a></p>
 </li>
             </ul>
 </li>
-          <li class="ulBare toc ulEmpty compact" id="section-toc.1-1.2">
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2">
             <p id="section-toc.1-1.2.1"><a href="#section-2" class="xref">2</a>.  <a href="#name-cryptographic-dependencies" class="xref">Cryptographic Dependencies</a></p>
-<ul class="toc ulEmpty compact ulBare">
-<li class="toc ulEmpty compact ulBare" id="section-toc.1-1.2.2.1">
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.1">
                 <p id="section-toc.1-1.2.2.1.1"><a href="#section-2.1" class="xref">2.1</a>.  <a href="#name-oblivious-pseudorandom-func" class="xref">Oblivious Pseudorandom Function</a></p>
 </li>
-              <li class="toc ulEmpty compact ulBare" id="section-toc.1-1.2.2.2">
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.2">
                 <p id="section-toc.1-1.2.2.2.1"><a href="#section-2.2" class="xref">2.2</a>.  <a href="#name-key-derivation-function-and" class="xref">Key Derivation Function and Message Authentication Code</a></p>
 </li>
-              <li class="toc ulEmpty compact ulBare" id="section-toc.1-1.2.2.3">
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.3">
                 <p id="section-toc.1-1.2.2.3.1"><a href="#section-2.3" class="xref">2.3</a>.  <a href="#name-hash-functions" class="xref">Hash Functions</a></p>
 </li>
-              <li class="toc ulEmpty compact ulBare" id="section-toc.1-1.2.2.4">
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.4">
                 <p id="section-toc.1-1.2.2.4.1"><a href="#section-2.4" class="xref">2.4</a>.  <a href="#name-key-recovery-method" class="xref">Key Recovery Method</a></p>
 </li>
-              <li class="toc ulEmpty compact ulBare" id="section-toc.1-1.2.2.5">
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.5">
                 <p id="section-toc.1-1.2.2.5.1"><a href="#section-2.5" class="xref">2.5</a>.  <a href="#name-authenticated-key-exchange-" class="xref">Authenticated Key Exchange (AKE) Protocol</a></p>
 </li>
             </ul>
 </li>
-          <li class="ulBare toc ulEmpty compact" id="section-toc.1-1.3">
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3">
             <p id="section-toc.1-1.3.1"><a href="#section-3" class="xref">3</a>.  <a href="#name-protocol-overview" class="xref">Protocol Overview</a></p>
-<ul class="toc ulEmpty compact ulBare">
-<li class="toc ulEmpty compact ulBare" id="section-toc.1-1.3.2.1">
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.1">
                 <p id="section-toc.1-1.3.2.1.1"><a href="#section-3.1" class="xref">3.1</a>.  <a href="#name-registration" class="xref">Registration</a></p>
 </li>
-              <li class="toc ulEmpty compact ulBare" id="section-toc.1-1.3.2.2">
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.2">
                 <p id="section-toc.1-1.3.2.2.1"><a href="#section-3.2" class="xref">3.2</a>.  <a href="#name-online-authentication" class="xref">Online Authentication</a></p>
 </li>
             </ul>
 </li>
-          <li class="ulBare toc ulEmpty compact" id="section-toc.1-1.4">
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4">
             <p id="section-toc.1-1.4.1"><a href="#section-4" class="xref">4</a>.  <a href="#name-client-credential-storage-a" class="xref">Client Credential Storage and Key Recovery</a></p>
-<ul class="toc ulEmpty compact ulBare">
-<li class="toc ulEmpty compact ulBare" id="section-toc.1-1.4.2.1">
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.1">
                 <p id="section-toc.1-1.4.2.1.1"><a href="#section-4.1" class="xref">4.1</a>.  <a href="#name-key-recovery" class="xref">Key Recovery</a></p>
-<ul class="toc ulEmpty ulBare compact">
-<li class="toc ulEmpty ulBare compact" id="section-toc.1-1.4.2.1.2.1">
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.1.2.1">
                     <p id="section-toc.1-1.4.2.1.2.1.1"><a href="#section-4.1.1" class="xref">4.1.1</a>.  <a href="#name-envelope-structure" class="xref">Envelope Structure</a></p>
 </li>
-                  <li class="toc ulEmpty ulBare compact" id="section-toc.1-1.4.2.1.2.2">
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.1.2.2">
                     <p id="section-toc.1-1.4.2.1.2.2.1"><a href="#section-4.1.2" class="xref">4.1.2</a>.  <a href="#name-envelope-creation" class="xref">Envelope Creation</a></p>
 </li>
-                  <li class="toc ulEmpty ulBare compact" id="section-toc.1-1.4.2.1.2.3">
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.1.2.3">
                     <p id="section-toc.1-1.4.2.1.2.3.1"><a href="#section-4.1.3" class="xref">4.1.3</a>.  <a href="#name-envelope-recovery" class="xref">Envelope Recovery</a></p>
 </li>
                 </ul>
 </li>
             </ul>
 </li>
-          <li class="ulBare toc ulEmpty compact" id="section-toc.1-1.5">
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5">
             <p id="section-toc.1-1.5.1"><a href="#section-5" class="xref">5</a>.  <a href="#name-offline-registration" class="xref">Offline Registration</a></p>
-<ul class="toc ulEmpty compact ulBare">
-<li class="toc ulEmpty compact ulBare" id="section-toc.1-1.5.2.1">
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.1">
                 <p id="section-toc.1-1.5.2.1.1"><a href="#section-5.1" class="xref">5.1</a>.  <a href="#name-registration-messages" class="xref">Registration Messages</a></p>
 </li>
-              <li class="toc ulEmpty compact ulBare" id="section-toc.1-1.5.2.2">
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.2">
                 <p id="section-toc.1-1.5.2.2.1"><a href="#section-5.2" class="xref">5.2</a>.  <a href="#name-registration-functions" class="xref">Registration Functions</a></p>
-<ul class="toc ulEmpty ulBare compact">
-<li class="toc ulEmpty ulBare compact" id="section-toc.1-1.5.2.2.2.1">
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.2.2.1">
                     <p id="section-toc.1-1.5.2.2.2.1.1"><a href="#section-5.2.1" class="xref">5.2.1</a>.  <a href="#name-createregistrationrequest" class="xref">CreateRegistrationRequest</a></p>
 </li>
-                  <li class="toc ulEmpty ulBare compact" id="section-toc.1-1.5.2.2.2.2">
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.2.2.2">
                     <p id="section-toc.1-1.5.2.2.2.2.1"><a href="#section-5.2.2" class="xref">5.2.2</a>.  <a href="#name-createregistrationresponse" class="xref">CreateRegistrationResponse</a></p>
 </li>
-                  <li class="toc ulEmpty ulBare compact" id="section-toc.1-1.5.2.2.2.3">
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.2.2.3">
                     <p id="section-toc.1-1.5.2.2.2.3.1"><a href="#section-5.2.3" class="xref">5.2.3</a>.  <a href="#name-finalizerequest" class="xref">FinalizeRequest</a></p>
 </li>
                 </ul>
 </li>
-              <li class="toc ulEmpty compact ulBare" id="section-toc.1-1.5.2.3">
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.3">
                 <p id="section-toc.1-1.5.2.3.1"><a href="#section-5.3" class="xref">5.3</a>.  <a href="#name-finalize-registration" class="xref">Finalize Registration</a></p>
 </li>
             </ul>
 </li>
-          <li class="ulBare toc ulEmpty compact" id="section-toc.1-1.6">
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6">
             <p id="section-toc.1-1.6.1"><a href="#section-6" class="xref">6</a>.  <a href="#name-online-authenticated-key-ex" class="xref">Online Authenticated Key Exchange</a></p>
-<ul class="toc ulEmpty compact ulBare">
-<li class="toc ulEmpty compact ulBare" id="section-toc.1-1.6.2.1">
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.1">
                 <p id="section-toc.1-1.6.2.1.1"><a href="#section-6.1" class="xref">6.1</a>.  <a href="#name-client-authentication-funct" class="xref">Client Authentication Functions</a></p>
 </li>
-              <li class="toc ulEmpty compact ulBare" id="section-toc.1-1.6.2.2">
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.2">
                 <p id="section-toc.1-1.6.2.2.1"><a href="#section-6.2" class="xref">6.2</a>.  <a href="#name-server-authentication-funct" class="xref">Server Authentication Functions</a></p>
 </li>
-              <li class="toc ulEmpty compact ulBare" id="section-toc.1-1.6.2.3">
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.3">
                 <p id="section-toc.1-1.6.2.3.1"><a href="#section-6.3" class="xref">6.3</a>.  <a href="#name-credential-retrieval" class="xref">Credential Retrieval</a></p>
-<ul class="toc ulEmpty ulBare compact">
-<li class="toc ulEmpty ulBare compact" id="section-toc.1-1.6.2.3.2.1">
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.3.2.1">
                     <p id="section-toc.1-1.6.2.3.2.1.1"><a href="#section-6.3.1" class="xref">6.3.1</a>.  <a href="#name-credential-retrieval-messag" class="xref">Credential Retrieval Messages</a></p>
 </li>
-                  <li class="toc ulEmpty ulBare compact" id="section-toc.1-1.6.2.3.2.2">
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.3.2.2">
                     <p id="section-toc.1-1.6.2.3.2.2.1"><a href="#section-6.3.2" class="xref">6.3.2</a>.  <a href="#name-credential-retrieval-functi" class="xref">Credential Retrieval Functions</a></p>
 </li>
                 </ul>
 </li>
-              <li class="toc ulEmpty compact ulBare" id="section-toc.1-1.6.2.4">
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.4">
                 <p id="section-toc.1-1.6.2.4.1"><a href="#section-6.4" class="xref">6.4</a>.  <a href="#name-ake-protocol" class="xref">AKE Protocol</a></p>
-<ul class="toc ulEmpty ulBare compact">
-<li class="toc ulEmpty ulBare compact" id="section-toc.1-1.6.2.4.2.1">
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.4.2.1">
                     <p id="section-toc.1-1.6.2.4.2.1.1"><a href="#section-6.4.1" class="xref">6.4.1</a>.  <a href="#name-ake-messages" class="xref">AKE Messages</a></p>
 </li>
-                  <li class="toc ulEmpty ulBare compact" id="section-toc.1-1.6.2.4.2.2">
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.4.2.2">
                     <p id="section-toc.1-1.6.2.4.2.2.1"><a href="#section-6.4.2" class="xref">6.4.2</a>.  <a href="#name-key-creation" class="xref">Key Creation</a></p>
 </li>
-                  <li class="toc ulEmpty ulBare compact" id="section-toc.1-1.6.2.4.2.3">
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.4.2.3">
                     <p id="section-toc.1-1.6.2.4.2.3.1"><a href="#section-6.4.3" class="xref">6.4.3</a>.  <a href="#name-key-schedule-functions" class="xref">Key Schedule Functions</a></p>
 </li>
-                  <li class="toc ulEmpty ulBare compact" id="section-toc.1-1.6.2.4.2.4">
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.4.2.4">
                     <p id="section-toc.1-1.6.2.4.2.4.1"><a href="#section-6.4.4" class="xref">6.4.4</a>.  <a href="#name-3dh-client-functions" class="xref">3DH Client Functions</a></p>
 </li>
-                  <li class="toc ulEmpty ulBare compact" id="section-toc.1-1.6.2.4.2.5">
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.4.2.5">
                     <p id="section-toc.1-1.6.2.4.2.5.1"><a href="#section-6.4.5" class="xref">6.4.5</a>.  <a href="#name-3dh-server-functions" class="xref">3DH Server Functions</a></p>
 </li>
                 </ul>
 </li>
             </ul>
 </li>
-          <li class="ulBare toc ulEmpty compact" id="section-toc.1-1.7">
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7">
             <p id="section-toc.1-1.7.1"><a href="#section-7" class="xref">7</a>.  <a href="#name-configurations" class="xref">Configurations</a></p>
 </li>
-          <li class="ulBare toc ulEmpty compact" id="section-toc.1-1.8">
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8">
             <p id="section-toc.1-1.8.1"><a href="#section-8" class="xref">8</a>.  <a href="#name-application-considerations" class="xref">Application Considerations</a></p>
 </li>
-          <li class="ulBare toc ulEmpty compact" id="section-toc.1-1.9">
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9">
             <p id="section-toc.1-1.9.1"><a href="#section-9" class="xref">9</a>.  <a href="#name-implementation-consideratio" class="xref">Implementation Considerations</a></p>
 </li>
-          <li class="ulBare toc ulEmpty compact" id="section-toc.1-1.10">
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10">
             <p id="section-toc.1-1.10.1"><a href="#section-10" class="xref">10</a>. <a href="#name-security-considerations" class="xref">Security Considerations</a></p>
-<ul class="toc ulEmpty compact ulBare">
-<li class="toc ulEmpty compact ulBare" id="section-toc.1-1.10.2.1">
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.1">
                 <p id="section-toc.1-1.10.2.1.1"><a href="#section-10.1" class="xref">10.1</a>.  <a href="#name-security-analysis" class="xref">Security Analysis</a></p>
 </li>
-              <li class="toc ulEmpty compact ulBare" id="section-toc.1-1.10.2.2">
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.2">
                 <p id="section-toc.1-1.10.2.2.1"><a href="#section-10.2" class="xref">10.2</a>.  <a href="#name-related-protocols" class="xref">Related Protocols</a></p>
 </li>
-              <li class="toc ulEmpty compact ulBare" id="section-toc.1-1.10.2.3">
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.3">
                 <p id="section-toc.1-1.10.2.3.1"><a href="#section-10.3" class="xref">10.3</a>.  <a href="#name-identities" class="xref">Identities</a></p>
 </li>
-              <li class="toc ulEmpty compact ulBare" id="section-toc.1-1.10.2.4">
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.4">
                 <p id="section-toc.1-1.10.2.4.1"><a href="#section-10.4" class="xref">10.4</a>.  <a href="#name-export-key-usage" class="xref">Export Key Usage</a></p>
 </li>
-              <li class="toc ulEmpty compact ulBare" id="section-toc.1-1.10.2.5">
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.5">
                 <p id="section-toc.1-1.10.2.5.1"><a href="#section-10.5" class="xref">10.5</a>.  <a href="#name-static-diffie-hellman-oracl" class="xref">Static Diffie-Hellman Oracles</a></p>
 </li>
-              <li class="toc ulEmpty compact ulBare" id="section-toc.1-1.10.2.6">
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.6">
                 <p id="section-toc.1-1.10.2.6.1"><a href="#section-10.6" class="xref">10.6</a>.  <a href="#name-input-validation" class="xref">Input Validation</a></p>
 </li>
-              <li class="toc ulEmpty compact ulBare" id="section-toc.1-1.10.2.7">
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.7">
                 <p id="section-toc.1-1.10.2.7.1"><a href="#section-10.7" class="xref">10.7</a>.  <a href="#name-oprf-hardening" class="xref">OPRF Hardening</a></p>
 </li>
-              <li class="toc ulEmpty compact ulBare" id="section-toc.1-1.10.2.8">
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.8">
                 <p id="section-toc.1-1.10.2.8.1"><a href="#section-10.8" class="xref">10.8</a>.  <a href="#name-client-enumeration" class="xref">Client Enumeration</a></p>
 </li>
-              <li class="toc ulEmpty compact ulBare" id="section-toc.1-1.10.2.9">
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.9">
                 <p id="section-toc.1-1.10.2.9.1"><a href="#section-10.9" class="xref">10.9</a>.  <a href="#name-password-salt-and-storage-i" class="xref">Password Salt and Storage Implications</a></p>
 </li>
             </ul>
 </li>
-          <li class="ulBare toc ulEmpty compact" id="section-toc.1-1.11">
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11">
             <p id="section-toc.1-1.11.1"><a href="#section-11" class="xref">11</a>. <a href="#name-iana-considerations" class="xref">IANA Considerations</a></p>
 </li>
-          <li class="ulBare toc ulEmpty compact" id="section-toc.1-1.12">
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12">
             <p id="section-toc.1-1.12.1"><a href="#section-12" class="xref">12</a>. <a href="#name-references" class="xref">References</a></p>
-<ul class="toc ulEmpty compact ulBare">
-<li class="toc ulEmpty compact ulBare" id="section-toc.1-1.12.2.1">
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12.2.1">
                 <p id="section-toc.1-1.12.2.1.1"><a href="#section-12.1" class="xref">12.1</a>.  <a href="#name-normative-references" class="xref">Normative References</a></p>
 </li>
-              <li class="toc ulEmpty compact ulBare" id="section-toc.1-1.12.2.2">
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12.2.2">
                 <p id="section-toc.1-1.12.2.2.1"><a href="#section-12.2" class="xref">12.2</a>.  <a href="#name-informative-references" class="xref">Informative References</a></p>
 </li>
             </ul>
 </li>
-          <li class="ulBare toc ulEmpty compact" id="section-toc.1-1.13">
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.13">
             <p id="section-toc.1-1.13.1"><a href="#appendix-A" class="xref">Appendix A</a>.  <a href="#name-acknowledgments" class="xref">Acknowledgments</a></p>
 </li>
-          <li class="ulBare toc ulEmpty compact" id="section-toc.1-1.14">
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.14">
             <p id="section-toc.1-1.14.1"><a href="#appendix-B" class="xref">Appendix B</a>.  <a href="#name-alternate-key-recovery-mech" class="xref">Alternate Key Recovery Mechanisms</a></p>
 </li>
-          <li class="ulBare toc ulEmpty compact" id="section-toc.1-1.15">
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.15">
             <p id="section-toc.1-1.15.1"><a href="#appendix-C" class="xref">Appendix C</a>.  <a href="#name-alternate-ake-instantiation" class="xref">Alternate AKE Instantiations</a></p>
-<ul class="toc ulEmpty compact ulBare">
-<li class="toc ulEmpty compact ulBare" id="section-toc.1-1.15.2.1">
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.15.2.1">
                 <p id="section-toc.1-1.15.2.1.1"><a href="#appendix-C.1" class="xref">C.1</a>.  <a href="#name-hmqv-instantiation-sketch" class="xref">HMQV Instantiation Sketch</a></p>
 </li>
-              <li class="toc ulEmpty compact ulBare" id="section-toc.1-1.15.2.2">
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.15.2.2">
                 <p id="section-toc.1-1.15.2.2.1"><a href="#appendix-C.2" class="xref">C.2</a>.  <a href="#name-sigma-i-instantiation-sketc" class="xref">SIGMA-I Instantiation Sketch</a></p>
 </li>
             </ul>
 </li>
-          <li class="ulBare toc ulEmpty compact" id="section-toc.1-1.16">
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.16">
             <p id="section-toc.1-1.16.1"><a href="#appendix-D" class="xref">Appendix D</a>.  <a href="#name-test-vectors" class="xref">Test Vectors</a></p>
-<ul class="toc ulEmpty compact ulBare">
-<li class="toc ulEmpty compact ulBare" id="section-toc.1-1.16.2.1">
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.16.2.1">
                 <p id="section-toc.1-1.16.2.1.1"><a href="#appendix-D.1" class="xref">D.1</a>.  <a href="#name-real-test-vectors" class="xref">Real Test Vectors</a></p>
-<ul class="toc ulEmpty ulBare compact">
-<li class="toc ulEmpty ulBare compact" id="section-toc.1-1.16.2.1.2.1">
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.16.2.1.2.1">
                     <p id="section-toc.1-1.16.2.1.2.1.1"><a href="#appendix-D.1.1" class="xref">D.1.1</a>.  <a href="#name-opaque-3dh-real-test-vector" class="xref">OPAQUE-3DH Real Test Vector 1</a></p>
 </li>
-                  <li class="toc ulEmpty ulBare compact" id="section-toc.1-1.16.2.1.2.2">
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.16.2.1.2.2">
                     <p id="section-toc.1-1.16.2.1.2.2.1"><a href="#appendix-D.1.2" class="xref">D.1.2</a>.  <a href="#name-opaque-3dh-real-test-vector-" class="xref">OPAQUE-3DH Real Test Vector 2</a></p>
 </li>
-                  <li class="toc ulEmpty ulBare compact" id="section-toc.1-1.16.2.1.2.3">
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.16.2.1.2.3">
                     <p id="section-toc.1-1.16.2.1.2.3.1"><a href="#appendix-D.1.3" class="xref">D.1.3</a>.  <a href="#name-opaque-3dh-real-test-vector-3" class="xref">OPAQUE-3DH Real Test Vector 3</a></p>
 </li>
-                  <li class="toc ulEmpty ulBare compact" id="section-toc.1-1.16.2.1.2.4">
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.16.2.1.2.4">
                     <p id="section-toc.1-1.16.2.1.2.4.1"><a href="#appendix-D.1.4" class="xref">D.1.4</a>.  <a href="#name-opaque-3dh-real-test-vector-4" class="xref">OPAQUE-3DH Real Test Vector 4</a></p>
 </li>
                 </ul>
 </li>
-              <li class="toc ulEmpty compact ulBare" id="section-toc.1-1.16.2.2">
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.16.2.2">
                 <p id="section-toc.1-1.16.2.2.1"><a href="#appendix-D.2" class="xref">D.2</a>.  <a href="#name-fake-test-vectors" class="xref">Fake Test Vectors</a></p>
-<ul class="toc ulEmpty ulBare compact">
-<li class="toc ulEmpty ulBare compact" id="section-toc.1-1.16.2.2.2.1">
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.16.2.2.2.1">
                     <p id="section-toc.1-1.16.2.2.2.1.1"><a href="#appendix-D.2.1" class="xref">D.2.1</a>.  <a href="#name-opaque-3dh-fake-test-vector" class="xref">OPAQUE-3DH Fake Test Vector 1</a></p>
 </li>
-                  <li class="toc ulEmpty ulBare compact" id="section-toc.1-1.16.2.2.2.2">
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.16.2.2.2.2">
                     <p id="section-toc.1-1.16.2.2.2.2.1"><a href="#appendix-D.2.2" class="xref">D.2.2</a>.  <a href="#name-opaque-3dh-fake-test-vector-" class="xref">OPAQUE-3DH Fake Test Vector 2</a></p>
 </li>
                 </ul>
 </li>
             </ul>
 </li>
-          <li class="ulBare toc ulEmpty compact" id="section-toc.1-1.17">
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.17">
             <p id="section-toc.1-1.17.1"><a href="#appendix-E" class="xref"></a><a href="#name-authors-addresses" class="xref">Authors' Addresses</a></p>
 </li>
         </ul>
@@ -1543,7 +1543,7 @@ from a seed.<a href="#section-2.1-2.4" class="pilcrow">¶</a>
 <p id="section-2.1-3">Note that we only need the base mode variant (as opposed to the verifiable mode
 variant) of the OPRF described in <span>[<a href="#I-D.irtf-cfrg-voprf" class="xref">I-D.irtf-cfrg-voprf</a>]</span>. The implementation of
 DeriveKeyPair based on <span>[<a href="#I-D.irtf-cfrg-voprf" class="xref">I-D.irtf-cfrg-voprf</a>]</span> is below:<a href="#section-2.1-3" class="pilcrow">¶</a></p>
-<div class="artwork art-text alignLeft" id="section-2.1-4">
+<div class="alignLeft art-text artwork" id="section-2.1-4">
 <pre>
 DeriveKeyPair(seed)
 
@@ -1721,7 +1721,7 @@ information for storage on the server. The server does not have access to this
 registration that it stores in a credential file alongside other client
 registrations as needed.<a href="#section-3.1-4" class="pilcrow">¶</a></p>
 <p id="section-3.1-5">The registration flow is shown below:<a href="#section-3.1-5" class="pilcrow">¶</a></p>
-<div class="artwork art-text alignLeft" id="section-3.1-6">
+<div class="alignLeft art-text artwork" id="section-3.1-6">
 <pre>
     creds                                   parameters
       |                                         |
@@ -1761,7 +1761,7 @@ is the primary AKE output. The server outputs a single value <code>session_key</
 that matches that of the client. Upon completion, clients and servers can
 use these values as needed.<a href="#section-3.2-1" class="pilcrow">¶</a></p>
 <p id="section-3.2-2">The authenticated key exchange flow is shown below:<a href="#section-3.2-2" class="pilcrow">¶</a></p>
-<div class="artwork art-text alignLeft" id="section-3.2-3">
+<div class="alignLeft art-text artwork" id="section-3.2-3">
 <pre>
     creds                             (parameters, record)
       |                                         |
@@ -1838,7 +1838,7 @@ information about this identity.<a href="#section-4-4.5" class="pilcrow">¶</a>
 </li>
       </ul>
 <p id="section-4-5">These credential values are used in the <code>CleartextCredentials</code> structure as follows:<a href="#section-4-5" class="pilcrow">¶</a></p>
-<div class="artwork art-text alignLeft" id="section-4-6">
+<div class="alignLeft art-text artwork" id="section-4-6">
 <pre>
 struct {
   uint8 server_public_key[Npk];
@@ -1849,7 +1849,7 @@ struct {
 </div>
 <p id="section-4-7">The function CreateCleartextCredentials constructs a <code>CleartextCredentials</code> structure given
 application credential information.<a href="#section-4-7" class="pilcrow">¶</a></p>
-<div class="artwork art-text alignLeft" id="section-4-8">
+<div class="alignLeft art-text artwork" id="section-4-8">
 <pre>
 CreateCleartextCredentials(server_public_key, client_public_key,
                            server_identity, client_identity)
@@ -1887,7 +1887,7 @@ output as a seed to directly derive the private and public key using the
 <a href="#section-4.1.1" class="section-number selfRef">4.1.1. </a><a href="#name-envelope-structure" class="section-name selfRef">Envelope Structure</a>
           </h4>
 <p id="section-4.1.1-1">The key recovery mechanism defines its <code>Envelope</code> as follows:<a href="#section-4.1.1-1" class="pilcrow">¶</a></p>
-<div class="artwork art-text alignLeft" id="section-4.1.1-2">
+<div class="alignLeft art-text artwork" id="section-4.1.1-2">
 <pre>
 struct {
   uint8 nonce[Nn];
@@ -1907,7 +1907,7 @@ the envelope nonce, and <code>CleartextCredentials</code>.<a href="#section-4.1.
           </h4>
 <p id="section-4.1.2-1">Clients create an <code>Envelope</code> at registration with the function <code>Store</code> defined
 below.<a href="#section-4.1.2-1" class="pilcrow">¶</a></p>
-<div class="artwork art-text alignLeft" id="section-4.1.2-2">
+<div class="alignLeft art-text artwork" id="section-4.1.2-2">
 <pre>
 Store(randomized_pwd, server_public_key, server_identity, client_identity)
 
@@ -1947,7 +1947,7 @@ Steps:
           </h4>
 <p id="section-4.1.3-1">Clients recover their <code>Envelope</code> during login with the <code>Recover</code> function
 defined below.<a href="#section-4.1.3-1" class="pilcrow">¶</a></p>
-<div class="artwork art-text alignLeft" id="section-4.1.3-2">
+<div class="alignLeft art-text artwork" id="section-4.1.3-2">
 <pre>
 Recover(randomized_pwd, server_public_key, envelope,
                 server_identity, client_identity)
@@ -2018,7 +2018,7 @@ credential, generated by the server.<a href="#section-5-5.3" class="pilcrow">¶<
 </li>
       </ul>
 <p id="section-5-6">The registration protocol then runs as shown below:<a href="#section-5-6" class="pilcrow">¶</a></p>
-<div class="artwork art-text alignLeft" id="section-5-7">
+<div class="alignLeft art-text artwork" id="section-5-7">
 <pre>
   Client                                         Server
  ------------------------------------------------------
@@ -2043,26 +2043,18 @@ credential, generated by the server.<a href="#section-5-5.3" class="pilcrow">¶<
               -------------------------&gt;
 </pre><a href="#section-5-7" class="pilcrow">¶</a>
 </div>
-<p id="section-5-8">The client may utilize a state structure <code>RegistrationState</code> with the following
-named fields:<a href="#section-5-8" class="pilcrow">¶</a></p>
-<ul class="normal">
-<li class="normal" id="section-5-9.1">password, the input password; and<a href="#section-5-9.1" class="pilcrow">¶</a>
-</li>
-        <li class="normal" id="section-5-9.2">blind, the random blinding scalar returned by <code>Blind()</code>, of length Nok.<a href="#section-5-9.2" class="pilcrow">¶</a>
-</li>
-      </ul>
-<p id="section-5-10"><a href="#registration-functions" class="xref">Section 5.2</a> describes details of the functions and the
-corresponding parameters referenced above.<a href="#section-5-10" class="pilcrow">¶</a></p>
-<p id="section-5-11">Both client and server MUST validate the other party's public key before use.
+<p id="section-5-8"><a href="#registration-functions" class="xref">Section 5.2</a> describes details of the functions and the
+corresponding parameters referenced above.<a href="#section-5-8" class="pilcrow">¶</a></p>
+<p id="section-5-9">Both client and server MUST validate the other party's public key before use.
 See <a href="#validation" class="xref">Section 10.6</a> for more details. Upon completion, the server stores
 the client's credentials for later use. Moreover, the client MAY use the output
-<code>export_key</code> for further application-specific purposes; see <a href="#export-key-usage" class="xref">Section 10.4</a>.<a href="#section-5-11" class="pilcrow">¶</a></p>
+<code>export_key</code> for further application-specific purposes; see <a href="#export-key-usage" class="xref">Section 10.4</a>.<a href="#section-5-9" class="pilcrow">¶</a></p>
 <div id="registration-messages">
 <section id="section-5.1">
         <h3 id="name-registration-messages">
 <a href="#section-5.1" class="section-number selfRef">5.1. </a><a href="#name-registration-messages" class="section-name selfRef">Registration Messages</a>
         </h3>
-<div class="artwork art-text alignLeft" id="section-5.1-1">
+<div class="alignLeft art-text artwork" id="section-5.1-1">
 <pre>
 struct {
   uint8 data[Noe];
@@ -2077,7 +2069,7 @@ data  </dt>
 </dd>
         <dd class="break"></dd>
 </dl>
-<div class="artwork art-text alignLeft" id="section-5.1-3">
+<div class="alignLeft art-text artwork" id="section-5.1-3">
 <pre>
 struct {
   uint8 data[Noe];
@@ -2099,7 +2091,7 @@ server_public_key  </dt>
 </dd>
         <dd class="break"></dd>
 </dl>
-<div class="artwork art-text alignLeft" id="section-5.1-5">
+<div class="alignLeft art-text artwork" id="section-5.1-5">
 <pre>
 struct {
   uint8 client_public_key[Npk];
@@ -2140,12 +2132,9 @@ envelope  </dt>
           <h4 id="name-createregistrationrequest">
 <a href="#section-5.2.1" class="section-number selfRef">5.2.1. </a><a href="#name-createregistrationrequest" class="section-name selfRef">CreateRegistrationRequest</a>
           </h4>
-<div class="artwork art-text alignLeft" id="section-5.2.1-1">
+<div class="alignLeft art-text artwork" id="section-5.2.1-1">
 <pre>
 CreateRegistrationRequest(password)
-
-State:
-- state, a RegistrationState structure.
 
 Input:
 - password, an opaque byte string containing the client's password.
@@ -2156,9 +2145,8 @@ Output:
 
 Steps:
 1. (blind, M) = Blind(password)
-2. Populate state with RegistrationState(password, blind)
 2. Create RegistrationRequest request with M
-3. Output request
+3. Output (request, blind)
 </pre><a href="#section-5.2.1-1" class="pilcrow">¶</a>
 </div>
 </section>
@@ -2168,7 +2156,7 @@ Steps:
           <h4 id="name-createregistrationresponse">
 <a href="#section-5.2.2" class="section-number selfRef">5.2.2. </a><a href="#name-createregistrationresponse" class="section-name selfRef">CreateRegistrationResponse</a>
           </h4>
-<div class="artwork art-text alignLeft" id="section-5.2.2-1">
+<div class="alignLeft art-text artwork" id="section-5.2.2-1">
 <pre>
 CreateRegistrationResponse(request, server_public_key, credential_identifier, oprf_seed)
 
@@ -2198,14 +2186,13 @@ Steps:
           </h4>
 <p id="section-5.2.3-1">To create the user record used for further authentication, the client executes
 the following function.<a href="#section-5.2.3-1" class="pilcrow">¶</a></p>
-<div class="artwork art-text alignLeft" id="section-5.2.3-2">
+<div class="alignLeft art-text artwork" id="section-5.2.3-2">
 <pre>
-FinalizeRequest(response, server_identity, client_identity)
-
-State:
-- state, a RegistrationState structure.
+FinalizeRequest(password, blind, response, server_identity, client_identity)
 
 Input:
+- password, an opaque byte string containing the client's password.
+- blind, an OPRF scalar value.
 - response, a RegistrationResponse structure.
 - server_identity, the optional encoded server identity.
 - client_identity, the optional encoded client identity.
@@ -2215,7 +2202,7 @@ Output:
 - export_key, an additional client key.
 
 Steps:
-1. y = Finalize(state.password, state.blind, response.data)
+1. y = Finalize(password, blind, response.data)
 2. randomized_pwd = Extract("", Harden(y, params))
 3. (envelope, client_public_key, masking_key, export_key) =
     Store(randomized_pwd, response.server_public_key,
@@ -2292,7 +2279,7 @@ successfully. See <a href="#alternate-key-recovery" class="xref">Appendix B</a> 
 requirement. The server receives a single output: a session secret matching the
 client's.<a href="#section-6-7" class="pilcrow">¶</a></p>
 <p id="section-6-8">The protocol runs as shown below:<a href="#section-6-8" class="pilcrow">¶</a></p>
-<div class="artwork art-text alignLeft" id="section-6-9">
+<div class="alignLeft art-text artwork" id="section-6-9">
 <pre>
   Client                                         Server
  ------------------------------------------------------
@@ -2344,7 +2331,7 @@ how these functions are used to execute the authenticated key exchange protocol.
         <h3 id="name-client-authentication-funct">
 <a href="#section-6.1" class="section-number selfRef">6.1. </a><a href="#name-client-authentication-funct" class="section-name selfRef">Client Authentication Functions</a>
         </h3>
-<div class="artwork art-text alignLeft" id="section-6.1-1">
+<div class="alignLeft art-text artwork" id="section-6.1-1">
 <pre>
 ClientInit(password)
 
@@ -2364,7 +2351,7 @@ Steps:
 4. Output KE1(request, ake_1)
 </pre><a href="#section-6.1-1" class="pilcrow">¶</a>
 </div>
-<div class="artwork art-text alignLeft" id="section-6.1-2">
+<div class="alignLeft art-text artwork" id="section-6.1-2">
 <pre>
 ClientFinish(client_identity, server_identity, ke2)
 
@@ -2400,7 +2387,7 @@ Steps:
         <h3 id="name-server-authentication-funct">
 <a href="#section-6.2" class="section-number selfRef">6.2. </a><a href="#name-server-authentication-funct" class="section-name selfRef">Server Authentication Functions</a>
         </h3>
-<div class="artwork art-text alignLeft" id="section-6.2-1">
+<div class="alignLeft art-text artwork" id="section-6.2-1">
 <pre>
 ServerInit(server_identity, server_private_key, server_public_key,
            record, credential_identifier, oprf_seed, ke1)
@@ -2440,7 +2427,7 @@ therefore call the AKE's <code>ServerFinish()</code> directly and return its out
           <h4 id="name-credential-retrieval-messag">
 <a href="#section-6.3.1" class="section-number selfRef">6.3.1. </a><a href="#name-credential-retrieval-messag" class="section-name selfRef">Credential Retrieval Messages</a>
           </h4>
-<div class="artwork art-text alignLeft" id="section-6.3.1-1">
+<div class="alignLeft art-text artwork" id="section-6.3.1-1">
 <pre>
 struct {
   uint8 data[Noe];
@@ -2455,7 +2442,7 @@ data  </dt>
 </dd>
           <dd class="break"></dd>
 </dl>
-<div class="artwork art-text alignLeft" id="section-6.3.1-3">
+<div class="alignLeft art-text artwork" id="section-6.3.1-3">
 <pre>
 struct {
   uint8 data[Noe];
@@ -2497,7 +2484,7 @@ structure.<a href="#section-6.3.1-4.6.1" class="pilcrow">¶</a></p>
             <h5 id="name-createcredentialrequest">
 <a href="#section-6.3.2.1" class="section-number selfRef">6.3.2.1. </a><a href="#name-createcredentialrequest" class="section-name selfRef">CreateCredentialRequest</a>
             </h5>
-<div class="artwork art-text alignLeft" id="section-6.3.2.1-1">
+<div class="alignLeft art-text artwork" id="section-6.3.2.1-1">
 <pre>
 CreateCredentialRequest(password)
 
@@ -2528,7 +2515,7 @@ yet to register).<a href="#section-6.3.2.2-1" class="pilcrow">¶</a></p>
 <p id="section-6.3.2.2-2">In the case of an existing record with the corresponding identifier
 <code>credential_identifier</code>, the server invokes the following function to
 produce a CredentialResponse:<a href="#section-6.3.2.2-2" class="pilcrow">¶</a></p>
-<div class="artwork art-text alignLeft" id="section-6.3.2.2-3">
+<div class="alignLeft art-text artwork" id="section-6.3.2.2-3">
 <pre>
 CreateCredentialResponse(request, server_public_key, record,
                          credential_identifier, oprf_seed)
@@ -2581,7 +2568,7 @@ that is unable to guess the registered password for the client corresponding to 
             <h5 id="name-recovercredentials">
 <a href="#section-6.3.2.3" class="section-number selfRef">6.3.2.3. </a><a href="#name-recovercredentials" class="section-name selfRef">RecoverCredentials</a>
             </h5>
-<div class="artwork art-text alignLeft" id="section-6.3.2.3-1">
+<div class="alignLeft art-text artwork" id="section-6.3.2.3-1">
 <pre>
 RecoverCredentials(password, blind, response,
                    server_identity, client_identity)
@@ -2649,7 +2636,7 @@ server functions, respectively.<a href="#section-6.4-6" class="pilcrow">¶</a></
           <h4 id="name-ake-messages">
 <a href="#section-6.4.1" class="section-number selfRef">6.4.1. </a><a href="#name-ake-messages" class="section-name selfRef">AKE Messages</a>
           </h4>
-<div class="artwork art-text alignLeft" id="section-6.4.1-1">
+<div class="alignLeft art-text artwork" id="section-6.4.1-1">
 <pre>
 struct {
   uint8 client_nonce[Nn];
@@ -2659,7 +2646,7 @@ struct {
 </div>
 <p id="section-6.4.1-2">client_nonce : A fresh randomly generated nonce of length Nn.<a href="#section-6.4.1-2" class="pilcrow">¶</a></p>
 <p id="section-6.4.1-3">client_keyshare : Client ephemeral key share of fixed size Npk.<a href="#section-6.4.1-3" class="pilcrow">¶</a></p>
-<div class="artwork art-text alignLeft" id="section-6.4.1-4">
+<div class="alignLeft art-text artwork" id="section-6.4.1-4">
 <pre>
 struct {
   uint8 server_nonce[Nn];
@@ -2673,7 +2660,7 @@ struct {
 depends on the corresponding prime order group.<a href="#section-6.4.1-6" class="pilcrow">¶</a></p>
 <p id="section-6.4.1-7">server_mac : An authentication tag computed over the handshake transcript
 computed using Km2, defined below.<a href="#section-6.4.1-7" class="pilcrow">¶</a></p>
-<div class="artwork art-text alignLeft" id="section-6.4.1-8">
+<div class="alignLeft art-text artwork" id="section-6.4.1-8">
 <pre>
 struct {
   uint8 client_mac[Nm];
@@ -2704,7 +2691,7 @@ computing <code>pk = RecoverPublicKey(sk)</code>.<a href="#section-6.4.2-2.3" cl
 </li>
           </ul>
 <p id="section-6.4.2-3">The implementation of DeriveAuthKeyPair is as follows:<a href="#section-6.4.2-3" class="pilcrow">¶</a></p>
-<div class="artwork art-text alignLeft" id="section-6.4.2-4">
+<div class="alignLeft art-text artwork" id="section-6.4.2-4">
 <pre>
 DeriveAuthKeyPair(seed)
 
@@ -2736,14 +2723,14 @@ Steps:
             </h5>
 <p id="section-6.4.3.1-1">The OPAQUE-3DH key derivation procedures make use of the functions below,
 re-purposed from TLS 1.3 <span>[<a href="#RFC8446" class="xref">RFC8446</a>]</span>.<a href="#section-6.4.3.1-1" class="pilcrow">¶</a></p>
-<div class="artwork art-text alignLeft" id="section-6.4.3.1-2">
+<div class="alignLeft art-text artwork" id="section-6.4.3.1-2">
 <pre>
 Expand-Label(Secret, Label, Context, Length) =
     Expand(Secret, CustomLabel, Length)
 </pre><a href="#section-6.4.3.1-2" class="pilcrow">¶</a>
 </div>
 <p id="section-6.4.3.1-3">Where CustomLabel is specified as:<a href="#section-6.4.3.1-3" class="pilcrow">¶</a></p>
-<div class="artwork art-text alignLeft" id="section-6.4.3.1-4">
+<div class="alignLeft art-text artwork" id="section-6.4.3.1-4">
 <pre>
 struct {
   uint16 length = Length;
@@ -2760,7 +2747,7 @@ Derive-Secret(Secret, Label, Transcript-Hash) =
 transcript, such as configuration parameters or application-specific info, e.g.
 "appXYZ-v1.2.3".<a href="#section-6.4.3.1-6" class="pilcrow">¶</a></p>
 <p id="section-6.4.3.1-7">The OPAQUE-3DH key schedule requires a preamble, which is computed as follows.<a href="#section-6.4.3.1-7" class="pilcrow">¶</a></p>
-<div class="artwork art-text alignLeft" id="section-6.4.3.1-8">
+<div class="alignLeft art-text artwork" id="section-6.4.3.1-8">
 <pre>
 Preamble(client_identity, ke1, server_identity, inner_ke2)
 
@@ -2797,7 +2784,7 @@ Steps:
             </h5>
 <p id="section-6.4.3.2-1">The OPAQUE-3DH shared secret derived during the key exchange protocol is computed
 using the following function.<a href="#section-6.4.3.2-1" class="pilcrow">¶</a></p>
-<div class="artwork art-text alignLeft" id="section-6.4.3.2-2">
+<div class="alignLeft art-text artwork" id="section-6.4.3.2-2">
 <pre>
 TripleDHIKM(sk1, pk1, sk2, pk2, sk3, pk3)
 
@@ -2817,7 +2804,7 @@ Steps:
 </div>
 <p id="section-6.4.3.2-3">Using this shared secret, further keys used for encryption and authentication are
 computed using the following function.<a href="#section-6.4.3.2-3" class="pilcrow">¶</a></p>
-<div class="artwork art-text alignLeft" id="section-6.4.3.2-4">
+<div class="alignLeft art-text artwork" id="section-6.4.3.2-4">
 <pre>
 DeriveKeys(ikm, preamble)
 
@@ -2848,7 +2835,7 @@ Steps:
           <h4 id="name-3dh-client-functions">
 <a href="#section-6.4.4" class="section-number selfRef">6.4.4. </a><a href="#name-3dh-client-functions" class="section-name selfRef">3DH Client Functions</a>
           </h4>
-<div class="artwork art-text alignLeft" id="section-6.4.4-1">
+<div class="alignLeft art-text artwork" id="section-6.4.4-1">
 <pre>
 Start(credential_request)
 
@@ -2872,7 +2859,7 @@ Steps:
 6. Output (ke1, client_secret)
 </pre><a href="#section-6.4.4-1" class="pilcrow">¶</a>
 </div>
-<div class="artwork art-text alignLeft" id="section-6.4.4-2">
+<div class="alignLeft art-text artwork" id="section-6.4.4-2">
 <pre>
 CLientFinalize(client_identity, client_private_key, server_identity,
                server_public_key, ke2)
@@ -2916,7 +2903,7 @@ Steps:
           <h4 id="name-3dh-server-functions">
 <a href="#section-6.4.5" class="section-number selfRef">6.4.5. </a><a href="#name-3dh-server-functions" class="section-name selfRef">3DH Server Functions</a>
           </h4>
-<div class="artwork art-text alignLeft" id="section-6.4.5-1">
+<div class="alignLeft art-text artwork" id="section-6.4.5-1">
 <pre>
 Response(server_identity, server_private_key, client_identity,
          client_public_key, ke1, credential_response)
@@ -2955,7 +2942,7 @@ Steps:
 11. Output ke2
 </pre><a href="#section-6.4.5-1" class="pilcrow">¶</a>
 </div>
-<div class="artwork art-text alignLeft" id="section-6.4.5-2">
+<div class="alignLeft art-text artwork" id="section-6.4.5-2">
 <pre>
 ServerFinish(ke3)
 
@@ -3539,7 +3526,7 @@ under session_key (or a key derived from it) with a quantum-safe encryption func
 <p id="appendix-C.1-1">An HMQV instantiation would work similar to OPAQUE-3DH, differing primarily in the key
 schedule <span>[<a href="#HMQV" class="xref">HMQV</a>]</span>. First, the key schedule <code>preamble</code> value would use a different constant prefix
 -- "HMQV" instead of "3DH" -- as shown below.<a href="#appendix-C.1-1" class="pilcrow">¶</a></p>
-<div class="artwork art-text alignLeft" id="appendix-C.1-2">
+<div class="alignLeft art-text artwork" id="appendix-C.1-2">
 <pre>
 preamble = concat("HMQV",
                   I2OSP(len(client_identity), 2), client_identity,
@@ -3550,21 +3537,21 @@ preamble = concat("HMQV",
 </div>
 <p id="appendix-C.1-3">Second, the IKM derivation would change. Assuming HMQV is instantiated with a cyclic
 group of prime order p with bit length L, clients would compute <code>IKM</code> as follows:<a href="#appendix-C.1-3" class="pilcrow">¶</a></p>
-<div class="artwork art-text alignLeft" id="appendix-C.1-4">
+<div class="alignLeft art-text artwork" id="appendix-C.1-4">
 <pre>
 u' = (eskU + u \* skU) mod p
 IKM = (epkS \* pkS^s)^u'
 </pre><a href="#appendix-C.1-4" class="pilcrow">¶</a>
 </div>
 <p id="appendix-C.1-5">Likewise, servers would compute <code>IKM</code> as follows:<a href="#appendix-C.1-5" class="pilcrow">¶</a></p>
-<div class="artwork art-text alignLeft" id="appendix-C.1-6">
+<div class="alignLeft art-text artwork" id="appendix-C.1-6">
 <pre>
 s' = (eskS + s \* skS) mod p
 IKM = (epkU \* pkU^u)^s'
 </pre><a href="#appendix-C.1-6" class="pilcrow">¶</a>
 </div>
 <p id="appendix-C.1-7">In both cases, <code>u</code> would be computed as follows:<a href="#appendix-C.1-7" class="pilcrow">¶</a></p>
-<div class="artwork art-text alignLeft" id="appendix-C.1-8">
+<div class="alignLeft art-text artwork" id="appendix-C.1-8">
 <pre>
 hashInput = concat(I2OSP(len(epkU), 2), epkU,
                    I2OSP(len(info), 2), info,
@@ -3573,7 +3560,7 @@ u = Hash(hashInput) mod L
 </pre><a href="#appendix-C.1-8" class="pilcrow">¶</a>
 </div>
 <p id="appendix-C.1-9">Likewise, <code>s</code> would be computed as follows:<a href="#appendix-C.1-9" class="pilcrow">¶</a></p>
-<div class="artwork art-text alignLeft" id="appendix-C.1-10">
+<div class="alignLeft art-text artwork" id="appendix-C.1-10">
 <pre>
 hashInput = concat(I2OSP(len(epkS), 2), epkS,
                    I2OSP(len(info), 2), info,
@@ -3636,7 +3623,7 @@ draft-06 of <span>[<a href="#I-D.irtf-cfrg-voprf" class="xref">I-D.irtf-cfrg-vop
             <h5 id="name-configuration">
 <a href="#appendix-D.1.1.1" class="section-number selfRef">D.1.1.1. </a><a href="#name-configuration" class="section-name selfRef">Configuration</a>
             </h5>
-<div class="artwork art-text alignLeft" id="appendix-D.1.1.1-1">
+<div class="alignLeft art-text artwork" id="appendix-D.1.1.1-1">
 <pre>
 OPRF: 0001
 Hash: SHA512
@@ -3660,7 +3647,7 @@ Nok: 32
             <h5 id="name-input-values">
 <a href="#appendix-D.1.1.2" class="section-number selfRef">D.1.1.2. </a><a href="#name-input-values" class="section-name selfRef">Input Values</a>
             </h5>
-<div class="artwork art-text alignLeft" id="appendix-D.1.1.2-1">
+<div class="alignLeft art-text artwork" id="appendix-D.1.1.2-1">
 <pre>
 oprf_seed: 5c4f99877d253be5817b4b03f37b6da680b0d5671d1ec5351fa61c5d82
 eab28b9de4c4e170f27e433ba377c71c49aa62ad26391ee1cac17011d8a7e9406657c
@@ -3700,7 +3687,7 @@ bf8d6503
             <h5 id="name-intermediate-values">
 <a href="#appendix-D.1.1.3" class="section-number selfRef">D.1.1.3. </a><a href="#name-intermediate-values" class="section-name selfRef">Intermediate Values</a>
             </h5>
-<div class="artwork art-text alignLeft" id="appendix-D.1.1.3-1">
+<div class="alignLeft art-text artwork" id="appendix-D.1.1.3-1">
 <pre>
 client_public_key: 2046d15924599adbcb7c03abe00350e9dde62267037eb0d2a9
 59a17b2210eb0f
@@ -3732,7 +3719,7 @@ oprf_key: 3f76113135e6ca7e51ac5bb3e8774eb84709ad36b8907ec8f7bc3537828
             <h5 id="name-output-values">
 <a href="#appendix-D.1.1.4" class="section-number selfRef">D.1.1.4. </a><a href="#name-output-values" class="section-name selfRef">Output Values</a>
             </h5>
-<div class="artwork art-text alignLeft" id="appendix-D.1.1.4-1">
+<div class="alignLeft art-text artwork" id="appendix-D.1.1.4-1">
 <pre>
 registration_request: 76cc85628d5ac0e01de4ede72479d607490e7f58b94578d
 b7a0606d74bc58b03
@@ -3782,7 +3769,7 @@ a67
             <h5 id="name-configuration-2">
 <a href="#appendix-D.1.2.1" class="section-number selfRef">D.1.2.1. </a><a href="#name-configuration-2" class="section-name selfRef">Configuration</a>
             </h5>
-<div class="artwork art-text alignLeft" id="appendix-D.1.2.1-1">
+<div class="alignLeft art-text artwork" id="appendix-D.1.2.1-1">
 <pre>
 OPRF: 0001
 Hash: SHA512
@@ -3806,7 +3793,7 @@ Nok: 32
             <h5 id="name-input-values-2">
 <a href="#appendix-D.1.2.2" class="section-number selfRef">D.1.2.2. </a><a href="#name-input-values-2" class="section-name selfRef">Input Values</a>
             </h5>
-<div class="artwork art-text alignLeft" id="appendix-D.1.2.2-1">
+<div class="alignLeft art-text artwork" id="appendix-D.1.2.2-1">
 <pre>
 client_identity: 616c696365
 server_identity: 626f62
@@ -3848,7 +3835,7 @@ blind_login: e6f161ac189e6873a19a54efca4baa0719e801e336d929d35ca28b5b
             <h5 id="name-intermediate-values-2">
 <a href="#appendix-D.1.2.3" class="section-number selfRef">D.1.2.3. </a><a href="#name-intermediate-values-2" class="section-name selfRef">Intermediate Values</a>
             </h5>
-<div class="artwork art-text alignLeft" id="appendix-D.1.2.3-1">
+<div class="alignLeft art-text artwork" id="appendix-D.1.2.3-1">
 <pre>
 client_public_key: 64b38be7d1b6cb0e7c50644acb8b326f67167eb164899b1867
 970ab770628643
@@ -3880,7 +3867,7 @@ b4507
             <h5 id="name-output-values-2">
 <a href="#appendix-D.1.2.4" class="section-number selfRef">D.1.2.4. </a><a href="#name-output-values-2" class="section-name selfRef">Output Values</a>
             </h5>
-<div class="artwork art-text alignLeft" id="appendix-D.1.2.4-1">
+<div class="alignLeft art-text artwork" id="appendix-D.1.2.4-1">
 <pre>
 registration_request: ec2927a03ced1220168b6d5a54f0372f813ced8ad3673d5
 1dee92d2cbfee500c
@@ -3930,7 +3917,7 @@ d2b5afa800e6db4727aec02ca58cee310c7e8f8193f7cdb5a667fe32247711a3c72ca
             <h5 id="name-configuration-3">
 <a href="#appendix-D.1.3.1" class="section-number selfRef">D.1.3.1. </a><a href="#name-configuration-3" class="section-name selfRef">Configuration</a>
             </h5>
-<div class="artwork art-text alignLeft" id="appendix-D.1.3.1-1">
+<div class="alignLeft art-text artwork" id="appendix-D.1.3.1-1">
 <pre>
 OPRF: 0003
 Hash: SHA256
@@ -3954,7 +3941,7 @@ Nok: 32
             <h5 id="name-input-values-3">
 <a href="#appendix-D.1.3.2" class="section-number selfRef">D.1.3.2. </a><a href="#name-input-values-3" class="section-name selfRef">Input Values</a>
             </h5>
-<div class="artwork art-text alignLeft" id="appendix-D.1.3.2-1">
+<div class="alignLeft art-text artwork" id="appendix-D.1.3.2-1">
 <pre>
 oprf_seed: 77bfc065218c9a5593c952161b93193f025b3474102519e6984fa64831
 0dd1bf
@@ -3993,7 +3980,7 @@ cd15c478
             <h5 id="name-intermediate-values-3">
 <a href="#appendix-D.1.3.3" class="section-number selfRef">D.1.3.3. </a><a href="#name-intermediate-values-3" class="section-name selfRef">Intermediate Values</a>
             </h5>
-<div class="artwork art-text alignLeft" id="appendix-D.1.3.3-1">
+<div class="alignLeft art-text artwork" id="appendix-D.1.3.3-1">
 <pre>
 client_public_key: 0234cb18fb529a1cd33b4cf6b9330e4a429d8b8fbe8b2c43a0
 d130713a190b3eb7
@@ -4020,7 +4007,7 @@ a24f1
             <h5 id="name-output-values-3">
 <a href="#appendix-D.1.3.4" class="section-number selfRef">D.1.3.4. </a><a href="#name-output-values-3" class="section-name selfRef">Output Values</a>
             </h5>
-<div class="artwork art-text alignLeft" id="appendix-D.1.3.4-1">
+<div class="alignLeft art-text artwork" id="appendix-D.1.3.4-1">
 <pre>
 registration_request: 0325768a660df0c15f6f2a1dcbb7efd4f1c92702401edf3
 e2f0742c8dce85d5fa8
@@ -4064,7 +4051,7 @@ session_key: 9cbab7cb765fe14d3a6bbcba0945ff6aaee8db71877842502fd61c24
             <h5 id="name-configuration-4">
 <a href="#appendix-D.1.4.1" class="section-number selfRef">D.1.4.1. </a><a href="#name-configuration-4" class="section-name selfRef">Configuration</a>
             </h5>
-<div class="artwork art-text alignLeft" id="appendix-D.1.4.1-1">
+<div class="alignLeft art-text artwork" id="appendix-D.1.4.1-1">
 <pre>
 OPRF: 0003
 Hash: SHA256
@@ -4088,7 +4075,7 @@ Nok: 32
             <h5 id="name-input-values-4">
 <a href="#appendix-D.1.4.2" class="section-number selfRef">D.1.4.2. </a><a href="#name-input-values-4" class="section-name selfRef">Input Values</a>
             </h5>
-<div class="artwork art-text alignLeft" id="appendix-D.1.4.2-1">
+<div class="alignLeft art-text artwork" id="appendix-D.1.4.2-1">
 <pre>
 client_identity: 616c696365
 server_identity: 626f62
@@ -4129,7 +4116,7 @@ blind_login: 4308682dc1bdab92ff91bb1a5fc5bc084223fe4369beddca3f1640a6
             <h5 id="name-intermediate-values-4">
 <a href="#appendix-D.1.4.3" class="section-number selfRef">D.1.4.3. </a><a href="#name-intermediate-values-4" class="section-name selfRef">Intermediate Values</a>
             </h5>
-<div class="artwork art-text alignLeft" id="appendix-D.1.4.3-1">
+<div class="alignLeft art-text artwork" id="appendix-D.1.4.3-1">
 <pre>
 client_public_key: 028e38bb4030255ad81d48afba0ae8f8f65169a6ff17f536c8
 91816cd2f47c9e89
@@ -4156,7 +4143,7 @@ oprf_key: f14e1fc34ba1218bfd3f7373f036889bf4f35a8fbc9e8c9c07ccf2d2388
             <h5 id="name-output-values-4">
 <a href="#appendix-D.1.4.4" class="section-number selfRef">D.1.4.4. </a><a href="#name-output-values-4" class="section-name selfRef">Output Values</a>
             </h5>
-<div class="artwork art-text alignLeft" id="appendix-D.1.4.4-1">
+<div class="alignLeft art-text artwork" id="appendix-D.1.4.4-1">
 <pre>
 registration_request: 02792b0f4670aced5970a68b01bb951004ccad962159be4
 b6783170c9ad68f6052
@@ -4207,7 +4194,7 @@ b1fb71c1
             <h5 id="name-configuration-5">
 <a href="#appendix-D.2.1.1" class="section-number selfRef">D.2.1.1. </a><a href="#name-configuration-5" class="section-name selfRef">Configuration</a>
             </h5>
-<div class="artwork art-text alignLeft" id="appendix-D.2.1.1-1">
+<div class="alignLeft art-text artwork" id="appendix-D.2.1.1-1">
 <pre>
 OPRF: 0001
 Hash: SHA512
@@ -4231,7 +4218,7 @@ Nok: 32
             <h5 id="name-input-values-5">
 <a href="#appendix-D.2.1.2" class="section-number selfRef">D.2.1.2. </a><a href="#name-input-values-5" class="section-name selfRef">Input Values</a>
             </h5>
-<div class="artwork art-text alignLeft" id="appendix-D.2.1.2-1">
+<div class="alignLeft art-text artwork" id="appendix-D.2.1.2-1">
 <pre>
 client_identity: 616c696365
 server_identity: 626f62
@@ -4270,7 +4257,7 @@ KE1: 1ef5fc13fa7695e81b5fcadf57eb49a579b10e4f51bbee11afb278608592456b
             <h5 id="name-output-values-5">
 <a href="#appendix-D.2.1.3" class="section-number selfRef">D.2.1.3. </a><a href="#name-output-values-5" class="section-name selfRef">Output Values</a>
             </h5>
-<div class="artwork art-text alignLeft" id="appendix-D.2.1.3-1">
+<div class="alignLeft art-text artwork" id="appendix-D.2.1.3-1">
 <pre>
 KE2: 2e1bb024ff255d0f35eb7b1f11174b3e60d8aaabb11ea347a6da0c1964594f4f
 7cb33db5ba8082e4f4bfb830e8e3f525b0ddcb70469b34224758d725ce53ac76094c0
@@ -4298,7 +4285,7 @@ dc68851224301bbbae9cd654
             <h5 id="name-configuration-6">
 <a href="#appendix-D.2.2.1" class="section-number selfRef">D.2.2.1. </a><a href="#name-configuration-6" class="section-name selfRef">Configuration</a>
             </h5>
-<div class="artwork art-text alignLeft" id="appendix-D.2.2.1-1">
+<div class="alignLeft art-text artwork" id="appendix-D.2.2.1-1">
 <pre>
 OPRF: 0003
 Hash: SHA256
@@ -4322,7 +4309,7 @@ Nok: 32
             <h5 id="name-input-values-6">
 <a href="#appendix-D.2.2.2" class="section-number selfRef">D.2.2.2. </a><a href="#name-input-values-6" class="section-name selfRef">Input Values</a>
             </h5>
-<div class="artwork art-text alignLeft" id="appendix-D.2.2.2-1">
+<div class="alignLeft art-text artwork" id="appendix-D.2.2.2-1">
 <pre>
 client_identity: 616c696365
 server_identity: 626f62
@@ -4359,7 +4346,7 @@ KE1: 031ac7e5c8099fcb7de5ad5b6cf33ff53078dbee1da64f15f6cd53b2afe6e332
             <h5 id="name-output-values-6">
 <a href="#appendix-D.2.2.3" class="section-number selfRef">D.2.2.3. </a><a href="#name-output-values-6" class="section-name selfRef">Output Values</a>
             </h5>
-<div class="artwork art-text alignLeft" id="appendix-D.2.2.3-1">
+<div class="alignLeft art-text artwork" id="appendix-D.2.2.3-1">
 <pre>
 KE2: 02200f91b03819f6a4b0957216fc94a2230d75d0e1be1fe0ced9434b0ec9d23a
 5621cd364318a92b2afbfccea5d80d337f07defe40d92673a52f3844058f5d949a604
