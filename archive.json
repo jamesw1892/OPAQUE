@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2021-09-28T01:01:03.377862+00:00",
+  "timestamp": "2021-10-03T01:06:25.135098+00:00",
   "repo": "cfrg/draft-irtf-cfrg-opaque",
   "labels": [
     {
@@ -6098,7 +6098,7 @@
       "id": "MDU6SXNzdWU5ODMwNzc4ODY=",
       "title": "Add note on security consideration on server-side online guessing attacks",
       "url": "https://github.com/cfrg/draft-irtf-cfrg-opaque/issues/264",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "kevinlewi",
       "authorAssociation": "COLLABORATOR",
       "assignees": [
@@ -6107,8 +6107,8 @@
       "labels": [],
       "body": "We should add a remark about the fact that online guessing attacks (against any Asymmetric PAKE) can be done from the client side and from the server side.",
       "createdAt": "2021-08-30T18:27:27Z",
-      "updatedAt": "2021-09-22T22:30:08Z",
-      "closedAt": null,
+      "updatedAt": "2021-09-30T22:44:38Z",
+      "closedAt": "2021-09-30T22:44:38Z",
       "comments": [
         {
           "author": "kevinlewi",
@@ -20076,7 +20076,7 @@
       "id": "MDExOlB1bGxSZXF1ZXN0NzMwMTYyNTQ3",
       "title": "Move AKE API to deps section",
       "url": "https://github.com/cfrg/draft-irtf-cfrg-opaque/pull/270",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "bytemare",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
@@ -20085,17 +20085,19 @@
       ],
       "body": "Addresses #242 and moves around some things for clarity.\r\n\r\nThis PR derives from and depends on #265",
       "createdAt": "2021-09-09T04:23:15Z",
-      "updatedAt": "2021-09-24T07:16:04Z",
+      "updatedAt": "2021-09-30T21:19:13Z",
       "baseRepository": "cfrg/draft-irtf-cfrg-opaque",
       "baseRefName": "dbz/abstract-messages",
       "baseRefOid": "f177ce8cc256b43b93d4970f90e5a68417fabec0",
       "headRepository": "cfrg/draft-irtf-cfrg-opaque",
       "headRefName": "dbz/ake-deps",
-      "headRefOid": "c5b8dae3b3437d69a2f1675135a241a9f93c5d09",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "headRefOid": "6b829c93b8d86941eafbdc82be4ad94ac00d71cd",
+      "closedAt": "2021-09-30T21:19:13Z",
+      "mergedAt": "2021-09-30T21:19:13Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "5bcd4aaf6808c49fff8e7c66ba43b4e2e4c2ccdb"
+      },
       "comments": [],
       "reviews": [
         {
@@ -20325,6 +20327,78 @@
               "updatedAt": "2021-09-24T07:16:04Z"
             }
           ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4txRgD",
+          "commit": {
+            "abbreviatedOid": "640b8d5"
+          },
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-09-30T13:50:52Z",
+          "updatedAt": "2021-09-30T13:50:52Z",
+          "comments": [
+            {
+              "originalPosition": 54,
+              "body": "Reverted \ud83d\udc4d ",
+              "createdAt": "2021-09-30T13:50:52Z",
+              "updatedAt": "2021-09-30T13:50:52Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4txgAb",
+          "commit": {
+            "abbreviatedOid": "6f5af1f"
+          },
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-09-30T14:34:31Z",
+          "updatedAt": "2021-09-30T14:34:31Z",
+          "comments": [
+            {
+              "originalPosition": 208,
+              "body": "You're right, the function should still be described here. I described the necessary behaviour and API constraints of ServerFinish() in general. What do you think of that update?",
+              "createdAt": "2021-09-30T14:34:31Z",
+              "updatedAt": "2021-09-30T14:34:31Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4tzBPF",
+          "commit": {
+            "abbreviatedOid": "6f5af1f"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "Let's merge this and do things in followup changes!",
+          "createdAt": "2021-09-30T21:09:00Z",
+          "updatedAt": "2021-09-30T21:14:56Z",
+          "comments": [
+            {
+              "originalPosition": 25,
+              "body": "```suggestion\r\nBoth ClientFinish and ServerFinish return an error if authentication failed.\r\n```",
+              "createdAt": "2021-09-30T21:09:00Z",
+              "updatedAt": "2021-09-30T21:14:56Z"
+            },
+            {
+              "originalPosition": 11,
+              "body": "Maybe make this `ClientStart`?",
+              "createdAt": "2021-09-30T21:10:28Z",
+              "updatedAt": "2021-09-30T21:14:56Z"
+            },
+            {
+              "originalPosition": 19,
+              "body": "Maybe make this `ServerStart`?",
+              "createdAt": "2021-09-30T21:10:38Z",
+              "updatedAt": "2021-09-30T21:14:56Z"
+            }
+          ]
         }
       ]
     },
@@ -20533,25 +20607,35 @@
       "id": "PR_kwDOD79ejs4sRXEb",
       "title": "Adding deployment considerations for malicious servers",
       "url": "https://github.com/cfrg/draft-irtf-cfrg-opaque/pull/275",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "kevinlewi",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "Adds two items to the deployment considerations section:\r\n\r\n- Additional client-side entropy: OPAQUE supports the ability to incorporate the\r\nclient identity alongside the password to be input to the OPRF. This provides additional\r\nclient-side entropy which can supplement the entropy that should be introduced by the\r\nserver during an honest execution of the protocol.\r\n- Client-side authentication of the server: Note that online guessing attacks\r\n(against any Asymmetric PAKE) can be done from both the client side and the server side.\r\nThis means that additional checks, such as implementing client-side authentication of\r\nthe server, should be considered in a production deployment of OPAQUE.\r\n\r\nCloses #264 .",
       "createdAt": "2021-09-25T19:45:06Z",
-      "updatedAt": "2021-09-27T13:25:05Z",
+      "updatedAt": "2021-09-30T22:44:38Z",
       "baseRepository": "cfrg/draft-irtf-cfrg-opaque",
       "baseRefName": "master",
       "baseRefOid": "90d9754860fb813a707afd7f14ab02991e6d49a3",
       "headRepository": "kevinlewi/draft-irtf-cfrg-opaque",
       "headRefName": "malicious_server",
-      "headRefOid": "718cf0dbfe926169ddf80e326679789541c590db",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
-      "comments": [],
+      "headRefOid": "7266ad606082a15c58f7b60f66d51bdf1d4a4535",
+      "closedAt": "2021-09-30T22:44:38Z",
+      "mergedAt": "2021-09-30T22:44:38Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "52163aecad59839fffd26679abc83dcecc3a7861"
+      },
+      "comments": [
+        {
+          "author": "kevinlewi",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Updated the language, thanks for the feedback!",
+          "createdAt": "2021-09-30T21:29:12Z",
+          "updatedAt": "2021-09-30T21:29:12Z"
+        }
+      ],
       "reviews": [
         {
           "id": "PRR_kwDOD79ejs4tjJx7",
@@ -20597,6 +20681,39 @@
               "updatedAt": "2021-09-27T13:25:05Z"
             }
           ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4tzEhk",
+          "commit": {
+            "abbreviatedOid": "718cf0d"
+          },
+          "author": "kevinlewi",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-09-30T21:27:43Z",
+          "updatedAt": "2021-09-30T21:27:43Z",
+          "comments": [
+            {
+              "originalPosition": 10,
+              "body": "See my edit and let me know what you think!",
+              "createdAt": "2021-09-30T21:27:43Z",
+              "updatedAt": "2021-09-30T21:27:43Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4tzS_t",
+          "commit": {
+            "abbreviatedOid": "7266ad6"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-09-30T22:44:29Z",
+          "updatedAt": "2021-09-30T22:44:29Z",
+          "comments": []
         }
       ]
     }
