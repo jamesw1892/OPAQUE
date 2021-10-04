@@ -5,12 +5,12 @@
 Network Working Group                                        H. Krawczyk
 Internet-Draft                                       Algorand Foundation
 Intended status: Informational                               D. Bourdrez
-Expires: 3 April 2022                                                   
+Expires: 7 April 2022                                                   
                                                                  K. Lewi
                                                            Novi Research
                                                                C.A. Wood
                                                               Cloudflare
-                                                       30 September 2021
+                                                          4 October 2021
 
 
                   The OPAQUE Asymmetric PAKE Protocol
@@ -49,7 +49,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 3 April 2022.
+   This Internet-Draft will expire on 7 April 2022.
 
 Copyright Notice
 
@@ -92,15 +92,17 @@ Table of Contents
        5.2.3.  FinalizeRequest
      5.3.  Finalize Registration
    6.  Online Authenticated Key Exchange
-     6.1.  Credential Retrieval
-       6.1.1.  Credential Retrieval Messages
-       6.1.2.  Credential Retrieval Functions
-     6.2.  AKE Protocol
-       6.2.1.  AKE Messages
-       6.2.2.  Key Creation
-       6.2.3.  Key Schedule Functions
-       6.2.4.  External Client API
-       6.2.5.  External Server API
+     6.1.  Client Authentication Functions
+     6.2.  Server Authentication Functions
+     6.3.  Credential Retrieval
+       6.3.1.  Credential Retrieval Messages
+       6.3.2.  Credential Retrieval Functions
+     6.4.  AKE Protocol
+       6.4.1.  AKE Messages
+       6.4.2.  Key Creation
+       6.4.3.  Key Schedule Functions
+       6.4.4.  3DH Client Functions
+       6.4.5.  3DH Server Functions
    7.  Configurations
    8.  Application Considerations
    9.  Implementation Considerations
@@ -397,10 +399,35 @@ Table of Contents
    Exchange (AKE) protocol which satisfies the forward secrecy and KCI
    properties discussed in Section 10.
 
+   The AKE must define three messages AuthInit, AuthResponse and
+   AuthFinish and provide the following functions for the client:
+
+   *  Start(): Initiate the AKE by producing message AuthInit.
+
+   *  ClientFinish(client_identity, client_private_key, server_identity,
+      server_public_key, AuthInit): upon receipt of the server's
+      response AuthResponse, complete the protocol for the client,
+      produce AuthFinish.
+
+   The AKE protocol must provide the following functions for the server:
+
+   *  Response(server_identity, server_private_key, client_identity,
+      client_public_key, AuthInit): upon receipt of a client's request
+      AuthInit, engage in the AKE.
+
+   *  ServerFinish(AuthFinish): upon receipt of a client's final AKE
+      message AuthFinish, complete the protocol for the server.
+
+   Both ClientFinish and ServerFinish return an error if authentication
+   failed.  In this case, clients and servers MUST NOT use any outputs
+   from the protocol, such as session_key or export_key (defined below).
+
+   Prior to the execution of these functions, both the client and the
+   server MUST agree on a configuration; see Section 7 for details.
+
    This specification defines one particular AKE based on 3DH; see
-   Section 6.2. 3DH assumes a prime-order group as described in
-   [I-D.irtf-cfrg-voprf], Section 2.1.  We let Npk and Nsk denote the
-   size of public and private keys, respectively, used in the AKE.
+   Section 6.4. 3DH assumes a prime-order group as described in
+   [I-D.irtf-cfrg-voprf], Section 2.1.
 
 3.  Protocol Overview
 
@@ -490,16 +517,16 @@ Table of Contents
    the messages of the concurrent execution of the key recovery process
    (OPRF) and the authenticated key exchange (AKE):
 
-   *  KE1 is composed of the CredentialRequest and AKE_Init messages
+   *  KE1 is composed of the CredentialRequest and AuthInit messages
 
-   *  KE2 is composed of the CredentialResponse and AKE_Response
+   *  KE2 is composed of the CredentialResponse and AuthResponse
       messages
 
-   *  KE3 represents the AKE_Finalize message
+   *  KE3 represents the AuthFinish message
 
    The CredentialRequest and CredentialResponse message contents and
-   wire format are specified in Section 6.1, and those of AKE_Init,
-   AKE_Response and AKE_Finalize are specified in Section 6.2.1.
+   wire format are specified in Section 6.3, and those of AuthInit,
+   AuthResponse and AuthFinish are specified in Section 6.4.1.
 
    The rest of this document describes the details of these stages in
    detail.  Section 4 describes how client credential information is
@@ -582,7 +609,7 @@ Steps:
    This specification defines a key recovery mechanism that uses the
    hardened OPRF output as a seed to directly derive the private and
    public key using the DeriveAuthKeyPair() function defined in
-   Section 6.2.2.
+   Section 6.4.2.
 
 4.1.1.  Envelope Structure
 
@@ -712,10 +739,7 @@ Steps:
                            response
                  <-------------------------
 
-    (record, export_key) = FinalizeRequest(client_private_key,
-                                           password,
-                                           blind,
-                                           response,
+    (record, export_key) = FinalizeRequest(response,
                                            server_identity,
                                            client_identity)
 
@@ -810,7 +834,7 @@ FinalizeRequest(password, blind, response, server_identity, client_identity)
 
 Input:
 - password, an opaque byte string containing the client's password.
-- blind, the OPRF scalar value used for blinding.
+- blind, an OPRF scalar value.
 - response, a RegistrationResponse structure.
 - server_identity, the optional encoded server identity.
 - client_identity, the optional encoded client identity.
@@ -917,15 +941,113 @@ Steps:
 
                           session_key = ServerFinish(ke3)
 
+   Both client and server may use implicit internal state objects to
+   keep necessary material for the OPRF and AKE, client_state and
+   server_state, respectively.
+
+   The client state may have the following named fields:
+
+   *  password, the input password; and
+
+   *  blind, the random blinding scalar returned by Blind(), of length
+      Nok; and
+
+   *  client_ake_state, the client's AKE state if necessary.
+
+   The server state may have the following fields:
+
+   *  server_ake_state, the server's AKE state if necessary.
+
    The rest of this section describes these authenticated key exchange
-   messages and their parameters in more detail.  Section 6.1 discusses
+   messages and their parameters in more detail.  Section 6.3 discusses
    internal functions used for retrieving client credentials, and
-   Section 6.2 discusses how these functions are used to execute the
+   Section 6.4 discusses how these functions are used to execute the
    authenticated key exchange protocol.
 
-6.1.  Credential Retrieval
+6.1.  Client Authentication Functions
 
-6.1.1.  Credential Retrieval Messages
+   ClientInit(password)
+
+   State:
+   - state, a ClientState structure.
+
+   Input:
+   - password, an opaque byte string containing the client's password.
+
+   Output:
+   - ke1, a KE1 message structure.
+
+   Steps:
+   1. request, blind = CreateCredentialRequest(password)
+   2. state.blind = blind
+   3. ake_1 = Start(request)
+   4. Output KE1(request, ake_1)
+
+ClientFinish(client_identity, server_identity, ke2)
+
+State:
+- state, a ClientState structure
+
+Input:
+- client_identity, the optional encoded client identity, which is set
+  to client_public_key if not specified.
+- server_identity, the optional encoded server identity, which is set
+  to server_public_key if not specified.
+- ke2, a KE2 message structure.
+
+Output:
+- ke3, a KE3 message structure.
+- session_key, the session's shared secret.
+- export_key, an additional client key.
+
+Steps:
+1. (client_private_key, server_public_key, export_key) =
+    RecoverCredentials(state.password, state.blind, ke2.CredentialResponse,
+                       server_identity, client_identity)
+2. (ke3, session_key) =
+    ClientFinalize(client_identity, client_private_key, server_identity,
+                    server_public_key, ke2)
+3. Output (ke3, session_key)
+
+6.2.  Server Authentication Functions
+
+ServerInit(server_identity, server_private_key, server_public_key,
+           record, credential_identifier, oprf_seed, ke1)
+
+Input:
+- server_identity, the optional encoded server identity, which is set to
+  server_public_key if nil.
+- server_private_key, the server's private key.
+- server_public_key, the server's public key.
+- record, the client's RegistrationRecord structure.
+- credential_identifier, an identifier that uniquely represents the credential.
+- oprf_seed, the server-side seed of Nh bytes used to generate an oprf_key.
+- ke1, a KE1 message structure.
+
+Output:
+- ke2, a KE2 structure.
+
+Steps:
+1. response = CreateCredentialResponse(ke1.request, server_public_key, record,
+    credential_identifier, oprf_seed)
+2. ake_2 = Response(server_identity, server_private_key,
+    client_identity, record.client_public_key, ke1, response)
+3. Output KE2(response, ake_2)
+
+   Since the OPRF is a two-message protocol, KE3 has no element of the
+   OPRF.  We can therefore call the AKE's ServerFinish() directly.  The
+   ServerFinish() function MUST take KE3 as input and MUST verify the
+   client authentication material it contains before the session_key
+   value can be used.  This verification is paramount in order to ensure
+   forward secrecy against active attackers.
+
+   This function MUST NOT return the session_key value if the client
+   authentication material is invalid, and may instead return an
+   appropriate error message.
+
+6.3.  Credential Retrieval
+
+6.3.1.  Credential Retrieval Messages
 
    struct {
      uint8 data[Noe];
@@ -947,9 +1069,9 @@ Steps:
    masked_response  An encrypted form of the server's public key and the
       client's Envelope structure.
 
-6.1.2.  Credential Retrieval Functions
+6.3.2.  Credential Retrieval Functions
 
-6.1.2.1.  CreateCredentialRequest
+6.3.2.1.  CreateCredentialRequest
 
    CreateCredentialRequest(password)
 
@@ -965,7 +1087,7 @@ Steps:
    2. Create CredentialRequest request with M
    3. Output (request, blind)
 
-6.1.2.2.  CreateCredentialResponse
+6.3.2.2.  CreateCredentialResponse
 
    There are two scenarios to handle for the construction of a
    CredentialResponse object: either the record for the client exists
@@ -1026,7 +1148,7 @@ Steps:
    registered password for the client corresponding to
    credential_identifier.
 
-6.1.2.3.  RecoverCredentials
+6.3.2.3.  RecoverCredentials
 
  RecoverCredentials(password, blind, response,
                     server_identity, client_identity)
@@ -1056,62 +1178,35 @@ Steps:
                      server_identity, client_identity)
  7. Output (client_private_key, server_public_key, export_key)
 
-6.2.  AKE Protocol
+6.4.  AKE Protocol
 
    This section describes the authenticated key exchange protocol for
    OPAQUE using 3DH, a 3-message AKE which satisfies the forward secrecy
-   and KCI properties discussed in Section 10.  The protocol consists of
-   three messages sent between client and server, each computed using
-   the following application APIs:
+   and KCI properties discussed in Section 10.
 
-   *  ke1 = ClientInit(password)
+   The AKE client state client_ake_state mentioned in Section 6 has the
+   following named fields:
 
-   *  ke2 = ServerInit(server_identity, server_private_key,
-      server_public_key, record, credential_identifier, oprf_seed, ke1)
-
-   *  ke3, session_key, export_key = ClientFinish(password,
-      client_identity, server_identity, ke2)
-
-   *  session_key = ServerFinish(ke3)
-
-   Outputs ke1, ke2, and ke3 are the three protocol messages sent
-   between client and server. session_key and export_key are outputs to
-   be consumed by applications.  Applications can use session_key to
-   derive additional keying material as needed.  Applications can use
-   export_key for further application-specific purposes; see
-   Section 10.4.
-
-   Both ClientFinish and ServerFinish return an error if authentication
-   failed.  In this case, clients and servers MUST NOT use any outputs
-   from the protocol, such as session_key or export_key.  ClientInit and
-   ServerInit both implicitly return internal state objects client_state
-   and server_state, respectively.  The client state has the following
-   named fields:
-
-   *  blind, an opaque byte string of length Nok;
-
-   *  client_sescret, an opaque byte string of length Nsk; and
+   *  client_secret, an opaque byte string of length Nsk; and
 
    *  ke1, a value of type KE1.
 
-   The server state has the following fields:
+   The server state server_ake_state mentioned in Section 6 has the
+   following fields:
 
    *  expected_client_mac, an opaque byte string of length Nm; and
 
    *  session_key, an opaque byte string of length Nx.
 
-   Section 6.2.4 and Section 6.2.5 specify the inner workings of client
-   and server functions, respectively.s
+   Section 6.4.4 and Section 6.4.5 specify the inner workings of client
+   and server functions, respectively.
 
-   Prior to the execution of these functions, both the client and the
-   server MUST agree on a configuration; see Section 7 for details.
-
-6.2.1.  AKE Messages
+6.4.1.  AKE Messages
 
    struct {
      uint8 client_nonce[Nn];
      uint8 client_keyshare[Npk];
-   } AKE_Init;
+   } AuthInit;
 
    client_nonce : A fresh randomly generated nonce of length Nn.
 
@@ -1121,7 +1216,7 @@ Steps:
      uint8 server_nonce[Nn];
      uint8 server_keyshare[Npk];
      uint8 server_mac[Nm];
-   } AKE_Response;
+   } AuthResponse;
 
    server_nonce : A fresh randomly generated nonce of length Nn.
 
@@ -1133,12 +1228,12 @@ Steps:
 
    struct {
      uint8 client_mac[Nm];
-   } AKE_Finalize;
+   } AuthFinish;
 
    client_mac : An authentication tag computed over the handshake
    transcript computed using Km2, defined below.
 
-6.2.2.  Key Creation
+6.4.2.  Key Creation
 
    We assume the following functions to exist for all candidate groups
    in this setting:
@@ -1172,9 +1267,9 @@ Steps:
    HashToScalar(msg, dst) is as specified in [I-D.irtf-cfrg-voprf],
    Section 2.1.
 
-6.2.3.  Key Schedule Functions
+6.4.3.  Key Schedule Functions
 
-6.2.3.1.  Transcript Functions
+6.4.3.1.  Transcript Functions
 
    The OPAQUE-3DH key derivation procedures make use of the functions
    below, re-purposed from TLS 1.3 [RFC8446].
@@ -1227,7 +1322,7 @@ Steps:
                         inner_ke2)
    2. Output preamble
 
-6.2.3.2.  Shared Secret Derivation
+6.4.3.2.  Shared Secret Derivation
 
    The OPAQUE-3DH shared secret derived during the key exchange protocol
    is computed using the following function.
@@ -1269,54 +1364,7 @@ Steps:
 5. Km3 = Derive-Secret(handshake_secret, "ClientMAC", "")
 6. Output (Km2, Km3, session_key)
 
-6.2.4.  External Client API
-
-ClientInit(password)
-
-State:
-- state, a ClientState structure.
-
-Input:
-- password, an opaque byte string containing the client's password.
-
-Output:
-- ke1, a KE1 message structure.
-- blind, the OPRF blinding scalar.
-- client_secret, the client's Diffie-Hellman secret share for the session.
-
-Steps:
-1. request, blind = CreateCredentialRequest(password)
-2. state.blind = blind
-3. ke1 = Start(request)
-4. Output ke1
-
-ClientFinish(client_identity, password, server_identity, ke2)
-
-State:
-- state, a ClientState structure
-
-Input:
-- client_identity, the optional encoded client identity, which is set
-  to client_public_key if not specified.
-- password, an opaque byte string containing the client's password.
-- server_identity, the optional encoded server identity, which is set
-  to server_public_key if not specified.
-- ke2, a KE2 message structure.
-
-Output:
-- ke3, a KE3 message structure.
-- session_key, the session's shared secret.
-
-Steps:
-1. (client_private_key, server_public_key, export_key) =
-    RecoverCredentials(password, state.blind, ke2.CredentialResponse,
-                       server_identity, client_identity)
-2. (ke3, session_key) =
-    ClientFinalize(client_identity, client_private_key, server_identity,
-                    server_public_key, ke2)
-3. Output (ke3, session_key)
-
-6.2.4.1.  Internal Client Functions
+6.4.4.  3DH Client Functions
 
 Start(credential_request)
 
@@ -1336,11 +1384,10 @@ Steps:
 1. client_nonce = random(Nn)
 2. client_secret, client_keyshare = GenerateAuthKeyPair()
 3. Create KE1 ke1 with (credential_request, client_nonce, client_keyshare)
-4. state.client_secret = client_secret
-5. state.ke1 = ke1
+4. Populate state with ClientState(client_secret, ke1)
 6. Output (ke1, client_secret)
 
-ClientFinalize(client_identity, client_private_key, server_identity,
+CLientFinalize(client_identity, client_private_key, server_identity,
                server_public_key, ke2)
 
 State:
@@ -1374,30 +1421,43 @@ Steps:
 7. Create KE3 ke3 with client_mac
 8. Output (ke3, session_key)
 
-6.2.5.  External Server API
+6.4.5.  3DH Server Functions
 
-ServerInit(server_identity, server_private_key, server_public_key,
-           record, credential_identifier, oprf_seed, ke1)
+Response(server_identity, server_private_key, client_identity,
+         client_public_key, ke1, credential_response)
+
+Parameters:
+- Nn, the nonce length.
+
+State:
+- state, a ServerState structure.
 
 Input:
 - server_identity, the optional encoded server identity, which is set to
-  server_public_key if nil.
+  server_public_key if not specified.
 - server_private_key, the server's private key.
-- server_public_key, the server's public key.
-- record, the client's RegistrationRecord structure.
-- credential_identifier, an identifier that uniquely represents the credential.
-- oprf_seed, the server-side seed of Nh bytes used to generate an oprf_key.
+- client_identity, the optional encoded client identity, which is set to
+  client_public_key if not specified.
+- client_public_key, the client's public key.
 - ke1, a KE1 message structure.
 
 Output:
 - ke2, a KE2 structure.
 
 Steps:
-1. response = CreateCredentialResponse(ke1.request, server_public_key, record,
-    credential_identifier, oprf_seed)
-2. ke2 = Response(server_identity, server_private_key,
-    client_identity, record.client_public_key, ke1, response)
-3. Output ke2
+1. server_nonce = random(Nn)
+2. server_secret, server_keyshare = GenerateAuthKeyPair()
+3. Create inner_ke2 ike2 with (ke1.credential_response, server_nonce, server_keyshare)
+4. preamble = Preamble(client_identity, ke1, server_identity, ike2)
+5. ikm = TripleDHIKM(server_secret, ke1.client_keyshare,
+                    server_private_key, ke1.client_keyshare,
+                    server_secret, client_public_key)
+6. Km2, Km3, session_key = DeriveKeys(ikm, preamble)
+7. server_mac = MAC(Km2, Hash(preamble))
+8. expected_client_mac = MAC(Km3, Hash(concat(preamble, server_mac))
+9. Populate state with ServerState(expected_client_mac, session_key)
+10. Create KE2 ke2 with (ike2, server_mac)
+11. Output ke2
 
    ServerFinish(ke3)
 
@@ -1417,45 +1477,6 @@ Steps:
    1. if !ct_equal(ke3.client_mac, state.expected_client_mac):
    2.    raise HandshakeError
    3. Output state.session_key
-
-6.2.5.1.  Internal Server Functions
-
-Response(server_identity, server_private_key, client_identity,
-         client_public_key, ke1, credential_response)
-
-Parameters:
-- Nn, the nonce length.
-
-State:
-- state, a ServerState structure.
-
-Input:
-- server_identity, the optional encoded server identity, which is set to
-  server_public_key if not specified.
-- server_private_key, the server's private key.
-- client_identity, the optional encoded client identity, which is set to
-  client_public_key if not specified.
-- client_public_key, the client's public key.
-- ke1, a KE1 message structure.
-- credential_response, a CredentialResponse structure.
-
-Output:
-- ke2, A KE2 structure.
-
-Steps:
-1. server_nonce = random(Nn)
-2. server_secret, server_keyshare = GenerateAuthKeyPair()
-3. Create inner_ke2 ike2 with (credential_response, server_nonce, server_keyshare)
-4. preamble = Preamble(client_identity, ke1, server_identity, ike2)
-5. ikm = TripleDHIKM(server_secret, ke1.client_keyshare,
-                    server_private_key, ke1.client_keyshare,
-                    server_secret, client_public_key)
-6. Km2, Km3, session_key = DeriveKeys(ikm, preamble)
-7. server_mac = MAC(Km2, Hash(preamble))
-8. expected_client_mac = MAC(Km3, Hash(concat(preamble, server_mac))
-9. Populate state with ServerState(expected_client_mac, session_key)
-10. Create KE2 ke2 with (ike2, server_mac)
-11. Output ke2
 
 7.  Configurations
 
@@ -1486,7 +1507,7 @@ Steps:
       OPRF(ristretto255, SHA-512), then Group SHOULD be ristretto255.
 
    Context is the shared parameter used to construct the preamble in
-   Section 6.2.3.1.  This parameter SHOULD include any application-
+   Section 6.4.3.1.  This parameter SHOULD include any application-
    specific configuration information or parameters that are needed to
    prevent cross-protocol or downgrade attacks.
 
@@ -1543,7 +1564,7 @@ Steps:
       alternate notions of an identity, applications SHOULD set these
       identities to nil and rely solely on public key information.
 
-   *  Enumeration prevention: As described in Section 6.1.2.2, if
+   *  Enumeration prevention: As described in Section 6.3.2.2, if
       servers receive a credential request for a non-existent client,
       they SHOULD respond with a "fake" response in order to prevent
       active client enumeration attacks.  Servers that implement this
@@ -1774,7 +1795,7 @@ Steps:
    client identities in a way that is indistinguishable from its
    behavior with existing registered clients.  Servers do this for an
    unregistered client by simulating a fake CredentialResponse as
-   specified in Section 6.1.2.2.  Implementations must also take care to
+   specified in Section 6.3.2.2.  Implementations must also take care to
    avoid side-channel leakage (e.g., timing attacks) from helping
    differentiate these operations from a regular server response.  Note
    that this may introduce possible abuse vectors since the server's
@@ -1789,7 +1810,7 @@ Steps:
    Preventing the second type of attack requires the server to supply a
    credential_identifier value for a given client identity, consistently
    between the registration response and credential response; see
-   Section 5.2.2 and Section 6.1.2.2.  Note that credential_identifier
+   Section 5.2.2 and Section 6.3.2.2.  Note that credential_identifier
    can be set to client_identity for simplicity.
 
    In the event of a server compromise that results in a re-registration
@@ -2088,7 +2109,7 @@ Appendix D.  Test Vectors
    configuration information, protocol inputs, and protocol outputs
    computed during authentication of an unknown or unregistered user.
    Note that masking_key, client_private_key, and client_public_key are
-   used as additional inputs as described in Section 6.1.2.2.
+   used as additional inputs as described in Section 6.3.2.2.
    client_public_key is used as the fake record's public key, and
    masking_key for the fake record's masking key parameter.
 
