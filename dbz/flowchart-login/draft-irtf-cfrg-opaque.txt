@@ -113,7 +113,7 @@ Table of Contents
      12.1.  Normative References
      12.2.  Informative References
    Appendix A.  Acknowledgments
-   Appendix B.  Flowchart
+   Appendix B.  Flowcharts
      B.1.  Registration client
      B.2.  Registration server
      B.3.  Login client
@@ -1947,7 +1947,7 @@ Appendix A.  Acknowledgments
    Crockett, Paul Grubbs, Fredrik Kuivinen, Payman Mohassel, Jason
    Resch, Greg Rubin, and Nick Sullivan.
 
-Appendix B.  Flowchart
+Appendix B.  Flowcharts
 
 B.1.  Registration client
 
