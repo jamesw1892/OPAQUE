@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2021-10-03T01:06:25.135098+00:00",
+  "timestamp": "2021-10-05T01:01:06.245473+00:00",
   "repo": "cfrg/draft-irtf-cfrg-opaque",
   "labels": [
     {
@@ -5417,7 +5417,7 @@
       "labels": [],
       "body": "We have a use case where a HSM is used to store the server private key. Currently almost all HSMs use the PKCS#11 standard, which doesn't have support for ristretto255 + DH. It is my understanding that OPAQUE had official support for X25519 in the past but dropped it in favor of ristretto255.\r\n\r\nIs it possible to elaborate on the reasons for that decision? Is it still in scope to re-introduce it and provide test vectors?\r\n\r\nI believe that OPAQUE already does support using any algorithm as long as it does fulfill the stated security requirements, but official support would still be very favorable.\r\n\r\nIt should be noted that HSMs can use P256 instead, which is already officially supported by OPAQUE, but many, including us, would like to use Curve25519 when possible.",
       "createdAt": "2021-07-23T22:53:03Z",
-      "updatedAt": "2021-08-24T23:14:45Z",
+      "updatedAt": "2021-10-04T10:28:53Z",
       "closedAt": null,
       "comments": [
         {
@@ -5531,6 +5531,20 @@
           "body": "Let's separate tracking the HSM thing in a separate issue",
           "createdAt": "2021-08-24T23:14:45Z",
           "updatedAt": "2021-08-24T23:14:45Z"
+        },
+        {
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "body": "@daxpedda #279 adds your suggestion, I reworded it a bit. I'd be glad to have your feedback :)",
+          "createdAt": "2021-10-04T10:27:50Z",
+          "updatedAt": "2021-10-04T10:27:50Z"
+        },
+        {
+          "author": "daxpedda",
+          "authorAssociation": "NONE",
+          "body": "Just saw it, thank you!",
+          "createdAt": "2021-10-04T10:28:53Z",
+          "updatedAt": "2021-10-04T10:28:53Z"
         }
       ]
     },
@@ -5564,11 +5578,19 @@
         "bytemare"
       ],
       "labels": [],
-      "body": "Currently, the client sends a masking key during registration for the server to obfuscate login messages and protect against client enumeration. This relatively sensitive and secret piece of data requires the full registration to be \"secure\" with integrity, authenticity, and confidentiality, as offered by TLS for example.\r\n\r\nIntegrity and authenticity cannot be subverted once the session is over and past. Confidentiality, however, is not ensured if encryption keys are backed up, shared, or leaked, and allows decryption after the session (e.g. proxy re-encryption, logging, legal compliance, etc.). The masking key is a risk of being revealed to a passive (even non-malicious) attacker after registration has happened.\r\n\r\nThis risk can be avoided by using a KEM to protect the last registration message from the client to the server. Implementations could leverage the fact the client gets the server public key in the registration response and use symmetric encryption using a basic KEM. We could either build it into OPAQUE (not that expensive, as it happens only once) or add it to the security considerations.",
+      "body": "Currently, the client sends a masking key during registration for the server to obfuscate login messages and protect against client enumeration. This relatively sensitive and secret piece of data requires the full registration to be \"secure\" with integrity, authenticity, and confidentiality, as offered by TLS for example.\r\n\r\nIntegrity and authenticity cannot be subverted once the session is over and past. Confidentiality, however, is not ensured if encryption keys are backed up, shared, or leaked, and allows decryption after the session (e.g. proxy re-encryption, logging, legal compliance, etc.). The masking key is at risk of being revealed to a passive (even non-malicious) attacker after registration has happened.\r\n\r\nThis risk can be avoided by using a KEM to protect the last registration message from the client to the server. Implementations could leverage the fact the client gets the server public key in the registration response and use symmetric encryption using a basic KEM. We could either build it into OPAQUE (not that expensive, as it happens only once) or add it to the security considerations.",
       "createdAt": "2021-08-06T21:18:50Z",
-      "updatedAt": "2021-08-24T22:53:57Z",
+      "updatedAt": "2021-10-04T13:23:50Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "body": "@chris-wood I was thinking that using the HPKE-like base mode could be sufficient here, and use the registration transcript, identities, and configuration as context/aad. I don't think it's too complex to add here unless another dependency is problematic (though that spec is rather mature). What do you think?",
+          "createdAt": "2021-10-04T13:23:50Z",
+          "updatedAt": "2021-10-04T13:23:50Z"
+        }
+      ]
     },
     {
       "number": 241,
@@ -5593,7 +5615,7 @@
       "id": "MDU6SXNzdWU5NjUyMjM2MzA=",
       "title": "Promote AKE shape to the dependency section",
       "url": "https://github.com/cfrg/draft-irtf-cfrg-opaque/issues/242",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "chris-wood",
       "authorAssociation": "COLLABORATOR",
       "assignees": [
@@ -5604,8 +5626,8 @@
       ],
       "body": "The shape of the AKE protocol, including the messages exchanged and its properties, is currently in the 3DH AKE section. We might consider promoting this to the dependency section so as to better accommodate future AKEs, such as SIGMA. ",
       "createdAt": "2021-08-10T18:16:28Z",
-      "updatedAt": "2021-08-26T16:20:47Z",
-      "closedAt": null,
+      "updatedAt": "2021-10-04T14:21:25Z",
+      "closedAt": "2021-10-04T14:21:25Z",
       "comments": []
     },
     {
@@ -6087,11 +6109,19 @@
       "labels": [
         "editorial"
       ],
-      "body": "The protocol's complexity has reached a point where it gets easy to be confused. Flowcharts of components and the complete protocol could help the new reader with a quick overview and better understanding.\r\n\r\n- [ ] OPRF\r\n- [ ] User Lookup state-machine?\r\n- [ ] Key Recovery\r\n- [ ] User Enumeration Mitigation\r\n- [ ] Registration\r\n- [ ] Login",
+      "body": "The protocol's complexity has reached a point where it gets easy to be confused. Flowcharts of components and the complete protocol could help the new reader with a quick overview and better understanding.\r\n\r\n- [x] Registration - Client side\r\n- [x] Registration - Server side\r\n- [x] Login - Client side\r\n- [x] Login - Server",
       "createdAt": "2021-08-26T15:43:40Z",
-      "updatedAt": "2021-08-26T16:14:06Z",
+      "updatedAt": "2021-10-04T10:11:30Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "body": "I don't know if specific flows for the subparts are necessary, the storage and recovery functions. They are described above and could benefit from a visual representation.",
+          "createdAt": "2021-10-04T10:11:30Z",
+          "updatedAt": "2021-10-04T10:11:30Z"
+        }
+      ]
     },
     {
       "number": 264,
@@ -19816,13 +19846,13 @@
       ],
       "body": "Addresses Login from #258",
       "createdAt": "2021-08-26T16:11:15Z",
-      "updatedAt": "2021-08-27T17:06:10Z",
+      "updatedAt": "2021-10-04T10:13:14Z",
       "baseRepository": "cfrg/draft-irtf-cfrg-opaque",
       "baseRefName": "master",
       "baseRefOid": "f28f7a1d01e50955e4b8bda48e5a25d4f91ee37e",
       "headRepository": "cfrg/draft-irtf-cfrg-opaque",
       "headRefName": "dbz/flowchart-login",
-      "headRefOid": "82a3d1f8b58e469759cbf2a471baf8bab5116d51",
+      "headRefOid": "677778f1853c18674e083422ee6a11012acdc039",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
@@ -20714,6 +20744,127 @@
           "createdAt": "2021-09-30T22:44:29Z",
           "updatedAt": "2021-09-30T22:44:29Z",
           "comments": []
+        }
+      ]
+    },
+    {
+      "number": 278,
+      "id": "PR_kwDOD79ejs4smxMW",
+      "title": "Merge #270 into master",
+      "url": "https://github.com/cfrg/draft-irtf-cfrg-opaque/pull/278",
+      "state": "MERGED",
+      "author": "bytemare",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [
+        "editorial"
+      ],
+      "body": "#270 has been successfully merged back into `dbz/abstract-messages`, which, in turn, must now be merged into master again",
+      "createdAt": "2021-10-03T16:51:56Z",
+      "updatedAt": "2021-10-04T23:44:25Z",
+      "baseRepository": "cfrg/draft-irtf-cfrg-opaque",
+      "baseRefName": "master",
+      "baseRefOid": "52163aecad59839fffd26679abc83dcecc3a7861",
+      "headRepository": "cfrg/draft-irtf-cfrg-opaque",
+      "headRefName": "dbz/abstract-messages",
+      "headRefOid": "5bcd4aaf6808c49fff8e7c66ba43b4e2e4c2ccdb",
+      "closedAt": "2021-10-04T14:21:25Z",
+      "mergedAt": "2021-10-04T14:21:25Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "f056015727a0e5b2a7f08e180c5400b67f744cb2"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOD79ejs4t6tQg",
+          "commit": {
+            "abbreviatedOid": "5bcd4aa"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-10-04T14:21:21Z",
+          "updatedAt": "2021-10-04T14:21:21Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 279,
+      "id": "PR_kwDOD79ejs4soZsj",
+      "title": "Add security consideration for HSM",
+      "url": "https://github.com/cfrg/draft-irtf-cfrg-opaque/pull/279",
+      "state": "OPEN",
+      "author": "bytemare",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [
+        "editorial"
+      ],
+      "body": "Addresses #257",
+      "createdAt": "2021-10-04T10:26:30Z",
+      "updatedAt": "2021-10-04T15:00:00Z",
+      "baseRepository": "cfrg/draft-irtf-cfrg-opaque",
+      "baseRefName": "master",
+      "baseRefOid": "52163aecad59839fffd26679abc83dcecc3a7861",
+      "headRepository": "cfrg/draft-irtf-cfrg-opaque",
+      "headRefName": "dbz/ake-hsm",
+      "headRefOid": "d03fb4645e5bd1a5a3f384937622d9f32b34e532",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [
+        {
+          "author": "daxpedda",
+          "authorAssociation": "NONE",
+          "body": "Looks perfect to me, I think the only thing left is to evaluate if adding test vectors for X25519 and X448 makes sense.",
+          "createdAt": "2021-10-04T10:31:32Z",
+          "updatedAt": "2021-10-04T10:31:32Z"
+        },
+        {
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "body": "It makes sense to me, and I think @chris-wood was also in favor.\r\n\r\nX25519 is widespread and has good support, X448 is not as much.\r\n\r\nIncluding these vectors would be better done in another PR.",
+          "createdAt": "2021-10-04T11:08:38Z",
+          "updatedAt": "2021-10-04T11:08:38Z"
+        },
+        {
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "body": "> Including these vectors would be better done in another PR.\r\n\r\nWhat issue should we use to track this? ",
+          "createdAt": "2021-10-04T15:00:00Z",
+          "updatedAt": "2021-10-04T15:00:00Z"
+        }
+      ],
+      "reviews": [
+        {
+          "id": "PRR_kwDOD79ejs4t65TQ",
+          "commit": {
+            "abbreviatedOid": "d03fb46"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "LGTM pending suggestion!",
+          "createdAt": "2021-10-04T14:58:48Z",
+          "updatedAt": "2021-10-04T14:59:35Z",
+          "comments": [
+            {
+              "originalPosition": 13,
+              "body": "```suggestion\r\nServer implementations of OPAQUE do not need access to the raw AKE private key. They only require\r\nthe ability to compute shared secrets as specified in {{key-schedule-functions}}. Thus, applications\r\nmay store the server AKE private key can be stored in a Hardware Security Module (HSM) or\r\nsimilar. Upon compromise of the OPRF seed and client envelopes, this would prevent an\r\nattacker from using this data to mount a server spoofing attack. Supporting implementations \r\nneed to consider allowing separate AKE and OPRF algorithms in cases where the HSM is \r\nincompatible with the OPRF algorithm.\r\n```",
+              "createdAt": "2021-10-04T14:58:48Z",
+              "updatedAt": "2021-10-04T14:59:35Z"
+            },
+            {
+              "originalPosition": 13,
+              "body": "I _think_ this makes the HSM use case and considerations a bit more clear.",
+              "createdAt": "2021-10-04T14:59:27Z",
+              "updatedAt": "2021-10-04T14:59:35Z"
+            }
+          ]
         }
       ]
     }
