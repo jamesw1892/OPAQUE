@@ -5,12 +5,12 @@
 Network Working Group                                        H. Krawczyk
 Internet-Draft                                       Algorand Foundation
 Intended status: Informational                               D. Bourdrez
-Expires: 7 April 2022                                                   
+Expires: 8 April 2022                                                   
                                                                  K. Lewi
                                                            Novi Research
                                                                C.A. Wood
                                                               Cloudflare
-                                                          4 October 2021
+                                                          5 October 2021
 
 
                   The OPAQUE Asymmetric PAKE Protocol
@@ -49,7 +49,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 7 April 2022.
+   This Internet-Draft will expire on 8 April 2022.
 
 Copyright Notice
 
@@ -116,6 +116,7 @@ Table of Contents
      10.7.  OPRF Hardening
      10.8.  Client Enumeration
      10.9.  Password Salt and Storage Implications
+     10.10. AKE Private Key Storage
    11. IANA Considerations
    12. References
      12.1.  Normative References
@@ -1855,6 +1856,18 @@ Steps:
    should move such checks to the client.  Note that limited checks at
    the server are possible to implement, e.g., detecting repeated
    passwords.
+
+10.10.  AKE Private Key Storage
+
+   Server implementations of OPAQUE do not need access to the raw AKE
+   private key.  They only require the ability to compute shared secrets
+   as specified in Section 6.4.3.  Thus, applications may store the
+   server AKE private key in a Hardware Security Module (HSM) or
+   similar.  Upon compromise of the OPRF seed and client envelopes, this
+   would prevent an attacker from using this data to mount a server
+   spoofing attack.  Supporting implementations need to consider
+   allowing separate AKE and OPRF algorithms in cases where the HSM is
+   incompatible with the OPRF algorithm.
 
 11.  IANA Considerations
 
