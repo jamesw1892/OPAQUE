@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2021-10-05T01:01:06.245473+00:00",
+  "timestamp": "2021-10-07T01:03:10.143526+00:00",
   "repo": "cfrg/draft-irtf-cfrg-opaque",
   "labels": [
     {
@@ -5580,7 +5580,7 @@
       "labels": [],
       "body": "Currently, the client sends a masking key during registration for the server to obfuscate login messages and protect against client enumeration. This relatively sensitive and secret piece of data requires the full registration to be \"secure\" with integrity, authenticity, and confidentiality, as offered by TLS for example.\r\n\r\nIntegrity and authenticity cannot be subverted once the session is over and past. Confidentiality, however, is not ensured if encryption keys are backed up, shared, or leaked, and allows decryption after the session (e.g. proxy re-encryption, logging, legal compliance, etc.). The masking key is at risk of being revealed to a passive (even non-malicious) attacker after registration has happened.\r\n\r\nThis risk can be avoided by using a KEM to protect the last registration message from the client to the server. Implementations could leverage the fact the client gets the server public key in the registration response and use symmetric encryption using a basic KEM. We could either build it into OPAQUE (not that expensive, as it happens only once) or add it to the security considerations.",
       "createdAt": "2021-08-06T21:18:50Z",
-      "updatedAt": "2021-10-04T13:23:50Z",
+      "updatedAt": "2021-10-05T13:12:01Z",
       "closedAt": null,
       "comments": [
         {
@@ -5589,6 +5589,20 @@
           "body": "@chris-wood I was thinking that using the HPKE-like base mode could be sufficient here, and use the registration transcript, identities, and configuration as context/aad. I don't think it's too complex to add here unless another dependency is problematic (though that spec is rather mature). What do you think?",
           "createdAt": "2021-10-04T13:23:50Z",
           "updatedAt": "2021-10-04T13:23:50Z"
+        },
+        {
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "body": "I don't think we should make anything specific here, as it's a consideration external to the protocol. I'd just say that clients can encrypt their records for servers using HPKE, full stop. ",
+          "createdAt": "2021-10-05T12:51:08Z",
+          "updatedAt": "2021-10-05T12:51:08Z"
+        },
+        {
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Alright \ud83d\udc4d ",
+          "createdAt": "2021-10-05T13:12:01Z",
+          "updatedAt": "2021-10-05T13:12:01Z"
         }
       ]
     },
@@ -6080,7 +6094,7 @@
       "id": "MDU6SXNzdWU5Nzg1NTQ1Njc=",
       "title": "Discussion around having AKE keys in an HSM",
       "url": "https://github.com/cfrg/draft-irtf-cfrg-opaque/issues/257",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "bytemare",
       "authorAssociation": "COLLABORATOR",
       "assignees": [
@@ -6091,8 +6105,8 @@
       ],
       "body": "#238 mentioned a use case of using X25519 AKE server private keys in an HSM.\r\n\r\nWe could mention this in the Security Considerations section.",
       "createdAt": "2021-08-24T23:13:57Z",
-      "updatedAt": "2021-08-26T16:20:27Z",
-      "closedAt": null,
+      "updatedAt": "2021-10-05T13:23:56Z",
+      "closedAt": "2021-10-05T13:23:56Z",
       "comments": []
     },
     {
@@ -6168,7 +6182,7 @@
       "id": "MDU6SXNzdWU5OTExMTU0OTA=",
       "title": "Security Recommendation: dual CSPRNG",
       "url": "https://github.com/cfrg/draft-irtf-cfrg-opaque/issues/266",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "bytemare",
       "authorAssociation": "COLLABORATOR",
       "assignees": [
@@ -6179,8 +6193,8 @@
       ],
       "body": "The TLS 1.3 RFC ([appendix C.1](https://datatracker.ietf.org/doc/html/rfc8446#appendix-C.1)) suggests using separate CSPRNGs to generate public and private values.\r\n\r\nIt could be interesting to add a similar recommendation.\r\n\r\nIn OPAQUE, I think the only public values are nonces (public keys are derived from private keys, so they don't count). Is there anything else?",
       "createdAt": "2021-09-08T13:03:17Z",
-      "updatedAt": "2021-09-23T01:23:39Z",
-      "closedAt": null,
+      "updatedAt": "2021-10-06T08:43:07Z",
+      "closedAt": "2021-10-06T08:43:06Z",
       "comments": [
         {
           "author": "chris-wood",
@@ -6195,6 +6209,13 @@
           "body": "Not immediately. If you'd like to do it, go for it :) ",
           "createdAt": "2021-09-23T01:23:38Z",
           "updatedAt": "2021-09-23T01:23:38Z"
+        },
+        {
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "body": "We already require the CSPRNG to be good, and it doesn't seem necessary to add this complexity to the spec and implementations if the main CSPRNG is not reliable.",
+          "createdAt": "2021-10-06T08:43:06Z",
+          "updatedAt": "2021-10-06T08:43:06Z"
         }
       ]
     },
@@ -6244,6 +6265,32 @@
       "updatedAt": "2021-09-23T12:02:00Z",
       "closedAt": "2021-09-23T12:02:00Z",
       "comments": []
+    },
+    {
+      "number": 281,
+      "id": "I_kwDOD79ejs48ltWt",
+      "title": "Update OPRF to adapt to POPRF",
+      "url": "https://github.com/cfrg/draft-irtf-cfrg-opaque/issues/281",
+      "state": "OPEN",
+      "author": "bytemare",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [
+        "bytemare"
+      ],
+      "labels": [],
+      "body": "The (V)OPRF has been updated to include the POPRF findings. We should integrate these changes since this spec depends on it.",
+      "createdAt": "2021-10-05T16:14:57Z",
+      "updatedAt": "2021-10-06T09:51:04Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "body": "I'm thinking of context binding using `info = configuration || client_id || server_id`, because that's all that's public and accessible to the client. But this needs to define a serialization of the configuration that we don't have at the moment",
+          "createdAt": "2021-10-06T09:51:04Z",
+          "updatedAt": "2021-10-06T09:51:04Z"
+        }
+      ]
     }
   ],
   "pulls": [
@@ -19993,7 +20040,7 @@
       "id": "MDExOlB1bGxSZXF1ZXN0NzIyMDM4NzA5",
       "title": "Abstract AKE definition",
       "url": "https://github.com/cfrg/draft-irtf-cfrg-opaque/pull/263",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "bytemare",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
@@ -20002,14 +20049,14 @@
       ],
       "body": "Addresses #242 and #254\r\n\r\n- define high-level AKE API in the dependencies section\r\n- Move OPAQUE messages and external API to Protocol Overview\r\n- minor factoring in the core 3DH functions",
       "createdAt": "2021-08-29T23:31:56Z",
-      "updatedAt": "2021-08-29T23:41:11Z",
+      "updatedAt": "2021-10-05T15:53:26Z",
       "baseRepository": "cfrg/draft-irtf-cfrg-opaque",
       "baseRefName": "master",
       "baseRefOid": "bb2f28e0bb48dc147ab51cf55509131c5e2c0868",
       "headRepository": "cfrg/draft-irtf-cfrg-opaque",
       "headRefName": "dbz/ake-rewrite",
       "headRefOid": "72e687515623da60c6653a908642079eb60fdae0",
-      "closedAt": null,
+      "closedAt": "2021-10-05T15:53:26Z",
       "mergedAt": null,
       "mergedBy": null,
       "mergeCommit": null,
@@ -20796,7 +20843,7 @@
       "id": "PR_kwDOD79ejs4soZsj",
       "title": "Add security consideration for HSM",
       "url": "https://github.com/cfrg/draft-irtf-cfrg-opaque/pull/279",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "bytemare",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
@@ -20805,17 +20852,19 @@
       ],
       "body": "Addresses #257",
       "createdAt": "2021-10-04T10:26:30Z",
-      "updatedAt": "2021-10-04T15:00:00Z",
+      "updatedAt": "2021-10-06T11:26:52Z",
       "baseRepository": "cfrg/draft-irtf-cfrg-opaque",
       "baseRefName": "master",
       "baseRefOid": "52163aecad59839fffd26679abc83dcecc3a7861",
       "headRepository": "cfrg/draft-irtf-cfrg-opaque",
       "headRefName": "dbz/ake-hsm",
-      "headRefOid": "d03fb4645e5bd1a5a3f384937622d9f32b34e532",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "headRefOid": "8f90af5826958680f64393ec05eb9eed4d02314d",
+      "closedAt": "2021-10-05T13:23:56Z",
+      "mergedAt": "2021-10-05T13:23:56Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "ff92b0ae28ab2ca72cfa91c094fdaa595aa67408"
+      },
       "comments": [
         {
           "author": "daxpedda",
@@ -20837,6 +20886,13 @@
           "body": "> Including these vectors would be better done in another PR.\r\n\r\nWhat issue should we use to track this? ",
           "createdAt": "2021-10-04T15:00:00Z",
           "updatedAt": "2021-10-04T15:00:00Z"
+        },
+        {
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "body": "@chris-wood how about #238 for tracking?",
+          "createdAt": "2021-10-06T11:26:51Z",
+          "updatedAt": "2021-10-06T11:26:51Z"
         }
       ],
       "reviews": [
@@ -20863,6 +20919,390 @@
               "body": "I _think_ this makes the HSM use case and considerations a bit more clear.",
               "createdAt": "2021-10-04T14:59:27Z",
               "updatedAt": "2021-10-04T14:59:35Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4t99aw",
+          "commit": {
+            "abbreviatedOid": "3d1d900"
+          },
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-10-05T09:44:33Z",
+          "updatedAt": "2021-10-05T09:44:34Z",
+          "comments": [
+            {
+              "originalPosition": 8,
+              "body": "```suggestion\r\nmay store the server AKE private key in a Hardware Security Module (HSM) or\r\n```\r\n\r\n@chris-wood is this what you meant ? :)",
+              "createdAt": "2021-10-05T09:44:33Z",
+              "updatedAt": "2021-10-05T09:44:34Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4t-qFN",
+          "commit": {
+            "abbreviatedOid": "3d1d900"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-10-05T12:51:48Z",
+          "updatedAt": "2021-10-05T12:51:48Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 280,
+      "id": "PR_kwDOD79ejs4ssCeI",
+      "title": "factorize 3DH key derivation description",
+      "url": "https://github.com/cfrg/draft-irtf-cfrg-opaque/pull/280",
+      "state": "OPEN",
+      "author": "bytemare",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [
+        "editorial"
+      ],
+      "body": "Last PR to close #263\r\n\r\nThis factorizes common code between the client and server 3DH functions, which, I believe, helps readability.",
+      "createdAt": "2021-10-05T10:45:37Z",
+      "updatedAt": "2021-10-06T22:57:28Z",
+      "baseRepository": "cfrg/draft-irtf-cfrg-opaque",
+      "baseRefName": "master",
+      "baseRefOid": "f056015727a0e5b2a7f08e180c5400b67f744cb2",
+      "headRepository": "cfrg/draft-irtf-cfrg-opaque",
+      "headRefName": "dbz/3dh-keyschedule-factor",
+      "headRefOid": "b38e926e8c87134346824f05a4f817f99cbc77b0",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [
+        {
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Basically, I'm just centralizing the key derivation and mac calculation in a single function, so that the client and server functions don't repeat the same code. Also, there were some leftovers from other PRs that hadn't been fixed",
+          "createdAt": "2021-10-05T16:12:19Z",
+          "updatedAt": "2021-10-05T16:12:19Z"
+        },
+        {
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Is this just a bug fix PR now?",
+          "createdAt": "2021-10-05T16:29:35Z",
+          "updatedAt": "2021-10-05T16:29:35Z"
+        }
+      ],
+      "reviews": [
+        {
+          "id": "PRR_kwDOD79ejs4t-qb_",
+          "commit": {
+            "abbreviatedOid": "c6d21a8"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "CHANGES_REQUESTED",
+          "body": "I'm not a fan of this change as I don't think it improves readability. ",
+          "createdAt": "2021-10-05T12:53:02Z",
+          "updatedAt": "2021-10-05T12:54:40Z",
+          "comments": [
+            {
+              "originalPosition": 46,
+              "body": "Does this render correctly?",
+              "createdAt": "2021-10-05T12:53:02Z",
+              "updatedAt": "2021-10-05T12:54:40Z"
+            },
+            {
+              "originalPosition": 75,
+              "body": "I don't really like this -- can we just pass `ikm` in as input?",
+              "createdAt": "2021-10-05T12:53:39Z",
+              "updatedAt": "2021-10-05T12:54:40Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4t-w1H",
+          "commit": {
+            "abbreviatedOid": "c6d21a8"
+          },
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-10-05T13:14:01Z",
+          "updatedAt": "2021-10-05T13:14:01Z",
+          "comments": [
+            {
+              "originalPosition": 75,
+              "body": "yeah, probably",
+              "createdAt": "2021-10-05T13:14:01Z",
+              "updatedAt": "2021-10-05T13:14:01Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4t-xHW",
+          "commit": {
+            "abbreviatedOid": "c6d21a8"
+          },
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-10-05T13:14:57Z",
+          "updatedAt": "2021-10-05T13:14:57Z",
+          "comments": [
+            {
+              "originalPosition": 46,
+              "body": "no, it doesn't, bad leftover. thanks!",
+              "createdAt": "2021-10-05T13:14:57Z",
+              "updatedAt": "2021-10-05T13:14:58Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4t_uk7",
+          "commit": {
+            "abbreviatedOid": "c9bc8ec"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-10-05T16:28:58Z",
+          "updatedAt": "2021-10-05T16:35:05Z",
+          "comments": [
+            {
+              "originalPosition": 42,
+              "body": "```suggestion\r\n2. dh2 = SerializePublicKey(sk2 * pk2)\r\n```",
+              "createdAt": "2021-10-05T16:28:58Z",
+              "updatedAt": "2021-10-05T16:35:05Z"
+            },
+            {
+              "originalPosition": 52,
+              "body": "Why swap the parameter order?",
+              "createdAt": "2021-10-05T16:29:07Z",
+              "updatedAt": "2021-10-05T16:35:05Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4uCLO3",
+          "commit": {
+            "abbreviatedOid": "c9bc8ec"
+          },
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-10-06T08:04:08Z",
+          "updatedAt": "2021-10-06T08:04:09Z",
+          "comments": [
+            {
+              "originalPosition": 52,
+              "body": "going back and forth, it just ended up like that, it was not intended. switching back",
+              "createdAt": "2021-10-06T08:04:09Z",
+              "updatedAt": "2021-10-06T08:04:09Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4uF6OG",
+          "commit": {
+            "abbreviatedOid": "b38e926"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-10-06T22:56:49Z",
+          "updatedAt": "2021-10-06T22:57:28Z",
+          "comments": [
+            {
+              "originalPosition": 66,
+              "body": "Why this change? (At some point we need to stop superfluous changes.)",
+              "createdAt": "2021-10-06T22:56:50Z",
+              "updatedAt": "2021-10-06T22:57:28Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 282,
+      "id": "PR_kwDOD79ejs4sz7ii",
+      "title": "Integrate POPRF",
+      "url": "https://github.com/cfrg/draft-irtf-cfrg-opaque/pull/282",
+      "state": "OPEN",
+      "author": "bytemare",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Address #281 ",
+      "createdAt": "2021-10-06T14:51:02Z",
+      "updatedAt": "2021-10-06T22:56:22Z",
+      "baseRepository": "cfrg/draft-irtf-cfrg-opaque",
+      "baseRefName": "master",
+      "baseRefOid": "ff92b0ae28ab2ca72cfa91c094fdaa595aa67408",
+      "headRepository": "cfrg/draft-irtf-cfrg-opaque",
+      "headRefName": "dbz/poprf",
+      "headRefOid": "87927a7d88f85172bf42c2ef29988d9a9f74fc39",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [
+        {
+          "author": "stef",
+          "authorAssociation": "NONE",
+          "body": "i see a lot of changes, and see that the reason for this is POPRF, but the PR lacks any references to what POPRF is, why it is relevant to OPAQUE, and thus why this PR is beneficial. would you please provide the missing context? thank you.",
+          "createdAt": "2021-10-06T14:55:57Z",
+          "updatedAt": "2021-10-06T14:55:57Z"
+        },
+        {
+          "author": "stef",
+          "authorAssociation": "NONE",
+          "body": "i see there is an issue open, referring to the voprf draft. but it would be useful to spell the reasons out how this applies to opaque.",
+          "createdAt": "2021-10-06T14:58:11Z",
+          "updatedAt": "2021-10-06T14:58:11Z"
+        },
+        {
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "body": "@stef the VOPRF draft now _only_ implements a POPRF, so this is a necessary change.",
+          "createdAt": "2021-10-06T15:18:32Z",
+          "updatedAt": "2021-10-06T15:18:32Z"
+        }
+      ],
+      "reviews": [
+        {
+          "id": "PRR_kwDOD79ejs4uEMRp",
+          "commit": {
+            "abbreviatedOid": "03e8ba6"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "CHANGES_REQUESTED",
+          "body": "LGTM overall, but I think there's some unnecessary temp variables used throughout. (Thanks for updating the VOPRF dependency, too!)",
+          "createdAt": "2021-10-06T15:13:58Z",
+          "updatedAt": "2021-10-06T15:17:51Z",
+          "comments": [
+            {
+              "originalPosition": 71,
+              "body": "This temp variable seems unnecessary -- why not just pass `client_idenity` to Finalize? (Same for the instance below, and Evaluate call above)",
+              "createdAt": "2021-10-06T15:13:58Z",
+              "updatedAt": "2021-10-06T15:17:51Z"
+            },
+            {
+              "originalPosition": 53,
+              "body": "Why not pass `idU` directly?",
+              "createdAt": "2021-10-06T15:14:54Z",
+              "updatedAt": "2021-10-06T15:17:51Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4uERI-",
+          "commit": {
+            "abbreviatedOid": "03e8ba6"
+          },
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-10-06T15:29:18Z",
+          "updatedAt": "2021-10-06T15:29:18Z",
+          "comments": [
+            {
+              "originalPosition": 53,
+              "body": "To test whether it solves the 'NoneType' problem ",
+              "createdAt": "2021-10-06T15:29:18Z",
+              "updatedAt": "2021-10-06T15:29:18Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4uEwnf",
+          "commit": {
+            "abbreviatedOid": "87927a7"
+          },
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-10-06T16:58:23Z",
+          "updatedAt": "2021-10-06T16:58:23Z",
+          "comments": [
+            {
+              "originalPosition": 71,
+              "body": "It's a placeholder, in case we want info to be `configuration || client_id || server_id`.\r\nBut currently, the configuration serialization is not defined, and the server_id is optional and the client doesn't have access to the public key at that point.",
+              "createdAt": "2021-10-06T16:58:23Z",
+              "updatedAt": "2021-10-06T16:58:23Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4uEx3p",
+          "commit": {
+            "abbreviatedOid": "87927a7"
+          },
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-10-06T17:03:18Z",
+          "updatedAt": "2021-10-06T17:03:18Z",
+          "comments": [
+            {
+              "originalPosition": 71,
+              "body": "Nevertheless, we could still go for `I2OSP(len(client_id), 2) || client_id || I2OSP(len(server_id), 2) || server_id||`. And if they are not defined or inaccessible, then \ud83e\udd37\r\nThe server always has access to both, the client not always. But this asymmetry doesn't break the result as long as it's constant in time.",
+              "createdAt": "2021-10-06T17:03:18Z",
+              "updatedAt": "2021-10-06T17:03:18Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4uF6JL",
+          "commit": {
+            "abbreviatedOid": "87927a7"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-10-06T22:56:12Z",
+          "updatedAt": "2021-10-06T22:56:12Z",
+          "comments": [
+            {
+              "originalPosition": 71,
+              "body": "Using client_id directly seems simplest here. Can we just do that?",
+              "createdAt": "2021-10-06T22:56:12Z",
+              "updatedAt": "2021-10-06T22:56:12Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4uF6Kk",
+          "commit": {
+            "abbreviatedOid": "87927a7"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-10-06T22:56:22Z",
+          "updatedAt": "2021-10-06T22:56:22Z",
+          "comments": [
+            {
+              "originalPosition": 53,
+              "body": "So we'll revert this, yes?",
+              "createdAt": "2021-10-06T22:56:22Z",
+              "updatedAt": "2021-10-06T22:56:22Z"
             }
           ]
         }
