@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2021-10-07T01:03:10.143526+00:00",
+  "timestamp": "2021-10-10T01:02:58.065932+00:00",
   "repo": "cfrg/draft-irtf-cfrg-opaque",
   "labels": [
     {
@@ -6280,7 +6280,7 @@
       "labels": [],
       "body": "The (V)OPRF has been updated to include the POPRF findings. We should integrate these changes since this spec depends on it.",
       "createdAt": "2021-10-05T16:14:57Z",
-      "updatedAt": "2021-10-06T09:51:04Z",
+      "updatedAt": "2021-10-08T16:33:25Z",
       "closedAt": null,
       "comments": [
         {
@@ -6289,6 +6289,27 @@
           "body": "I'm thinking of context binding using `info = configuration || client_id || server_id`, because that's all that's public and accessible to the client. But this needs to define a serialization of the configuration that we don't have at the moment",
           "createdAt": "2021-10-06T09:51:04Z",
           "updatedAt": "2021-10-06T09:51:04Z"
+        },
+        {
+          "author": "gtank",
+          "authorAssociation": "NONE",
+          "body": "This adds an important security property for our (@celo-org's) OPAQUE use case. We can't strongly identify or authorize the users of our OPRF endpoint because it's part of an account recovery flow, so we rely on rate limiting client identities to prevent brute force attempts. As current specified OPAQUE seems to allow the following attack (which @nategraf and I spotted here and also in our current design with a different OPRF construction - it's a fundamental issue):\r\n\r\n1. Attacker submits a fraudulent request for the credential file of a target identity. They receive the encrypted blob but fail to decrypt it. This preserves the main security guarantees, since it prevents attacker access to the stored credential or a valid session key, but it still gives them a guess at the password's OPRF evaluation. We assume rate limiting stops giving OPRF outputs in response to their password guesses at some point, but the attacker can retain the encrypted credential file of the target account.\r\n\r\n2. Attacker then creates a sequence of new accounts and requests their own credential files, but continues guessing the target's password and applying the OPRF outputs to decryption attempts on the target file.\r\n\r\nBasically, since the OPRF evaluation isn't domain-separated by identity, then the target's masking key can be derived from a successful guess by anyone. You could use different keys for different users (which is how some POPRFs work anyway) but a single-key POPRF would allow us to bind the client ID to the OPRF evaluation and enforce rate limits on a per-client basis without the complexity of additional keys.",
+          "createdAt": "2021-10-07T02:11:26Z",
+          "updatedAt": "2021-10-07T02:11:26Z"
+        },
+        {
+          "author": "nategraf",
+          "authorAssociation": "NONE",
+          "body": "As additional context, here is a spec for a POPRF API with domain separators @celo-org is currently implementing. https://github.com/celo-org/celo-proposals/blob/master/CIPs/cip-0040.md",
+          "createdAt": "2021-10-08T00:43:18Z",
+          "updatedAt": "2021-10-08T00:43:18Z"
+        },
+        {
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "body": "@gtank I don't know if you saw it, but currently (without POPRF) the OPRF key is derived from a mix of a \"record_identifier\" that's unique to a client_identity, and a seed. This way, every client has its OPRF evaluated with another key. It's not proper domain separation but still ensures keys are unique. ",
+          "createdAt": "2021-10-08T16:33:25Z",
+          "updatedAt": "2021-10-08T16:33:25Z"
         }
       ]
     }
@@ -19893,13 +19914,13 @@
       ],
       "body": "Addresses Login from #258",
       "createdAt": "2021-08-26T16:11:15Z",
-      "updatedAt": "2021-10-04T10:13:14Z",
+      "updatedAt": "2021-10-09T21:44:35Z",
       "baseRepository": "cfrg/draft-irtf-cfrg-opaque",
       "baseRefName": "master",
       "baseRefOid": "f28f7a1d01e50955e4b8bda48e5a25d4f91ee37e",
       "headRepository": "cfrg/draft-irtf-cfrg-opaque",
       "headRefName": "dbz/flowchart-login",
-      "headRefOid": "677778f1853c18674e083422ee6a11012acdc039",
+      "headRefOid": "47f4f7312e4be1a5c1d2a2da3b53104ecf382895",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
@@ -20971,7 +20992,7 @@
       ],
       "body": "Last PR to close #263\r\n\r\nThis factorizes common code between the client and server 3DH functions, which, I believe, helps readability.",
       "createdAt": "2021-10-05T10:45:37Z",
-      "updatedAt": "2021-10-06T22:57:28Z",
+      "updatedAt": "2021-10-10T00:22:47Z",
       "baseRepository": "cfrg/draft-irtf-cfrg-opaque",
       "baseRefName": "master",
       "baseRefOid": "f056015727a0e5b2a7f08e180c5400b67f744cb2",
@@ -21130,6 +21151,26 @@
               "updatedAt": "2021-10-06T22:57:28Z"
             }
           ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4uOvsM",
+          "commit": {
+            "abbreviatedOid": "b38e926"
+          },
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-10-10T00:22:47Z",
+          "updatedAt": "2021-10-10T00:22:47Z",
+          "comments": [
+            {
+              "originalPosition": 66,
+              "body": "The Km keys are only needed for that purpose, so we might as well use them here directly. It avoids having these lines in `ClientFinalize()` and `Response()`, which saves a couple of lines there. ",
+              "createdAt": "2021-10-10T00:22:47Z",
+              "updatedAt": "2021-10-10T00:22:47Z"
+            }
+          ]
         }
       ]
     },
@@ -21145,13 +21186,13 @@
       "labels": [],
       "body": "Address #281 ",
       "createdAt": "2021-10-06T14:51:02Z",
-      "updatedAt": "2021-10-06T22:56:22Z",
+      "updatedAt": "2021-10-09T21:36:08Z",
       "baseRepository": "cfrg/draft-irtf-cfrg-opaque",
       "baseRefName": "master",
       "baseRefOid": "ff92b0ae28ab2ca72cfa91c094fdaa595aa67408",
       "headRepository": "cfrg/draft-irtf-cfrg-opaque",
       "headRefName": "dbz/poprf",
-      "headRefOid": "87927a7d88f85172bf42c2ef29988d9a9f74fc39",
+      "headRefOid": "9e6514d6607a408cce78510570a32a94b32ed376",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
@@ -21177,6 +21218,13 @@
           "body": "@stef the VOPRF draft now _only_ implements a POPRF, so this is a necessary change.",
           "createdAt": "2021-10-06T15:18:32Z",
           "updatedAt": "2021-10-06T15:18:32Z"
+        },
+        {
+          "author": "gtank",
+          "authorAssociation": "NONE",
+          "body": "> i see a lot of changes, and see that the reason for this is POPRF, but the PR lacks any references to what POPRF is, why it is relevant to OPAQUE, and thus why this PR is beneficial. would you please provide the missing context? thank you.\r\n\r\nHi folks! If it's helpful, I can supply at least one other reason for the POPRF in OPAQUE from my work on a WhatsApp-style e2e backup recovery system: https://github.com/cfrg/draft-irtf-cfrg-opaque/issues/281#issuecomment-937386635",
+          "createdAt": "2021-10-07T02:15:03Z",
+          "updatedAt": "2021-10-07T02:15:19Z"
         }
       ],
       "reviews": [
@@ -21303,6 +21351,66 @@
               "body": "So we'll revert this, yes?",
               "createdAt": "2021-10-06T22:56:22Z",
               "updatedAt": "2021-10-06T22:56:22Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4uGM55",
+          "commit": {
+            "abbreviatedOid": "87927a7"
+          },
+          "author": "gtank",
+          "authorAssociation": "NONE",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-10-07T02:12:20Z",
+          "updatedAt": "2021-10-07T02:12:21Z",
+          "comments": [
+            {
+              "originalPosition": 71,
+              "body": "I agree with @chris-wood. I see a need for `client_id` binding, but (depending on the concrete scheme selected) including `server_id` potentially requires the caller to be aware of thresholding or other arrangements by the evalutating parties that would ideally be transparent. The output is already inherently bound to the identity of the server by use of their evaluation key.",
+              "createdAt": "2021-10-07T02:12:21Z",
+              "updatedAt": "2021-10-07T02:18:57Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4uNNXs",
+          "commit": {
+            "abbreviatedOid": "87927a7"
+          },
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-10-08T16:35:36Z",
+          "updatedAt": "2021-10-08T16:35:36Z",
+          "comments": [
+            {
+              "originalPosition": 53,
+              "body": "of course ! This PR is still in draft btw ;) ",
+              "createdAt": "2021-10-08T16:35:36Z",
+              "updatedAt": "2021-10-08T16:35:36Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4uOiVA",
+          "commit": {
+            "abbreviatedOid": "87927a7"
+          },
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-10-09T09:28:28Z",
+          "updatedAt": "2021-10-09T09:28:28Z",
+          "comments": [
+            {
+              "originalPosition": 71,
+              "body": "Good point @gtank ! Thanks :)",
+              "createdAt": "2021-10-09T09:28:28Z",
+              "updatedAt": "2021-10-09T09:28:28Z"
             }
           ]
         }
