@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2021-10-10T01:02:58.065932+00:00",
+  "timestamp": "2021-10-12T01:05:15.080127+00:00",
   "repo": "cfrg/draft-irtf-cfrg-opaque",
   "labels": [
     {
@@ -6280,7 +6280,7 @@
       "labels": [],
       "body": "The (V)OPRF has been updated to include the POPRF findings. We should integrate these changes since this spec depends on it.",
       "createdAt": "2021-10-05T16:14:57Z",
-      "updatedAt": "2021-10-08T16:33:25Z",
+      "updatedAt": "2021-10-11T06:33:43Z",
       "closedAt": null,
       "comments": [
         {
@@ -6307,9 +6307,16 @@
         {
           "author": "bytemare",
           "authorAssociation": "COLLABORATOR",
-          "body": "@gtank I don't know if you saw it, but currently (without POPRF) the OPRF key is derived from a mix of a \"record_identifier\" that's unique to a client_identity, and a seed. This way, every client has its OPRF evaluated with another key. It's not proper domain separation but still ensures keys are unique. ",
+          "body": "@gtank I don't know if you saw it, but currently (without POPRF) the OPRF key is derived from a mix of a \"record_identifier\" that's unique to a client_identity, and a seed. This way, every client has its OPRF evaluated with a different key. It's not proper domain separation but still ensures keys are unique. ",
           "createdAt": "2021-10-08T16:33:25Z",
-          "updatedAt": "2021-10-08T16:33:25Z"
+          "updatedAt": "2021-10-11T06:33:43Z"
+        },
+        {
+          "author": "nategraf",
+          "authorAssociation": "NONE",
+          "body": "@bytemare Speaking for myself, I did not notice that before. It does seem to address the primary concern, of an attacker being able to use sybil accounts to make additional online guessing attempts outside any client-specific rate limit. As a tradeoff, this seems to prevent verification of OPRF evaluation against any pre-shared (e.g. in the client binary or through PKI) server public key. It also prevents threshold implementations that rely on algebraically related keys (e.g. BLS signatures). If I understand the standard correctly, these are both trade-offs that are accepted here.\r\n\r\nOn partially related note, I noticed that the public portion of the OPRF key is not shared with the client in this standard. If I understand correctly, this means that none of the OPRF evaluations cannot be verified, even if the OPRF protocol supports it. This is as opposed to sharing it with the client as part of the OPRF evaluation response, and possibly including it in the message over which the envelope auth tag is computed to enable pinning of the OPRF key after registration. Is my understand correct, and is this intentional?",
+          "createdAt": "2021-10-11T00:24:24Z",
+          "updatedAt": "2021-10-11T00:26:02Z"
         }
       ]
     }
@@ -20992,7 +20999,7 @@
       ],
       "body": "Last PR to close #263\r\n\r\nThis factorizes common code between the client and server 3DH functions, which, I believe, helps readability.",
       "createdAt": "2021-10-05T10:45:37Z",
-      "updatedAt": "2021-10-10T00:22:47Z",
+      "updatedAt": "2021-10-11T15:39:30Z",
       "baseRepository": "cfrg/draft-irtf-cfrg-opaque",
       "baseRefName": "master",
       "baseRefOid": "f056015727a0e5b2a7f08e180c5400b67f744cb2",
@@ -21171,6 +21178,26 @@
               "updatedAt": "2021-10-10T00:22:47Z"
             }
           ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4uR1hZ",
+          "commit": {
+            "abbreviatedOid": "b38e926"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-10-11T15:37:10Z",
+          "updatedAt": "2021-10-11T15:39:30Z",
+          "comments": [
+            {
+              "originalPosition": 66,
+              "body": "Well, the function name is called `DeriveKeys`, but now it's doing more than that. Should we name the function if we're going to keep this change?",
+              "createdAt": "2021-10-11T15:37:11Z",
+              "updatedAt": "2021-10-11T15:39:30Z"
+            }
+          ]
         }
       ]
     },
@@ -21186,7 +21213,7 @@
       "labels": [],
       "body": "Address #281 ",
       "createdAt": "2021-10-06T14:51:02Z",
-      "updatedAt": "2021-10-09T21:36:08Z",
+      "updatedAt": "2021-10-11T15:36:04Z",
       "baseRepository": "cfrg/draft-irtf-cfrg-opaque",
       "baseRefName": "master",
       "baseRefOid": "ff92b0ae28ab2ca72cfa91c094fdaa595aa67408",
@@ -21411,6 +21438,32 @@
               "body": "Good point @gtank ! Thanks :)",
               "createdAt": "2021-10-09T09:28:28Z",
               "updatedAt": "2021-10-09T09:28:28Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4uRpsc",
+          "commit": {
+            "abbreviatedOid": "9e6514d"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "LGTM pending one editorial fix and a suggestion on the PoC. @kevinlewi, can you please check the vectors?",
+          "createdAt": "2021-10-11T15:13:48Z",
+          "updatedAt": "2021-10-11T15:36:04Z",
+          "comments": [
+            {
+              "originalPosition": 106,
+              "body": "Numbering is off here.",
+              "createdAt": "2021-10-11T15:13:49Z",
+              "updatedAt": "2021-10-11T15:36:04Z"
+            },
+            {
+              "originalPosition": 8,
+              "body": "Rather than do this check inline, can we move it to the calling code and assume that `info` is never `None`?",
+              "createdAt": "2021-10-11T15:35:13Z",
+              "updatedAt": "2021-10-11T15:36:04Z"
             }
           ]
         }
