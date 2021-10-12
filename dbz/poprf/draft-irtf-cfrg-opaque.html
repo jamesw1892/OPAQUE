@@ -247,22 +247,22 @@ body {
 }
 
 /* headings */
-#title, h1, h2, h3, h4, h5, h6 {
+h1, h2, h3, h4, h5, h6 {
   font-family: "Cabin Condensed", sans-serif;
   font-weight: 600;
   margin: 0.8em 0 0.3em;
   font-size-adjust: 0.5;
   color: var(--title-color);
 }
-#title {
+h1#title {
   font-size: 32px;
   line-height: 40px;
   clear: both;
 }
-#title, #rfcnum {
+h1#title, h1#rfcnum {
   margin: 1.5em 0 0.2em;
 }
-#rfcnum + #title {
+h1#rfcnum + h1#title {
   margin: 0.2em 0;
 }
 
@@ -1031,7 +1031,7 @@ address div.right {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Krawczyk, et al.</td>
-<td class="center">Expires 12 April 2022</td>
+<td class="center">Expires 15 April 2022</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1044,12 +1044,12 @@ address div.right {
 <dd class="internet-draft">draft-irtf-cfrg-opaque-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2021-10-09" class="published">9 October 2021</time>
+<time datetime="2021-10-12" class="published">12 October 2021</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Informational</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2022-04-12">12 April 2022</time></dd>
+<dd class="expires"><time datetime="2022-04-15">15 April 2022</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1109,7 +1109,7 @@ based on 3DH.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 12 April 2022.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 15 April 2022.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -2551,14 +2551,14 @@ Output:
 Steps:
 1. seed = Expand(oprf_seed, concat(credential_identifier, "OprfKey"), Nok)
 2. (oprf_key, _) = DeriveKeyPair(seed)
-4. Z = Evaluate(oprf_key, request.data, client_identity)
-5. masking_nonce = random(Nn)
-6. credential_response_pad = Expand(record.masking_key,
+3. Z = Evaluate(oprf_key, request.data, client_identity)
+4. masking_nonce = random(Nn)
+5. credential_response_pad = Expand(record.masking_key,
      concat(masking_nonce, "CredentialResponsePad"), Npk + Ne)
-7. masked_response = xor(credential_response_pad,
+6. masked_response = xor(credential_response_pad,
                          concat(server_public_key, record.envelope))
-8. Create CredentialResponse response with (Z, masking_nonce, masked_response)
-9. Output response
+7. Create CredentialResponse response with (Z, masking_nonce, masked_response)
+8. Output response
 </pre><a href="#section-6.3.2.2-3" class="pilcrow">¶</a>
 </div>
 <p id="section-6.3.2.2-4">In the case of a record that does not exist and if client enumeration prevention is desired,
