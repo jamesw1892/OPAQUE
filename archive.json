@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2021-10-12T01:05:15.080127+00:00",
+  "timestamp": "2021-10-14T01:01:00.860047+00:00",
   "repo": "cfrg/draft-irtf-cfrg-opaque",
   "labels": [
     {
@@ -6125,7 +6125,7 @@
       ],
       "body": "The protocol's complexity has reached a point where it gets easy to be confused. Flowcharts of components and the complete protocol could help the new reader with a quick overview and better understanding.\r\n\r\n- [x] Registration - Client side\r\n- [x] Registration - Server side\r\n- [x] Login - Client side\r\n- [x] Login - Server",
       "createdAt": "2021-08-26T15:43:40Z",
-      "updatedAt": "2021-10-04T10:11:30Z",
+      "updatedAt": "2021-10-13T16:54:39Z",
       "closedAt": null,
       "comments": [
         {
@@ -6134,6 +6134,13 @@
           "body": "I don't know if specific flows for the subparts are necessary, the storage and recovery functions. They are described above and could benefit from a visual representation.",
           "createdAt": "2021-10-04T10:11:30Z",
           "updatedAt": "2021-10-04T10:11:30Z"
+        },
+        {
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "body": "This is my proposal for the flowcharts\r\n\r\n## Registration client\r\n\r\n```\r\n                         | ID  | Password\r\n                         |     |\r\n                         |     v\r\n                         |   +---------+\r\n                         |   | OPRF    |\r\n                         |   | Blind() |\r\n                         |   +-------+-+\r\n                         v       OPRF-1|  \r\nSend Request to server +---------+ <---+\r\n                  <--- + Request |        \r\n                       +---------+\r\n\r\nReceive Response from server\r\n        +----------+     \r\n   ---> + Response |--+--------+\r\n        +----------+  |        | OPRF-2\r\n                      |        v\r\n                      |     +-----------+\r\n                      |     | OPRF      |\r\n                      |     | Unblind() |\r\n                      |     +----+------+\r\n                      |         |\r\n                      |         | OPRF\r\n                      |         v Output\r\n                      |     +----------+\r\n                      |     | Harden() |\r\n                      |     +---+------+\r\n                      |       |\r\n                      |       | randomized_pwd\r\n                      |       v\r\n                      | pks  +---------+\r\n                      +----> | Store() |\r\n                             ++-------++\r\n                              |       |\r\n                          pkc |       |\r\n                     envelope |       |\r\n                  masking_key |       |\r\n                              |       |\r\nSend Record to server         v       |\r\n                        +--------+    |\r\n                  <---- + Record |    |\r\n                        +--------+    |\r\n                                      v\r\n                                 Export Key\r\n```\r\n\r\n## Registration server\r\n\r\n```                            \r\n| Server Public Key       Receive Request from client\r\n|                                 +-----+     \r\n|        +------------------------+ KE1 | <---\r\n|        |                    |   +-----+\r\n|        | ID                 | OPRF-1     \r\n|        v                    |          \r\n|  +-------------+            |          \r\n|  | User Lookup |            |          \r\n|  +-+-----------+            |\r\n|    |                        |\r\n|    | oprf_seed              |\r\n|    | credential_identifier  |\r\n|    |                        v\r\n|    |                  +-----------+    \r\n|    +----------------> | OPRF      |    \r\n|                       | Evaluate()|    \r\n|                       +-----+-----+\r\n|                             |\r\n|                             | OPRF-2  \r\n|                             v          \r\n|                     +----------+ Send Response to client\r\n+-------------------> | Response + ---> \r\n                      +----------+\r\n\r\n             Receive and store Record from client\r\n                      +--------+     \r\n                      + Record | <---\r\n                      +--------+\r\n```\r\n\r\n## Login client\r\n\r\n```\r\n                     | ID     | Password\r\n                     |        |\r\n                     |        v\r\n                     |   +---------+ +---------+\r\n                     |   | OPRF    | | AKE     |\r\n                     |   | Blind() | | Start() |\r\n                     |   +-------+-+ +----+----+\r\n                     v       OPRF-1|        |\r\nSend KE1 to server   +-----+ <-----+        |\r\n              <----- + KE1 |         AKE-1  |\r\n                     +-----+ <--------------+\r\n\r\nReceive KE2 from server\r\n          +-----+     \r\n     ---> + KE2 |---+---+-----------------+\r\n          +-----+   |   |                 | OPRF-2\r\n                    |   |                 v\r\n                    |   |            +-----------+\r\n                    |   |            | OPRF      |\r\n                    |   |            | Unblind() |\r\n                    |   | Masking    +----+------+\r\n                    |   | - nonce         |\r\n                    |   | - response      | OPRF output\r\n                    |   |                 v \r\n                    |   |             +----------+\r\n                    |   |             | Harden() |\r\n                    |   v             +---+------+\r\n                    | +--------+        |\r\n                    | | Unmask | <------+ randomized_pwd\r\n                    | +-+------+        |\r\n                    |   |               |\r\n                    |   | pks           |\r\n                    |   | Envelope      v\r\n                    |   +------------> +----------+\r\n                    |                  | Key      |\r\n                    | AKE-2            | Recovery |\r\n                    +--------------->  ++--------++\r\n                                         |        |\r\n                                         | skc    |\r\n                                         | pkc    |\r\n                                         v        |\r\nSend KE1 to server  +-----+   AKE-3  +----------+ |\r\n              <---- + KE3 | <--------+ AKE      | |\r\n                    +-----+          | Finish() | |\r\n                                     +-+--------+ |\r\n                                       |          |\r\n                                       v          v\r\n                                Session Key  Export Key\r\n```\r\n\r\n## Login server\r\n\r\n```                            \r\n| Private and Public Keys       Receive KE1 from client\r\n|                                             +-----+     \r\n| +----------+-----------------------+------- + KE1 | <---\r\n| |          |                       |        +-----+\r\n| | AKE-1    | ID                    | OPRF-1     \r\n| |          v                       |          \r\n| |   +-------------+                |          \r\n| |   | User Lookup |                |          \r\n| |   ++-+-+--------+                |\r\n| |    | | |                         v\r\n| |    | | | oprf_seed              +-----------+    \r\n| |    | | | credential_identifier  | OPRF      |    \r\n| |    | | +----------------------> | Evaluate()|    \r\n| |    | |                          ++----------+\r\n| |    | |                           |\r\n| |    | |                           | OPRF-2  \r\n| |    | |                           v          \r\n| |    | | Envelope         +------------+  \r\n| |    | +----------------> | Credential |  \r\n| |    |                    | Response   |  \r\n| |    | pkc                +--------+---+  \r\n| |    v                        |     \r\n| |   +------------+            v    \r\n| +-> | AKE        | AKE-2   +-----+ Send KE2 to client\r\n|     | Response() +-------> | KE2 + --->\r\n+---> +------------+         +-----+  \r\n                                    \r\n                                Receive KE3 from client\r\n           +---------+      +-----+     \r\n           | AKE     | <--- + KE3 | <---\r\n           | Finish()|      +-----+\r\n           +----+----+              \r\n                |                   \r\n                v                   \r\n         Session Key\r\n```\r\n\r\n",
+          "createdAt": "2021-10-13T16:54:39Z",
+          "updatedAt": "2021-10-13T16:54:39Z"
         }
       ]
     },
@@ -6280,7 +6287,7 @@
       "labels": [],
       "body": "The (V)OPRF has been updated to include the POPRF findings. We should integrate these changes since this spec depends on it.",
       "createdAt": "2021-10-05T16:14:57Z",
-      "updatedAt": "2021-10-11T06:33:43Z",
+      "updatedAt": "2021-10-14T00:19:20Z",
       "closedAt": null,
       "comments": [
         {
@@ -6314,11 +6321,55 @@
         {
           "author": "nategraf",
           "authorAssociation": "NONE",
-          "body": "@bytemare Speaking for myself, I did not notice that before. It does seem to address the primary concern, of an attacker being able to use sybil accounts to make additional online guessing attempts outside any client-specific rate limit. As a tradeoff, this seems to prevent verification of OPRF evaluation against any pre-shared (e.g. in the client binary or through PKI) server public key. It also prevents threshold implementations that rely on algebraically related keys (e.g. BLS signatures). If I understand the standard correctly, these are both trade-offs that are accepted here.\r\n\r\nOn partially related note, I noticed that the public portion of the OPRF key is not shared with the client in this standard. If I understand correctly, this means that none of the OPRF evaluations cannot be verified, even if the OPRF protocol supports it. This is as opposed to sharing it with the client as part of the OPRF evaluation response, and possibly including it in the message over which the envelope auth tag is computed to enable pinning of the OPRF key after registration. Is my understand correct, and is this intentional?",
+          "body": "@bytemare Speaking for myself, I did not notice that before. It does seem to address the primary concern, of an attacker being able to use sybil accounts to make additional online guessing attempts outside any client-specific rate limit. As a tradeoff, this seems to prevent verification of OPRF evaluation against any pre-shared (e.g. in the client binary or through PKI) server public key. It also prevents threshold implementations that rely on algebraically related keys (e.g. BLS signatures). If I understand the standard correctly, these are both trade-offs that are accepted here.\r\n\r\nOn partially related note, I noticed that the public portion of the OPRF key is not shared with the client in this standard. If I understand correctly, this means that none of the OPRF evaluations can be verified, even if the OPRF protocol supports it. This is as opposed to sharing it with the client as part of the OPRF evaluation response, and possibly including it in the message over which the envelope auth tag is computed to enable pinning of the OPRF key after registration. Is my understand correct, and is this intentional?",
           "createdAt": "2021-10-11T00:24:24Z",
-          "updatedAt": "2021-10-11T00:26:02Z"
+          "updatedAt": "2021-10-12T02:59:05Z"
+        },
+        {
+          "author": "kevinlewi",
+          "authorAssociation": "COLLABORATOR",
+          "body": "@nategraf Yes that is a correct understanding and it is intentional. The original reason being that if we used a VOPRF, then the client needs to have on-hand their password as well as the VOPRF verification key to complete the key exchange phase, whereas if we just use an OPRF (as we do today), the client only needs their password to complete the key exchange phase. I see that in your application, you might be able to pre-share the VOPRF verification key in the client binary...\r\n\r\nEdit: And as @bytemare pointed out in an offline conversation with me, note that these VOPRF verification keys are user-specific (different for each user, not quite like a single global server public key). Would it still make sense in your application to pre-share these per-client VOPRF verification keys that get established only after each client's own registration? Presumably this precludes it from being embedded in the client binary...\r\n\r\n@bytemare I think we should consider altering the context binding for the POPRF to use a fixed string, or at least not include the client_identity, since the convention we have right now is that if no client_identity is supplied, then the client's public key is used. But this needs to be established before the server registration's evaluate function, whereas the client chooses their public key one step later.",
+          "createdAt": "2021-10-13T05:06:55Z",
+          "updatedAt": "2021-10-13T09:57:09Z"
+        },
+        {
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Good points by @kevinlewi and @bytemare  -- I forgot that the OPRF key is already domain separated by the (unique per user) credential identifier, so we shouldn't need to additionally include client_identifier in the POPRF metadata. \r\n\r\nThis brings us back to the drawing board. What, if anything, should go in the POPRF info string? We already have a slot for arbitrary application data (the AKE `context` string), so we shouldn't have another slot for arbitrary application data. (That seems super confusing to me.)",
+          "createdAt": "2021-10-13T16:19:33Z",
+          "updatedAt": "2021-10-13T16:19:33Z"
+        },
+        {
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Re-reading @nategraf's comment, I think the suggestion is to ship the VOPRF public key with KE2 (e.g. under the masked response). That would mean that the client derives a bunch of things in order to recover the plaintext, to then do the VOPRF verification.\r\n\r\nIs my understanding of your suggestion correct?",
+          "createdAt": "2021-10-13T23:58:48Z",
+          "updatedAt": "2021-10-13T23:58:48Z"
+        },
+        {
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "body": "I suggest we keep this issue open to track discussions around context and domain separations strings in POPRF and AKE. \r\n\r\n- Does it make sense to have client-side domain separation in both POPRF (`info` field) and the AKE (`context` string)?\r\n- If not, what are the arguments to have it on one part or the other?\r\n\r\nLet's discuss the actual value of the POPRF info in #283.",
+          "createdAt": "2021-10-14T00:18:28Z",
+          "updatedAt": "2021-10-14T00:19:20Z"
         }
       ]
+    },
+    {
+      "number": 283,
+      "id": "I_kwDOD79ejs49JIF8",
+      "title": "POPRF info value",
+      "url": "https://github.com/cfrg/draft-irtf-cfrg-opaque/issues/283",
+      "state": "OPEN",
+      "author": "bytemare",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Currently, domain separation on OPRF evaluation is done using the client's record identifier and a global seed to derive a user-specific evaluation key.\r\n\r\n(V)OPRF introduces POPRF with metadata that integrates domain separation in the API. This API allows for an `info` value for the server's evaluation function and an `info` value for the client's finalization function. These two values _can_ be different from one another and the protocol will still execute correctly, but these values must be constant across sessions to yield the same result. This last condition requires the client to possess discriminating client-specific public information that would allow proper domain separation. The `client_identity` is not currently not required to exist for the client, and can therefore be empty, which makes it a non-reliable candidate for the protocol.\r\n\r\nWhat should these values be?",
+      "createdAt": "2021-10-14T00:17:03Z",
+      "updatedAt": "2021-10-14T00:17:03Z",
+      "closedAt": null,
+      "comments": []
     }
   ],
   "pulls": [
@@ -19912,7 +19963,7 @@
       "id": "MDExOlB1bGxSZXF1ZXN0NzIwNjYxMjc0",
       "title": "Add ASCII Login Flowchart",
       "url": "https://github.com/cfrg/draft-irtf-cfrg-opaque/pull/259",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "bytemare",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
@@ -19921,18 +19972,26 @@
       ],
       "body": "Addresses Login from #258",
       "createdAt": "2021-08-26T16:11:15Z",
-      "updatedAt": "2021-10-09T21:44:35Z",
+      "updatedAt": "2021-10-13T16:55:15Z",
       "baseRepository": "cfrg/draft-irtf-cfrg-opaque",
       "baseRefName": "master",
       "baseRefOid": "f28f7a1d01e50955e4b8bda48e5a25d4f91ee37e",
       "headRepository": "cfrg/draft-irtf-cfrg-opaque",
       "headRefName": "dbz/flowchart-login",
       "headRefOid": "47f4f7312e4be1a5c1d2a2da3b53104ecf382895",
-      "closedAt": null,
+      "closedAt": "2021-10-13T16:55:14Z",
       "mergedAt": null,
       "mergedBy": null,
       "mergeCommit": null,
-      "comments": [],
+      "comments": [
+        {
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Closing this in favor of discussions in #258 ",
+          "createdAt": "2021-10-13T16:55:14Z",
+          "updatedAt": "2021-10-13T16:55:14Z"
+        }
+      ],
       "reviews": []
     },
     {
@@ -20988,7 +21047,7 @@
     {
       "number": 280,
       "id": "PR_kwDOD79ejs4ssCeI",
-      "title": "factorize 3DH key derivation description",
+      "title": "minor fixes",
       "url": "https://github.com/cfrg/draft-irtf-cfrg-opaque/pull/280",
       "state": "OPEN",
       "author": "bytemare",
@@ -20997,15 +21056,15 @@
       "labels": [
         "editorial"
       ],
-      "body": "Last PR to close #263\r\n\r\nThis factorizes common code between the client and server 3DH functions, which, I believe, helps readability.",
+      "body": "~~Last PR to close #263\r\nThis factorizes common code between the client and server 3DH functions, which, I believe, helps readability.~~",
       "createdAt": "2021-10-05T10:45:37Z",
-      "updatedAt": "2021-10-11T15:39:30Z",
+      "updatedAt": "2021-10-13T01:03:42Z",
       "baseRepository": "cfrg/draft-irtf-cfrg-opaque",
       "baseRefName": "master",
       "baseRefOid": "f056015727a0e5b2a7f08e180c5400b67f744cb2",
       "headRepository": "cfrg/draft-irtf-cfrg-opaque",
       "headRefName": "dbz/3dh-keyschedule-factor",
-      "headRefOid": "b38e926e8c87134346824f05a4f817f99cbc77b0",
+      "headRefOid": "e1d64b6a150fdedb27f203464392c26da9815bf9",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
@@ -21213,13 +21272,13 @@
       "labels": [],
       "body": "Address #281 ",
       "createdAt": "2021-10-06T14:51:02Z",
-      "updatedAt": "2021-10-11T15:36:04Z",
+      "updatedAt": "2021-10-13T23:36:26Z",
       "baseRepository": "cfrg/draft-irtf-cfrg-opaque",
       "baseRefName": "master",
       "baseRefOid": "ff92b0ae28ab2ca72cfa91c094fdaa595aa67408",
       "headRepository": "cfrg/draft-irtf-cfrg-opaque",
       "headRefName": "dbz/poprf",
-      "headRefOid": "9e6514d6607a408cce78510570a32a94b32ed376",
+      "headRefOid": "c8ff291f559753fac7e439a3397fe9bfd0418c0d",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
@@ -21252,6 +21311,27 @@
           "body": "> i see a lot of changes, and see that the reason for this is POPRF, but the PR lacks any references to what POPRF is, why it is relevant to OPAQUE, and thus why this PR is beneficial. would you please provide the missing context? thank you.\r\n\r\nHi folks! If it's helpful, I can supply at least one other reason for the POPRF in OPAQUE from my work on a WhatsApp-style e2e backup recovery system: https://github.com/cfrg/draft-irtf-cfrg-opaque/issues/281#issuecomment-937386635",
           "createdAt": "2021-10-07T02:15:03Z",
           "updatedAt": "2021-10-07T02:15:19Z"
+        },
+        {
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Nice catch @kevinlewi !",
+          "createdAt": "2021-10-13T07:38:37Z",
+          "updatedAt": "2021-10-13T07:38:37Z"
+        },
+        {
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "body": "@chris-wood: as @kevinlewi pointed out in #281, it wouldn't hurt to allow apps to input a specific string to use for POPRF, and with some small benefits.\r\n\r\nIf you both don't mind, I'd prefer to land this PR in the current state and that (an)other PR(s) address(es) the following points:\r\n- (_do_) augment the POPRF info to allow applications to put in arbitrary strings as a prefix\r\n- (_decide_) what do we do if no client id is known by the client: is an empty value acceptable?\r\n- (_decide_) if we want tighter binding and would like to include configuration parameters atop the app-specific string, we need to find a format to represent this (or an identification number \u00e0 la IANA), or state that it's part of the app-specific input info and that the OPAQUE spec doesn't specify a configuration format and serialization",
+          "createdAt": "2021-10-13T11:32:40Z",
+          "updatedAt": "2021-10-13T12:49:07Z"
+        },
+        {
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "body": "@bytemare applications can already put arbitrary info in the context string, so we don't need to let them also put it in the POPRF info string.",
+          "createdAt": "2021-10-13T11:59:24Z",
+          "updatedAt": "2021-10-13T11:59:24Z"
         }
       ],
       "reviews": [
@@ -21466,6 +21546,79 @@
               "updatedAt": "2021-10-11T15:36:04Z"
             }
           ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4uXffv",
+          "commit": {
+            "abbreviatedOid": "9e6514d"
+          },
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-10-12T22:13:08Z",
+          "updatedAt": "2021-10-12T22:13:08Z",
+          "comments": [
+            {
+              "originalPosition": 8,
+              "body": "info is None when the client identity is not given (e.g. like in the test vectors)",
+              "createdAt": "2021-10-12T22:13:08Z",
+              "updatedAt": "2021-10-12T22:13:08Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4uXfnD",
+          "commit": {
+            "abbreviatedOid": "9e6514d"
+          },
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-10-12T22:13:58Z",
+          "updatedAt": "2021-10-12T22:13:59Z",
+          "comments": [
+            {
+              "originalPosition": 8,
+              "body": "oh, you mean assume it's never `None` just in this function ?",
+              "createdAt": "2021-10-12T22:13:58Z",
+              "updatedAt": "2021-10-12T22:13:59Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4uXlpE",
+          "commit": {
+            "abbreviatedOid": "a7b97d5"
+          },
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-10-12T22:47:38Z",
+          "updatedAt": "2021-10-12T22:47:38Z",
+          "comments": [
+            {
+              "originalPosition": 8,
+              "body": "Alright, moved it up",
+              "createdAt": "2021-10-12T22:47:38Z",
+              "updatedAt": "2021-10-12T22:47:38Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4uYJsC",
+          "commit": {
+            "abbreviatedOid": "a7b97d5"
+          },
+          "author": "kevinlewi",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "```\r\n response = CreateRegistrationResponse(request,\r\n                                       server_public_key,\r\n                                       credential_identifier,\r\n                                       oprf_seed)\r\n```\r\n\r\n(Lines 773-776) The CreateRegistrationResponse needs to include the additional parameter, client_identity.",
+          "createdAt": "2021-10-13T04:42:15Z",
+          "updatedAt": "2021-10-13T04:42:15Z",
+          "comments": []
         }
       ]
     }
