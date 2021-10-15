@@ -5,12 +5,12 @@
 Network Working Group                                        H. Krawczyk
 Internet-Draft                                       Algorand Foundation
 Intended status: Informational                               D. Bourdrez
-Expires: 8 April 2022                                                   
+Expires: 18 April 2022                                                  
                                                                  K. Lewi
                                                            Novi Research
                                                                C.A. Wood
                                                               Cloudflare
-                                                          5 October 2021
+                                                         15 October 2021
 
 
                   The OPAQUE Asymmetric PAKE Protocol
@@ -49,7 +49,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 8 April 2022.
+   This Internet-Draft will expire on 18 April 2022.
 
 Copyright Notice
 
@@ -1298,35 +1298,36 @@ Steps:
    The OPAQUE-3DH key schedule requires a preamble, which is computed as
    follows.
 
-   Preamble(client_identity, ke1, server_identity, inner_ke2)
+Preamble(client_identity, ke1, server_identity, ke2)
 
-   Parameters:
-   - context, optional shared context information.
+Parameters:
+- context, optional shared context information.
 
-   Input:
-   - client_identity, the optional encoded client identity, which is set
-     to client_public_key if not specified.
-   - ke1, a KE1 message structure.
-   - server_identity, the optional encoded server identity, which is set
-     to server_public_key if not specified.
-   - inner_ke2, an inner_ke2 structure as defined in KE2.
+Input:
+- client_identity, the optional encoded client identity, which is set
+  to client_public_key if not specified.
+- ke1, a KE1 message structure.
+- server_identity, the optional encoded server identity, which is set
+  to server_public_key if not specified.
+- ke2, a KE2 message structure.
 
-   Output:
-   - preamble, the protocol transcript with identities and messages.
+Output:
+- preamble, the protocol transcript with identities and messages.
 
-   Steps:
-   1. preamble = concat("RFCXXXX",
-                        I2OSP(len(context), 2), context,
-                        I2OSP(len(client_identity), 2), client_identity,
-                        ke1,
-                        I2OSP(len(server_identity), 2), server_identity,
-                        inner_ke2)
-   2. Output preamble
+Steps:
+1. preamble = concat("RFCXXXX",
+                     I2OSP(len(context), 2), context,
+                     I2OSP(len(client_identity), 2), client_identity,
+                     ke1,
+                     I2OSP(len(server_identity), 2), server_identity,
+                     ke2.credential_response,
+                     ke2.AuthResponse.server_nonce, ke2.AuthResponse.server_keyshare)
+2. Output preamble
 
 6.4.3.2.  Shared Secret Derivation
 
    The OPAQUE-3DH shared secret derived during the key exchange protocol
-   is computed using the following function.
+   is computed using the following functions.
 
    TripleDHIKM(sk1, pk1, sk2, pk2, sk3, pk3)
 
@@ -1343,14 +1344,11 @@ Steps:
    3. dh3 = SerializePublicKey(sk3 * pk3)
    4. Output concat(dh1, dh2, dh3)
 
-   Using this shared secret, further keys used for encryption and
-   authentication are computed using the following function.
-
 DeriveKeys(ikm, preamble)
 
 Input:
 - ikm, input key material.
-- preamble, the transcript as defined by Preamble().
+- preamble, the protocol transcript with identities and messages.
 
 Output:
 - Km2, a MAC authentication key.
@@ -2061,11 +2059,12 @@ C.1.  HMQV Instantiation Sketch
    preamble value would use a different constant prefix -- "HMQV"
    instead of "3DH" -- as shown below.
 
-   preamble = concat("HMQV",
-                     I2OSP(len(client_identity), 2), client_identity,
-                     KE1,
-                     I2OSP(len(server_identity), 2), server_identity,
-                     KE2.inner_ke2)
+preamble = concat("HMQV",
+                  I2OSP(len(client_identity), 2), client_identity,
+                  KE1,
+                  I2OSP(len(server_identity), 2), server_identity,
+                  KE2.credential_response,
+                  KE2.AuthResponse.server_nonce, KE2.AuthResponse.server_keyshare)
 
    Second, the IKM derivation would change.  Assuming HMQV is
    instantiated with a cyclic group of prime order p with bit length L,
