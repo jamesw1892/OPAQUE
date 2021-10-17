@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2021-10-14T01:01:00.860047+00:00",
+  "timestamp": "2021-10-17T01:02:17.670306+00:00",
   "repo": "cfrg/draft-irtf-cfrg-opaque",
   "labels": [
     {
@@ -6365,9 +6365,9 @@
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
-      "body": "Currently, domain separation on OPRF evaluation is done using the client's record identifier and a global seed to derive a user-specific evaluation key.\r\n\r\n(V)OPRF introduces POPRF with metadata that integrates domain separation in the API. This API allows for an `info` value for the server's evaluation function and an `info` value for the client's finalization function. These two values _can_ be different from one another and the protocol will still execute correctly, but these values must be constant across sessions to yield the same result. This last condition requires the client to possess discriminating client-specific public information that would allow proper domain separation. The `client_identity` is not currently not required to exist for the client, and can therefore be empty, which makes it a non-reliable candidate for the protocol.\r\n\r\nWhat should these values be?",
+      "body": "Currently, domain separation on OPRF evaluation is done using the client's record identifier and a global seed to derive a user-specific evaluation key.\r\n\r\n(V)OPRF introduces POPRF with metadata that integrates domain separation in the API. This API allows for an `info` value for the server's evaluation function and an `info` value for the client's finalization function. These two values _can_ be different from one another and the protocol will still execute correctly, but these values must be constant across sessions to yield the same result. This last condition requires the client to possess client-specific discriminating public information that would allow proper domain separation. The `client_identity` is not currently not required to exist for the client, and can therefore be empty, which makes it a non-reliable candidate for the protocol.\r\n\r\nWhat should these values be?",
       "createdAt": "2021-10-14T00:17:03Z",
-      "updatedAt": "2021-10-14T00:17:03Z",
+      "updatedAt": "2021-10-15T09:43:59Z",
       "closedAt": null,
       "comments": []
     }
@@ -21049,7 +21049,7 @@
       "id": "PR_kwDOD79ejs4ssCeI",
       "title": "minor fixes",
       "url": "https://github.com/cfrg/draft-irtf-cfrg-opaque/pull/280",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "bytemare",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
@@ -21058,17 +21058,19 @@
       ],
       "body": "~~Last PR to close #263\r\nThis factorizes common code between the client and server 3DH functions, which, I believe, helps readability.~~",
       "createdAt": "2021-10-05T10:45:37Z",
-      "updatedAt": "2021-10-13T01:03:42Z",
+      "updatedAt": "2021-10-15T16:04:26Z",
       "baseRepository": "cfrg/draft-irtf-cfrg-opaque",
       "baseRefName": "master",
       "baseRefOid": "f056015727a0e5b2a7f08e180c5400b67f744cb2",
       "headRepository": "cfrg/draft-irtf-cfrg-opaque",
       "headRefName": "dbz/3dh-keyschedule-factor",
       "headRefOid": "e1d64b6a150fdedb27f203464392c26da9815bf9",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "closedAt": "2021-10-15T16:04:26Z",
+      "mergedAt": "2021-10-15T16:04:26Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "9bfc405d843cf331f5184a5433c0ec2387122bc9"
+      },
       "comments": [
         {
           "author": "bytemare",
@@ -21257,6 +21259,19 @@
               "updatedAt": "2021-10-11T15:39:30Z"
             }
           ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4ujUP_",
+          "commit": {
+            "abbreviatedOid": "e1d64b6"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-10-15T16:04:20Z",
+          "updatedAt": "2021-10-15T16:04:20Z",
+          "comments": []
         }
       ]
     },
@@ -21272,13 +21287,13 @@
       "labels": [],
       "body": "Address #281 ",
       "createdAt": "2021-10-06T14:51:02Z",
-      "updatedAt": "2021-10-13T23:36:26Z",
+      "updatedAt": "2021-10-15T09:24:23Z",
       "baseRepository": "cfrg/draft-irtf-cfrg-opaque",
       "baseRefName": "master",
       "baseRefOid": "ff92b0ae28ab2ca72cfa91c094fdaa595aa67408",
       "headRepository": "cfrg/draft-irtf-cfrg-opaque",
       "headRefName": "dbz/poprf",
-      "headRefOid": "c8ff291f559753fac7e439a3397fe9bfd0418c0d",
+      "headRefOid": "1e26d8ffa3896a7398a2490218ee1c8a5e2213d6",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
