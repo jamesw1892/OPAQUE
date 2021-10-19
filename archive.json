@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2021-10-17T01:02:17.670306+00:00",
+  "timestamp": "2021-10-19T01:05:46.144731+00:00",
   "repo": "cfrg/draft-irtf-cfrg-opaque",
   "labels": [
     {
@@ -6285,9 +6285,9 @@
         "bytemare"
       ],
       "labels": [],
-      "body": "The (V)OPRF has been updated to include the POPRF findings. We should integrate these changes since this spec depends on it.",
+      "body": "The (V)OPRF spec has been updated to include the POPRF findings. We should integrate these changes since this spec depends on it.\r\n\r\n_Update: POPRF merged with #282, but some questions remain_\r\n\r\n- _Does it make sense to have client-side domain separation in both POPRF (info field) and the AKE (context string)?_\r\n- _If not, what are the arguments to have it on one part or the other?_",
       "createdAt": "2021-10-05T16:14:57Z",
-      "updatedAt": "2021-10-14T00:19:20Z",
+      "updatedAt": "2021-10-18T10:43:36Z",
       "closedAt": null,
       "comments": [
         {
@@ -6352,6 +6352,13 @@
           "body": "I suggest we keep this issue open to track discussions around context and domain separations strings in POPRF and AKE. \r\n\r\n- Does it make sense to have client-side domain separation in both POPRF (`info` field) and the AKE (`context` string)?\r\n- If not, what are the arguments to have it on one part or the other?\r\n\r\nLet's discuss the actual value of the POPRF info in #283.",
           "createdAt": "2021-10-14T00:18:28Z",
           "updatedAt": "2021-10-14T00:19:20Z"
+        },
+        {
+          "author": "nategraf",
+          "authorAssociation": "NONE",
+          "body": "> Re-reading @nategraf's comment, I think the suggestion is to ship the VOPRF public key with KE2 (e.g. under the masked response). That would mean that the client derives a bunch of things in order to recover the plaintext, to then do the VOPRF verification.\r\n\r\nRight, that is what I was thinking of: Shipping the OPRF public key to the user with KE2 and and including it in the data over which the auth tag is calculated to ensure it remains consistent after registration. Although I can see an issue with this now in that the auth tag is only available after unmasking the record in the response. Client behavior would only be different (e.g. surfacing a \"verification error\" instead of \"incorrect password\") in a few narrow cases:\r\n1. If the OPRF response is manipulated such that it no longer verifies against the public key added to KE2, the client will detect this instead of simply failing to derive the masking key. But an attacker would also have access to modify the included public key, so its unclear why they would bother doing this.\r\n2. If the OPRF public key is malleable, then an attacker may include a public key that would consistent with the evaluation, allowing the client to unmask the response and check the auth tag, at which point they would see a failure. Again its unclear what value this is to an attacker.\r\n\r\nIn particular, if the attacker replaces the evaluation and public key in KE2 with a distinct public key and associated evaluation, the client would simply fail to derive the masking key and be unable to detect that the public key is inconsistent. As a result, this is not so valuable.\r\n\r\nAnyway. this is off topic for this issue. \ud83d\ude05 ",
+          "createdAt": "2021-10-17T15:56:38Z",
+          "updatedAt": "2021-10-17T15:56:38Z"
         }
       ]
     },
@@ -6367,9 +6374,31 @@
       "labels": [],
       "body": "Currently, domain separation on OPRF evaluation is done using the client's record identifier and a global seed to derive a user-specific evaluation key.\r\n\r\n(V)OPRF introduces POPRF with metadata that integrates domain separation in the API. This API allows for an `info` value for the server's evaluation function and an `info` value for the client's finalization function. These two values _can_ be different from one another and the protocol will still execute correctly, but these values must be constant across sessions to yield the same result. This last condition requires the client to possess client-specific discriminating public information that would allow proper domain separation. The `client_identity` is not currently not required to exist for the client, and can therefore be empty, which makes it a non-reliable candidate for the protocol.\r\n\r\nWhat should these values be?",
       "createdAt": "2021-10-14T00:17:03Z",
-      "updatedAt": "2021-10-15T09:43:59Z",
+      "updatedAt": "2021-10-18T23:19:09Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "nategraf",
+          "authorAssociation": "NONE",
+          "body": "If I understand correctly, the public input is only needed by the server during POPRF evaluation and the client during verification. Because, as specified, the client does not have access to the (P)OPRF verification key, the client can't verify the output and so doesn't actually need the public input. Is that a fair claim? (I don't fully understand how, from a client perspective, using a POPRF without verification is different than using an OPRF with domain separated keys, as the current draft does, so I imagine I am missing something)",
+          "createdAt": "2021-10-17T17:07:11Z",
+          "updatedAt": "2021-10-17T17:07:11Z"
+        },
+        {
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Hi @nategraf,\nYes indeed, we don't use a verifiable OPRF, as we have use the envelope MAC to verify that the output is correct.\n\nPOPRF, compared to the earlier OPRF, allows public metadata to be used for domain separation, which is a desirable feature when serving multiple different clients. Until now, we did domain separation by mixing the `oprf_seed` with the `credential_identifier` to derive the client specific OPRF evaluation key `ku`. If this is something that does not come clear in the document, I'd be very interested in your feedback :)",
+          "createdAt": "2021-10-18T23:04:47Z",
+          "updatedAt": "2021-10-18T23:09:43Z"
+        },
+        {
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Hi @hugokraw,\nwith @kevinlewi, we are wondering whether the current domain separation ( i.e. `ku = hash-to-scalar(HKDF-Expand(oprf_seed, credential_identifier))`) has different security properties than the domain-separation offered by the new POPRF (i.e. use the `info` field for domain separation input), and if there would be any benefit in switching to the later. Do you have an opinion on that ?",
+          "createdAt": "2021-10-18T23:19:09Z",
+          "updatedAt": "2021-10-18T23:19:09Z"
+        }
+      ]
     }
   ],
   "pulls": [
@@ -21280,24 +21309,26 @@
       "id": "PR_kwDOD79ejs4sz7ii",
       "title": "Integrate POPRF",
       "url": "https://github.com/cfrg/draft-irtf-cfrg-opaque/pull/282",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "bytemare",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "Address #281 ",
       "createdAt": "2021-10-06T14:51:02Z",
-      "updatedAt": "2021-10-15T09:24:23Z",
+      "updatedAt": "2021-10-18T10:10:29Z",
       "baseRepository": "cfrg/draft-irtf-cfrg-opaque",
       "baseRefName": "master",
       "baseRefOid": "ff92b0ae28ab2ca72cfa91c094fdaa595aa67408",
       "headRepository": "cfrg/draft-irtf-cfrg-opaque",
       "headRefName": "dbz/poprf",
       "headRefOid": "1e26d8ffa3896a7398a2490218ee1c8a5e2213d6",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "closedAt": "2021-10-18T10:10:29Z",
+      "mergedAt": "2021-10-18T10:10:29Z",
+      "mergedBy": "bytemare",
+      "mergeCommit": {
+        "oid": "2f95f12c5f438cf582108b15d5fb5e60631c6dbf"
+      },
       "comments": [
         {
           "author": "stef",
@@ -21347,6 +21378,20 @@
           "body": "@bytemare applications can already put arbitrary info in the context string, so we don't need to let them also put it in the POPRF info string.",
           "createdAt": "2021-10-13T11:59:24Z",
           "updatedAt": "2021-10-13T11:59:24Z"
+        },
+        {
+          "author": "kevinlewi",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Verified that the test vectors match my implementation.",
+          "createdAt": "2021-10-17T03:44:39Z",
+          "updatedAt": "2021-10-17T03:44:39Z"
+        },
+        {
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Same for mine \u2705",
+          "createdAt": "2021-10-17T09:04:14Z",
+          "updatedAt": "2021-10-17T09:04:14Z"
         }
       ],
       "reviews": [
