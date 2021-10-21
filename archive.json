@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2021-10-19T01:05:46.144731+00:00",
+  "timestamp": "2021-10-21T01:08:28.465078+00:00",
   "repo": "cfrg/draft-irtf-cfrg-opaque",
   "labels": [
     {
@@ -6374,7 +6374,7 @@
       "labels": [],
       "body": "Currently, domain separation on OPRF evaluation is done using the client's record identifier and a global seed to derive a user-specific evaluation key.\r\n\r\n(V)OPRF introduces POPRF with metadata that integrates domain separation in the API. This API allows for an `info` value for the server's evaluation function and an `info` value for the client's finalization function. These two values _can_ be different from one another and the protocol will still execute correctly, but these values must be constant across sessions to yield the same result. This last condition requires the client to possess client-specific discriminating public information that would allow proper domain separation. The `client_identity` is not currently not required to exist for the client, and can therefore be empty, which makes it a non-reliable candidate for the protocol.\r\n\r\nWhat should these values be?",
       "createdAt": "2021-10-14T00:17:03Z",
-      "updatedAt": "2021-10-18T23:19:09Z",
+      "updatedAt": "2021-10-20T18:15:16Z",
       "closedAt": null,
       "comments": [
         {
@@ -6397,6 +6397,27 @@
           "body": "Hi @hugokraw,\nwith @kevinlewi, we are wondering whether the current domain separation ( i.e. `ku = hash-to-scalar(HKDF-Expand(oprf_seed, credential_identifier))`) has different security properties than the domain-separation offered by the new POPRF (i.e. use the `info` field for domain separation input), and if there would be any benefit in switching to the later. Do you have an opinion on that ?",
           "createdAt": "2021-10-18T23:19:09Z",
           "updatedAt": "2021-10-18T23:19:09Z"
+        },
+        {
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "body": "It looks like we agree to set the POPRF's `info` field to an app independent fixed string",
+          "createdAt": "2021-10-19T10:33:04Z",
+          "updatedAt": "2021-10-19T10:33:04Z"
+        },
+        {
+          "author": "nategraf",
+          "authorAssociation": "NONE",
+          "body": "@bytemare my feedback is just that it is unclear why this specification, with the introduction of a POPRF, prefers to implement domain separation by deriving a domain-specific key rather than using a fixed key and implementing domain separation using the `info` field of the POPRF.\r\n\r\nConcretely, this disallows an implementation of OPAQUE from using an MPC POPRF construction built on algebraically related keys (e.g. constructions based on threshold BLS signatures).\r\n\r\n(It also disallows any extension to support verification via pre-shared public keys, although you've made it clear that this proposal has decided this is a non-goal)",
+          "createdAt": "2021-10-19T23:18:30Z",
+          "updatedAt": "2021-10-19T23:18:30Z"
+        },
+        {
+          "author": "kevinlewi",
+          "authorAssociation": "COLLABORATOR",
+          "body": "@nategraf The introduction of the deterministic derivation of the key from the `oprf_seed` parameter was not primarily for domain separation, but to address the \"client enumeration attacks\", where information is leaked during user re-registration. See #210, #215, for some older discussion on how we arrived to the current state today, as well as the section here (https://github.com/cfrg/draft-irtf-cfrg-opaque/blob/master/draft-irtf-cfrg-opaque.md#client-enumeration-preventing-client-enumeration).\r\n\r\nMoving the `credential_identifier` parameter into the `info` field of the POPRF would achieve domain separation, but I don't believe it would be sufficient to address the client enumeration attacks, since that seems to require deterministic key derivation from `oprf_seed`.\r\n\r\nUnfortunately, as you pointed out, this tradeoff does preclude constructing the individual user OPRF keys in an algebraic manner.",
+          "createdAt": "2021-10-20T18:15:15Z",
+          "updatedAt": "2021-10-20T18:15:15Z"
         }
       ]
     }
