@@ -2,15 +2,15 @@
 
 
 
-Network Working Group                                        H. Krawczyk
-Internet-Draft                                       Algorand Foundation
-Intended status: Informational                               D. Bourdrez
-Expires: 21 April 2022                                                  
+Network Working Group                                        D. Bourdrez
+Internet-Draft                                                          
+Intended status: Informational                               H. Krawczyk
+Expires: 28 April 2022                               Algorand Foundation
                                                                  K. Lewi
                                                            Novi Research
                                                                C.A. Wood
                                                               Cloudflare
-                                                         18 October 2021
+                                                         25 October 2021
 
 
                   The OPAQUE Asymmetric PAKE Protocol
@@ -49,7 +49,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 21 April 2022.
+   This Internet-Draft will expire on 28 April 2022.
 
 Copyright Notice
 
@@ -1884,9 +1884,9 @@ Steps:
               Davidson, A., Faz-Hernandez, A., Sullivan, N., and C. A.
               Wood, "Oblivious Pseudorandom Functions (OPRFs) using
               Prime-Order Groups", Work in Progress, Internet-Draft,
-              draft-irtf-cfrg-voprf-07, 6 July 2021,
+              draft-irtf-cfrg-voprf-08, 25 October 2021,
               <https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-
-              voprf-07>.
+              voprf-08>.
 
    [RFC2104]  Krawczyk, H., Bellare, M., and R. Canetti, "HMAC: Keyed-
               Hashing for Message Authentication", RFC 2104,
@@ -2677,15 +2677,15 @@ D.2.2.3.  Output Values
 
 Authors' Addresses
 
+   Daniel Bourdrez
+
+   Email: d@bytema.re
+
+
    Hugo Krawczyk
    Algorand Foundation
 
    Email: hugokraw@gmail.com
-
-
-   Daniel Bourdrez
-
-   Email: dan@bytema.re
 
 
    Kevin Lewi
