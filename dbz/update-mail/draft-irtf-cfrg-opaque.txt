@@ -2,10 +2,10 @@
 
 
 
-Network Working Group                                        H. Krawczyk
-Internet-Draft                                       Algorand Foundation
-Intended status: Informational                               D. Bourdrez
-Expires: 28 April 2022                                                  
+Network Working Group                                        D. Bourdrez
+Internet-Draft                                                          
+Intended status: Informational                               H. Krawczyk
+Expires: 28 April 2022                               Algorand Foundation
                                                                  K. Lewi
                                                            Novi Research
                                                                C.A. Wood
@@ -2677,15 +2677,15 @@ D.2.2.3.  Output Values
 
 Authors' Addresses
 
+   Daniel Bourdrez
+
+   Email: d@bytema.re
+
+
    Hugo Krawczyk
    Algorand Foundation
 
    Email: hugokraw@gmail.com
-
-
-   Daniel Bourdrez
-
-   Email: d@bytema.re
 
 
    Kevin Lewi
