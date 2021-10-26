@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2021-10-24T01:02:24.457569+00:00",
+  "timestamp": "2021-10-26T00:59:18.147453+00:00",
   "repo": "cfrg/draft-irtf-cfrg-opaque",
   "labels": [
     {
@@ -21713,6 +21713,90 @@
           "body": "```\r\n response = CreateRegistrationResponse(request,\r\n                                       server_public_key,\r\n                                       credential_identifier,\r\n                                       oprf_seed)\r\n```\r\n\r\n(Lines 773-776) The CreateRegistrationResponse needs to include the additional parameter, client_identity.",
           "createdAt": "2021-10-13T04:42:15Z",
           "updatedAt": "2021-10-13T04:42:15Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 284,
+      "id": "PR_kwDOD79ejs4tplIZ",
+      "title": "Sort authors alphabetically and update e-mail",
+      "url": "https://github.com/cfrg/draft-irtf-cfrg-opaque/pull/284",
+      "state": "MERGED",
+      "author": "bytemare",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2021-10-25T21:57:01Z",
+      "updatedAt": "2021-10-25T22:11:42Z",
+      "baseRepository": "cfrg/draft-irtf-cfrg-opaque",
+      "baseRefName": "master",
+      "baseRefOid": "2f95f12c5f438cf582108b15d5fb5e60631c6dbf",
+      "headRepository": "cfrg/draft-irtf-cfrg-opaque",
+      "headRefName": "dbz/update-mail",
+      "headRefOid": "174dbcb5fe67793b39ba8a01a65cfe3734ba94c1",
+      "closedAt": "2021-10-25T22:11:42Z",
+      "mergedAt": "2021-10-25T22:11:42Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "fd10c0397e50602611bddfeff0af0fb8b27c4115"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOD79ejs4vAhnZ",
+          "commit": {
+            "abbreviatedOid": "174dbcb"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-10-25T22:11:37Z",
+          "updatedAt": "2021-10-25T22:11:37Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 285,
+      "id": "PR_kwDOD79ejs4tprdd",
+      "title": "update to VOPRF 08",
+      "url": "https://github.com/cfrg/draft-irtf-cfrg-opaque/pull/285",
+      "state": "MERGED",
+      "author": "bytemare",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2021-10-25T22:46:06Z",
+      "updatedAt": "2021-10-25T22:46:46Z",
+      "baseRepository": "cfrg/draft-irtf-cfrg-opaque",
+      "baseRefName": "master",
+      "baseRefOid": "fd10c0397e50602611bddfeff0af0fb8b27c4115",
+      "headRepository": "cfrg/draft-irtf-cfrg-opaque",
+      "headRefName": "dbz/update-voprf-08",
+      "headRefOid": "cf76da9c4199bd445ac95372d38a81d65eb900d0",
+      "closedAt": "2021-10-25T22:46:46Z",
+      "mergedAt": "2021-10-25T22:46:46Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "04473ca51110577d58b3c46067402678f1d329d7"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOD79ejs4vAmmO",
+          "commit": {
+            "abbreviatedOid": "cf76da9"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-10-25T22:46:39Z",
+          "updatedAt": "2021-10-25T22:46:39Z",
           "comments": []
         }
       ]
