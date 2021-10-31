@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2021-10-28T00:59:51.516617+00:00",
+  "timestamp": "2021-10-31T01:02:47.780416+00:00",
   "repo": "cfrg/draft-irtf-cfrg-opaque",
   "labels": [
     {
@@ -6374,7 +6374,7 @@
       "labels": [],
       "body": "Currently, domain separation on OPRF evaluation is done using the client's record identifier and a global seed to derive a user-specific evaluation key.\r\n\r\n(V)OPRF introduces POPRF with metadata that integrates domain separation in the API. This API allows for an `info` value for the server's evaluation function and an `info` value for the client's finalization function. These two values _can_ be different from one another and the protocol will still execute correctly, but these values must be constant across sessions to yield the same result. This last condition requires the client to possess client-specific discriminating public information that would allow proper domain separation. The `client_identity` is not currently not required to exist for the client, and can therefore be empty, which makes it a non-reliable candidate for the protocol.\r\n\r\nWhat should these values be?",
       "createdAt": "2021-10-14T00:17:03Z",
-      "updatedAt": "2021-10-26T18:34:22Z",
+      "updatedAt": "2021-10-30T17:48:50Z",
       "closedAt": null,
       "comments": [
         {
@@ -6439,6 +6439,69 @@
           "body": "I am not happy with the move to POPRF (or should I say that I am against it?). POPRF does not have a proof that it satisfies the UC OPRF functionality which is the basis for the proof of OPAQUE in the UC. I am not saying POPRF cannot be proven secure in that sense (I did not try) but these things are never trivial. So at this point the claim of provability of OPAQUE would be unresolved. Even if someone would adjust the proof to work with the current security definition of POPRF, it would not be in the UC which was one of the \"selling points\" in the CFRG process. (By the way, does the proof in the POPRF paper includes the non-verifiable version?). In addition, the assumptions for this POPRF are stronger and less standard than for 2HashDH.\r\nIn general, the latter is also conceptually simpler which is also an advantage (though not a decisive point). POPRF is also problematic regarding key rotation (as pointed out by the POPRF paper itself), something that applies to the use in OPAQUE.  Finally, regarding  threshold implementation, 2HashDH has a trivial implementation,  non-interactive and proactivizable. The latter element is lost when deriving individual user keys via a PRF but this is not a must in general and even in this case one gets very efficient threshold schemes when the number of servers is not very large (as in most practical cases).\r\nI hope we can revert the decision.\r\nI see that a new VOPRF draft posted today _only_ defines this POPRF. I am surprised at that decision, particularly that no such discussion took place in the WG. This would seem to *force* OPAQUE to use POPRF which, as said, I do not recommend.",
           "createdAt": "2021-10-26T18:18:23Z",
           "updatedAt": "2021-10-26T18:34:22Z"
+        },
+        {
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "body": "> I am not happy with the move to POPRF (or should I say that I am against it?). \r\n\r\nI think the latter =) This is a fine position to take, though I don't think it's a concern for the OPAQUE specification specifically because the protocol can accommodate any OPRF. I'll reply to specific points below. \r\n\r\n> POPRF does not have a proof that it satisfies the UC OPRF functionality which is the basis for the proof of OPAQUE in the UC. I am not saying POPRF cannot be proven secure in that sense (I did not try) but these things are never trivial. So at this point the claim of provability of OPAQUE would be unresolved. Even if someone would adjust the proof to work with the current security definition of POPRF, it would not be in the UC which was one of the \"selling points\" in the CFRG process. \r\n\r\nIt's true that there's no proof that the POPRF satisfies the UC OPRF functionality, but as you say, this is something that can be done. I think we (CFRG) should do that work. We're doing similar analyses for other CFRG drafts, so this is not unprecedented.\r\n\r\n> (By the way, does the proof in the POPRF paper includes the non-verifiable version?)\r\n\r\nIndeed!\r\n\r\n> In addition, the assumptions for this POPRF are stronger and less standard than for 2HashDH. In general, the latter is also conceptually simpler which is also an advantage (though not a decisive point).\r\n\r\nThis is true, though the authors have confidence in the assumptions and the reduction to ECDL. Though it's a new assumption, so our mileage may vary.\r\n\r\n> POPRF is also problematic regarding key rotation (as pointed out by the POPRF paper itself), something that applies to the use in OPAQUE. \r\n\r\nI think this may be a misunderstanding. Key management is identical in the OPRF and POPRF protocols.\r\n\r\n> Finally, regarding threshold implementation, 2HashDH has a trivial implementation, non-interactive and proactivizable. The latter element is lost when deriving individual user keys via a PRF but this is not a must in general and even in this case one gets very efficient threshold schemes when the number of servers is not very large (as in most practical cases).\r\n\r\nThis seems to be the most notable regression. However, I don't consider it to be a problem, for two reasons:\r\n\r\n1) Threshold variants of the OPRF are out of scope for the draft-irtf-cfrg-voprf, so although we don't have an easy way to threshold the POPRF, I don't think we've lost any functionality.\r\n2) OPAQUE can be configured to use any OPRF, including ones that are amenable to threshold implementations. \r\n\r\nIt's certainly possible that we could _add_ back the original 2HashDH to draft-irtf-cfrg-voprf, but that's a question for that document and less so for OPAQUE. \r\n\r\n> I see that a new VOPRF draft posted today only defines this POPRF. I am surprised at that decision, particularly that no such discussion took place in the WG. This would seem to force OPAQUE to use POPRF which, as said, I do not recommend.\r\n\r\nThis proposal was [presented](https://datatracker.ietf.org/meeting/111/materials/slides-111-cfrg-ietf111-cfrg-voprf-00.pdf) without objection during the last IETF meeting.\r\n",
+          "createdAt": "2021-10-29T17:26:52Z",
+          "updatedAt": "2021-10-29T17:26:52Z"
+        },
+        {
+          "author": "hugokraw",
+          "authorAssociation": "COLLABORATOR",
+          "body": "The bottom line is this: If POPRF does not have an advantage for the OPAQUE protocol (does it?), then we should keep 2HashDH as the default one. It is simpler and threshold friendly (and while POPRF has some advantage regarding verifiability, this is not needed in OPRF).  As for the general VOPRF draft, I strongly recommend it includes a full specification of 2HashDH. Not only for OPAQUE but for many other applications for which 2HashDH is a better option (simplicity, threshold, assumptions).  I also recommend that the VOPRF document includes POPRF for applications that require support for metadata values and cannot afford a per-value public verification key. I hope you can agree with this...\r\n\r\nBtw, even if threshold is out of scope for the voprf draft, it is a basis for more advanced constructions, and threshold is an important extension so supporting 2HashDH for that is important.\r\n\r\nThe one thing I am fully opposed to is to outsource the definition of the OPRF in OPAQUE to the VOPRF document and then only have POPRF in that document. ",
+          "createdAt": "2021-10-29T23:06:41Z",
+          "updatedAt": "2021-10-29T23:06:41Z"
+        },
+        {
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "body": "> The bottom line is this: If POPRF does not have an advantage for the OPAQUE protocol (does it?), then we should keep 2HashDH as the default one.\r\n\r\nI'm not sure I agree with this, because...\r\n\r\n> The one thing I am fully opposed to is to outsource the definition of the OPRF in OPAQUE to the VOPRF document and then only have POPRF in that document.\r\n\r\nOPAQUE depends on the VOPRF specification. We shouldn't be defining an OPRF _just_ for the purposes of OPAQUE. The purpose of draft-irtf-cfrg-opaque is to be maximally useful for all use cases, of which OPAQUE is one. So that means maybe adding the 2HashDH OPRF back to that document, all for the purposes of aiding threshold deployments. Right now, that doesn't seem like sufficient justification to have two constructions with fundamentally different properties under the same abstraction. We _could_ add back 2HashDH under a different abstraction in draft-irtf-cfrg-voprf. That would just widen the scope of that document, though, which isn't harmful.\r\n\r\nAll that said, I think the simplest and most pragmatic thing to do is just keep the POPRF. But I think a reasonable compromise is to support both OPRF and POPRF in draft-irtf-cfrg-voprf, under _separate_ abstractions. We can discuss this during IETF 112.\r\n\r\n> Btw, even if threshold is out of scope for the voprf draft, it is a basis for more advanced constructions, and threshold is an important extension so supporting 2HashDH for that is important.\r\n\r\nNo disagreement there! I'm simply noting that threshold implementations were not in scope for that specification. We can always change that though. =)",
+          "createdAt": "2021-10-29T23:19:43Z",
+          "updatedAt": "2021-10-29T23:19:43Z"
+        },
+        {
+          "author": "hugokraw",
+          "authorAssociation": "COLLABORATOR",
+          "body": "I'd say that if you end up driving people to implement OPAQUE with POPRF (*) you would have made a disservice to these implementers. It has no benefit over 2HashDH for the practice of OPAQUE and a serious barrier for threshold implementations (\"not in scope\" now, but I hope we will see more of them in the future).\r\n\r\n(*) This is exactly what you would be doing if  you defined the VOPRF with POPRF only, and define OPAQUE only with hooks to VOPRF.\r\n",
+          "createdAt": "2021-10-29T23:55:05Z",
+          "updatedAt": "2021-10-29T23:55:05Z"
+        },
+        {
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Well, we've written the OPAQUE spec such that any OPRF can be used, so there is no restriction to POPRF. For example, if someone wants to use a future PQ OPRF, they can do so with no substantial OPAQUE changes.",
+          "createdAt": "2021-10-30T00:57:02Z",
+          "updatedAt": "2021-10-30T00:57:56Z"
+        },
+        {
+          "author": "hugokraw",
+          "authorAssociation": "COLLABORATOR",
+          "body": "I agree that in the future people can choose to use other OPRFs, but right now, if you define the OPRF with VOPRF-draft hooks they will use whatever is defined there. And if  what is defines there is only POPRF, that's what they will use. I do not recommend it.",
+          "createdAt": "2021-10-30T03:49:45Z",
+          "updatedAt": "2021-10-30T03:49:45Z"
+        },
+        {
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "body": "> I agree that in the future people can choose to use other OPRFs, but right now, if you define the OPRF with VOPRF-draft hooks they will use whatever is defined there.\n\nThe OPRF dependency isn't defined this way -- it's meant to accommodate any suitable OPRF, specifically so one can choose to use an OPRF that suits their needs. ",
+          "createdAt": "2021-10-30T12:06:56Z",
+          "updatedAt": "2021-10-30T12:06:56Z"
+        },
+        {
+          "author": "hugokraw",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Where are implementers supposed to get the specification of 2HashDH if they wanted to use it given its benefits if it is not part of the VOPRF spec? ",
+          "createdAt": "2021-10-30T15:42:28Z",
+          "updatedAt": "2021-10-30T15:42:28Z"
+        },
+        {
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "body": "> Where are implementers supposed to get the specification of 2HashDH if they wanted to use it given its benefits if it is not part of the VOPRF spec? \n\nProbably in the same spec which describes how to thresholdize 2HashDH (which doesn't exist). We could write one, though, or add it to the existing doc. ",
+          "createdAt": "2021-10-30T17:48:50Z",
+          "updatedAt": "2021-10-30T17:48:50Z"
         }
       ]
     }
