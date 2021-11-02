@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2021-10-31T01:02:47.780416+00:00",
+  "timestamp": "2021-11-02T01:02:37.080499+00:00",
   "repo": "cfrg/draft-irtf-cfrg-opaque",
   "labels": [
     {
@@ -6374,7 +6374,7 @@
       "labels": [],
       "body": "Currently, domain separation on OPRF evaluation is done using the client's record identifier and a global seed to derive a user-specific evaluation key.\r\n\r\n(V)OPRF introduces POPRF with metadata that integrates domain separation in the API. This API allows for an `info` value for the server's evaluation function and an `info` value for the client's finalization function. These two values _can_ be different from one another and the protocol will still execute correctly, but these values must be constant across sessions to yield the same result. This last condition requires the client to possess client-specific discriminating public information that would allow proper domain separation. The `client_identity` is not currently not required to exist for the client, and can therefore be empty, which makes it a non-reliable candidate for the protocol.\r\n\r\nWhat should these values be?",
       "createdAt": "2021-10-14T00:17:03Z",
-      "updatedAt": "2021-10-30T17:48:50Z",
+      "updatedAt": "2021-11-01T14:40:02Z",
       "closedAt": null,
       "comments": [
         {
@@ -6502,6 +6502,34 @@
           "body": "> Where are implementers supposed to get the specification of 2HashDH if they wanted to use it given its benefits if it is not part of the VOPRF spec? \n\nProbably in the same spec which describes how to thresholdize 2HashDH (which doesn't exist). We could write one, though, or add it to the existing doc. ",
           "createdAt": "2021-10-30T17:48:50Z",
           "updatedAt": "2021-10-30T17:48:50Z"
+        },
+        {
+          "author": "hugokraw",
+          "authorAssociation": "COLLABORATOR",
+          "body": "I vote for the latter: Add it to the existing doc, namely, the voprf draft. Writing a new one would postpone it unnecessarily and, frankly, in my opinion, it makes no sense to only have POPRF in a basic OPRF document.  Btw, threshold is a dimension where 2HashDH is better than POPRF but I do not see why one would use POPRF in any setting where 2HashDH suffices.\r\n\r\nBtw, one can interpret my insistence as pushing \"my own stuff\". I hope you understand this is a sincere opinion based on technical stuff, particularly as this is NOT my own stuff. It was invented by Chaum 30 years ago. Also, I think the POPRF work is excellent and I am happy to have a partial OPRF which is non-pairing based, and happy that the voprf draft will define it for those that need a partial OPRF. I just don't think that POPRF needs to be the one size that fits all, in prticular, not the best fit with OPRF.",
+          "createdAt": "2021-10-31T15:19:48Z",
+          "updatedAt": "2021-10-31T15:19:48Z"
+        },
+        {
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "body": "A POPRF with a fixed info string is functionally an OPRF (ignoring threshold implementations), so it is redundant to add both to the same doc. The question I think we're asking here is whether we need to specify a standard version of a threshold OPRF. (As of now, I don't think the benefits of a threshold variant warrant inclusion in the existing doc.)",
+          "createdAt": "2021-10-31T18:10:06Z",
+          "updatedAt": "2021-10-31T18:26:36Z"
+        },
+        {
+          "author": "hugokraw",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Functionally speaking, at least in its basic form, POPRF is functionally equivalent to 2HashDH, but formally speaking, we do not have a proof of OPAQUE under the security definition behind POPRF as this proof relies on a UC object - which is also how the very notion of aPAKE is formalized in the analysis of OPAQUE in JKX18. If draft-voprf will have the hooks needed to implement 2HashDH then I see absolutely no reason not to include that instantiation in the document (while I see significant reason to include it).",
+          "createdAt": "2021-11-01T14:28:25Z",
+          "updatedAt": "2021-11-01T14:28:54Z"
+        },
+        {
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "body": "> but formally speaking, we do not have a proof of OPAQUE under the security definition behind POPRF as this proof relies on a UC object \r\n\r\nRight, and this is a gap I think we can overcome, as we're doing similar analyses for other CFRG documents.\r\n\r\n> If draft-voprf will have the hooks needed to implement 2HashDH then I see absolutely no reason not to include that instantiation in the document (while I see significant reason to include it).\r\n\r\nI think it complicates the implementation story to have both in the same document, under the same API (or syntax). 2HashDH doesn't support metadata, so would one use the same syntax to describe 2HashDH as one would to describe 3HashSDHI?\r\n\r\nIt would seem reasonable to me to instead keep these syntaxes separate, and then have instantiations for both in draft-irtf-cfrg-voprf. One syntax for POPRFs implemented based on 3HashSDHI, and another for OPRFs implemented with 2HashDH. ",
+          "createdAt": "2021-11-01T14:40:02Z",
+          "updatedAt": "2021-11-01T14:40:02Z"
         }
       ]
     }
