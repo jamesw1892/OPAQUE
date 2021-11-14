@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2021-11-02T01:02:37.080499+00:00",
+  "timestamp": "2021-11-14T01:02:46.890781+00:00",
   "repo": "cfrg/draft-irtf-cfrg-opaque",
   "labels": [
     {
@@ -21898,6 +21898,32 @@
           "comments": []
         }
       ]
+    },
+    {
+      "number": 286,
+      "id": "PR_kwDOD79ejs4ucTWd",
+      "title": "Fixes several errors on input and output parameters.",
+      "url": "https://github.com/cfrg/draft-irtf-cfrg-opaque/pull/286",
+      "state": "OPEN",
+      "author": "armfazh",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "After implementing OPAQUE I found several errors on the description of the algorithms.\r\nThis PR amends most of them, no changes on the algorithms nor test vectors.\r\nHope this PR helps to improve a bit the draft.",
+      "createdAt": "2021-11-12T08:01:39Z",
+      "updatedAt": "2021-11-12T08:01:39Z",
+      "baseRepository": "cfrg/draft-irtf-cfrg-opaque",
+      "baseRefName": "master",
+      "baseRefOid": "04473ca51110577d58b3c46067402678f1d329d7",
+      "headRepository": "armfazh/draft-irtf-cfrg-opaque",
+      "headRefName": "fixInputs",
+      "headRefOid": "2a9dd6630a2a8c7939a11d00e9f2f3b233d05bab",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": []
     }
   ]
 }
