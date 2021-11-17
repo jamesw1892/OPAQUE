@@ -1643,7 +1643,7 @@ Steps:
       for the AKE.
 
    *  Per-user OPRF keys are derived from a client identity and cross-
-      user seed.  This was done to mitigate against client enumeration
+      user seed.  This is done to mitigate against client enumeration
       attacks.  See Section 10.9 for more details.
 
    *  The protocol outputs an export key in addition to shared session
