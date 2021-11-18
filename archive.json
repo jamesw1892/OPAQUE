@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2021-11-14T01:02:46.890781+00:00",
+  "timestamp": "2021-11-18T01:01:19.576386+00:00",
   "repo": "cfrg/draft-irtf-cfrg-opaque",
   "labels": [
     {
@@ -21911,7 +21911,7 @@
       "labels": [],
       "body": "After implementing OPAQUE I found several errors on the description of the algorithms.\r\nThis PR amends most of them, no changes on the algorithms nor test vectors.\r\nHope this PR helps to improve a bit the draft.",
       "createdAt": "2021-11-12T08:01:39Z",
-      "updatedAt": "2021-11-12T08:01:39Z",
+      "updatedAt": "2021-11-18T00:15:10Z",
       "baseRepository": "cfrg/draft-irtf-cfrg-opaque",
       "baseRefName": "master",
       "baseRefOid": "04473ca51110577d58b3c46067402678f1d329d7",
@@ -21922,8 +21922,377 @@
       "mergedAt": null,
       "mergedBy": null,
       "mergeCommit": null,
+      "comments": [
+        {
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "body": "At a first quick look, it looks like this will change the vectors, since a DST is changed",
+          "createdAt": "2021-11-17T23:34:04Z",
+          "updatedAt": "2021-11-17T23:34:04Z"
+        }
+      ],
+      "reviews": [
+        {
+          "id": "PRR_kwDOD79ejs4wOvl4",
+          "commit": {
+            "abbreviatedOid": "2a9dd66"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "CHANGES_REQUESTED",
+          "body": "There's a lot of changes here and it's hard for me to make sense of some of them. In general, this looks fine, but I would prefer significantly smaller PRs. And I would prefer that aesthetic changes (like changing function parameters around) be reverted and left out of this PR.",
+          "createdAt": "2021-11-17T21:44:21Z",
+          "updatedAt": "2021-11-17T21:59:44Z",
+          "comments": [
+            {
+              "originalPosition": 45,
+              "body": "```suggestion\r\n\r\nThe size of the envelope is a constant denoted as `Ne`. Its size may vary between key recovery methods.\r\n```",
+              "createdAt": "2021-11-17T21:44:21Z",
+              "updatedAt": "2021-11-17T21:59:44Z"
+            },
+            {
+              "originalPosition": 87,
+              "body": "```suggestion\r\nand uses it to perform a mutually authenticated key exchange. For both stages, client and \r\nserver agree on a configuration, which\r\n```",
+              "createdAt": "2021-11-17T21:46:19Z",
+              "updatedAt": "2021-11-17T21:59:44Z"
+            },
+            {
+              "originalPosition": 95,
+              "body": "```suggestion\r\n```\r\nThis is redundant with text below in the registration overview.",
+              "createdAt": "2021-11-17T21:50:42Z",
+              "updatedAt": "2021-11-17T21:59:44Z"
+            },
+            {
+              "originalPosition": 116,
+              "body": "```suggestion\r\n                      RegistrationRequest\r\n```",
+              "createdAt": "2021-11-17T21:51:58Z",
+              "updatedAt": "2021-11-17T21:59:44Z"
+            },
+            {
+              "originalPosition": 119,
+              "body": "```suggestion\r\n                      RegistrationResponse\r\n```",
+              "createdAt": "2021-11-17T21:52:06Z",
+              "updatedAt": "2021-11-17T21:59:44Z"
+            },
+            {
+              "originalPosition": 121,
+              "body": "```suggestion\r\n                      RegistrationRecord\r\n```",
+              "createdAt": "2021-11-17T21:52:14Z",
+              "updatedAt": "2021-11-17T21:59:44Z"
+            },
+            {
+              "originalPosition": 152,
+              "body": "```suggestion\r\n                        KE1\r\n```",
+              "createdAt": "2021-11-17T21:52:36Z",
+              "updatedAt": "2021-11-17T21:59:44Z"
+            },
+            {
+              "originalPosition": 155,
+              "body": "```suggestion\r\n                        KE2\r\n```",
+              "createdAt": "2021-11-17T21:52:43Z",
+              "updatedAt": "2021-11-17T21:59:45Z"
+            },
+            {
+              "originalPosition": 158,
+              "body": "```suggestion\r\n                        KE3\r\n```",
+              "createdAt": "2021-11-17T21:52:49Z",
+              "updatedAt": "2021-11-17T21:59:45Z"
+            },
+            {
+              "originalPosition": 171,
+              "body": "```suggestion\r\nThese messages carry information of the concurrent execution of the\r\ncredential retrieval process and the authenticated key exchange:\r\n```",
+              "createdAt": "2021-11-17T21:53:11Z",
+              "updatedAt": "2021-11-17T21:59:45Z"
+            },
+            {
+              "originalPosition": 201,
+              "body": "```suggestion\r\n- server_identity, The optional server identity, an octet string.\r\n```",
+              "createdAt": "2021-11-17T21:53:40Z",
+              "updatedAt": "2021-11-17T21:59:45Z"
+            },
+            {
+              "originalPosition": 202,
+              "body": "```suggestion\r\n- client_identity, The optional client identity, an octet string.\r\n```",
+              "createdAt": "2021-11-17T21:53:47Z",
+              "updatedAt": "2021-11-17T21:59:45Z"
+            },
+            {
+              "originalPosition": 215,
+              "body": "```suggestion\r\n- server_identity, The optional server identity, an octet string.\r\n```",
+              "createdAt": "2021-11-17T21:53:56Z",
+              "updatedAt": "2021-11-17T21:59:45Z"
+            },
+            {
+              "originalPosition": 214,
+              "body": "```suggestion\r\n- server_public_key, The encoded server public key for\r\nthe AKE protocol, an octet string.\r\n```",
+              "createdAt": "2021-11-17T21:54:07Z",
+              "updatedAt": "2021-11-17T21:59:45Z"
+            },
+            {
+              "originalPosition": 216,
+              "body": "```suggestion\r\n- client_identity, The optional client identity, an octet string.\r\n```",
+              "createdAt": "2021-11-17T21:54:13Z",
+              "updatedAt": "2021-11-17T21:59:45Z"
+            },
+            {
+              "originalPosition": 226,
+              "body": "```suggestion\r\n- server_identity, The optional server identity, an octet string.\r\n```",
+              "createdAt": "2021-11-17T21:54:20Z",
+              "updatedAt": "2021-11-17T21:59:45Z"
+            },
+            {
+              "originalPosition": 227,
+              "body": "```suggestion\r\n- client_identity, The optional client identity, an octet string.\r\n```",
+              "createdAt": "2021-11-17T21:54:27Z",
+              "updatedAt": "2021-11-17T21:59:45Z"
+            },
+            {
+              "originalPosition": 306,
+              "body": "```suggestion\r\n- server_identity, the optional server identity, an octet string.\r\n```",
+              "createdAt": "2021-11-17T21:54:48Z",
+              "updatedAt": "2021-11-17T21:59:45Z"
+            },
+            {
+              "originalPosition": 307,
+              "body": "```suggestion\r\n- client_identity, the optional client identity, an octet string.\r\n```",
+              "createdAt": "2021-11-17T21:54:55Z",
+              "updatedAt": "2021-11-17T21:59:45Z"
+            },
+            {
+              "originalPosition": 337,
+              "body": "```suggestion\r\n# Online Authenticated Key Exchange {#online-phase}\r\n```\r\nOne output is a session key, after all.",
+              "createdAt": "2021-11-17T21:55:25Z",
+              "updatedAt": "2021-11-17T21:59:45Z"
+            },
+            {
+              "originalPosition": 346,
+              "body": "```suggestion\r\nThis section describes the online authenticated key exchange protocol flow,\r\n```",
+              "createdAt": "2021-11-17T21:55:42Z",
+              "updatedAt": "2021-11-17T21:59:45Z"
+            },
+            {
+              "originalPosition": 473,
+              "body": "Should this output type change?",
+              "createdAt": "2021-11-17T21:57:53Z",
+              "updatedAt": "2021-11-17T21:59:45Z"
+            },
+            {
+              "originalPosition": 745,
+              "body": "ke1 was previously in the state. Why change that here?",
+              "createdAt": "2021-11-17T21:58:39Z",
+              "updatedAt": "2021-11-17T21:59:45Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 287,
+      "id": "PR_kwDOD79ejs4uq-0c",
+      "title": "Add list of paper<>spec design differences",
+      "url": "https://github.com/cfrg/draft-irtf-cfrg-opaque/pull/287",
+      "state": "OPEN",
+      "author": "chris-wood",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "This list includes notable design differences from the original paper description of OPAQUE made to accommodate the specification. This is done to help track the delta between the protocol which has been analyzed and that which is being specified in CFRG.\r\n\r\ncc @hugokraw ",
+      "createdAt": "2021-11-17T18:49:02Z",
+      "updatedAt": "2021-11-17T23:29:40Z",
+      "baseRepository": "cfrg/draft-irtf-cfrg-opaque",
+      "baseRefName": "master",
+      "baseRefOid": "04473ca51110577d58b3c46067402678f1d329d7",
+      "headRepository": "cfrg/draft-irtf-cfrg-opaque",
+      "headRefName": "caw/paper-spec-design-differences",
+      "headRefOid": "bd50e79339db6f246be58b78c9651d8c012593d8",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [
+        {
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "body": "@bytemare suggestions applied.",
+          "createdAt": "2021-11-17T19:53:03Z",
+          "updatedAt": "2021-11-17T19:53:03Z"
+        },
+        {
+          "author": "hugokraw",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Two more changes relative to the JKX'18 paper:\r\n- The masking of the envelope\r\n- JKX has a simplified analysis where the server builds all elements of the envelope for which it learns the password. The spec has the much more secure instantiation (suggested in JKX'18 but not analyzed) where the client computes the envelope and the server never sees the password.\r\n\r\nWe will need to justify (to CFRG) why these changes do not void the analysis. This justification is quite straightforward in all but two of the changes: The derivation of the user's private key from the output of the OPRF (rather than transported in the envelope) and the way the envelope is built at registration time. Both changes are analyzed in a manuscript by Hesse-Jarecki-Krawczyk-Wood that we could (probably should) post publicly. I will need first to check with the HJKW authors. \r\n\r\nBtw, these two changes actually strengthen the protocol. Obviously not sharing the password with the server during registration as (over) simplified in JKX18 (needed to match GMR UC formalism) is a *good* thing. And deriving the private key from the OPRF output removes the issue of RKR encryption and equivocability that were needed in the JKX18 analysis.",
+          "createdAt": "2021-11-17T20:33:44Z",
+          "updatedAt": "2021-11-17T20:33:44Z"
+        },
+        {
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "body": "@hugokraw I added your two suggestions.",
+          "createdAt": "2021-11-17T20:47:07Z",
+          "updatedAt": "2021-11-17T20:47:07Z"
+        },
+        {
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Looks good to me :)",
+          "createdAt": "2021-11-17T23:29:40Z",
+          "updatedAt": "2021-11-17T23:29:40Z"
+        }
+      ],
+      "reviews": [
+        {
+          "id": "PRR_kwDOD79ejs4wOIpz",
+          "commit": {
+            "abbreviatedOid": "be015e6"
+          },
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "state": "CHANGES_REQUESTED",
+          "body": "",
+          "createdAt": "2021-11-17T18:52:00Z",
+          "updatedAt": "2021-11-17T18:55:08Z",
+          "comments": [
+            {
+              "originalPosition": 11,
+              "body": "```suggestion\n- Envelopes do not contain encrypted credentials. Instead, envelopes contain information used to derive client private key material for the AKE.\n```\n",
+              "createdAt": "2021-11-17T18:52:00Z",
+              "updatedAt": "2021-11-17T18:55:08Z"
+            },
+            {
+              "originalPosition": 12,
+              "body": "```suggestion\n- Per-user OPRF keys are derived from a client identity and cross-user seed. This is done to mitigate against client enumeration attacks. See {{preventing-client-enumeration}} for more details.\n```\n",
+              "createdAt": "2021-11-17T18:52:17Z",
+              "updatedAt": "2021-11-17T18:55:08Z"
+            },
+            {
+              "originalPosition": 13,
+              "body": "```suggestion\n- The protocol outputs an export key for the client in addition to shared session key that can be used for application-specific purposes.\n```\n",
+              "createdAt": "2021-11-17T18:53:22Z",
+              "updatedAt": "2021-11-17T18:55:08Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4wPE0t",
+          "commit": {
+            "abbreviatedOid": "bd50e79"
+          },
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-11-17T23:19:45Z",
+          "updatedAt": "2021-11-17T23:19:45Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 288,
+      "id": "PR_kwDOD79ejs4urTzp",
+      "title": "Update masking key description",
+      "url": "https://github.com/cfrg/draft-irtf-cfrg-opaque/pull/288",
+      "state": "OPEN",
+      "author": "chris-wood",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "cc @hugokraw ",
+      "createdAt": "2021-11-17T20:49:44Z",
+      "updatedAt": "2021-11-17T23:35:54Z",
+      "baseRepository": "cfrg/draft-irtf-cfrg-opaque",
+      "baseRefName": "master",
+      "baseRefOid": "04473ca51110577d58b3c46067402678f1d329d7",
+      "headRepository": "cfrg/draft-irtf-cfrg-opaque",
+      "headRefName": "caw/fix-masking-key-description",
+      "headRefOid": "00616dee1a8de10cf9198eaf2d0250b25b10d247",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
       "comments": [],
-      "reviews": []
+      "reviews": [
+        {
+          "id": "PRR_kwDOD79ejs4wPGjx",
+          "commit": {
+            "abbreviatedOid": "521af56"
+          },
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-11-17T23:32:19Z",
+          "updatedAt": "2021-11-17T23:32:43Z",
+          "comments": [
+            {
+              "originalPosition": 7,
+              "body": "It may be implicit here, but isn't it useful to clarify that it's an encryption key ?",
+              "createdAt": "2021-11-17T23:32:20Z",
+              "updatedAt": "2021-11-17T23:32:43Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4wPG8O",
+          "commit": {
+            "abbreviatedOid": "521af56"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-11-17T23:35:23Z",
+          "updatedAt": "2021-11-17T23:35:24Z",
+          "comments": [
+            {
+              "originalPosition": 6,
+              "body": "```suggestion\r\n- masking_key, an encryption key used by the server with the sole purpose \r\n```",
+              "createdAt": "2021-11-17T23:35:23Z",
+              "updatedAt": "2021-11-17T23:35:24Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4wPG9X",
+          "commit": {
+            "abbreviatedOid": "521af56"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-11-17T23:35:31Z",
+          "updatedAt": "2021-11-17T23:35:32Z",
+          "comments": [
+            {
+              "originalPosition": 16,
+              "body": "```suggestion\r\n: An encryption key used by the server to preserve confidentiality of the envelope during login\r\n```",
+              "createdAt": "2021-11-17T23:35:31Z",
+              "updatedAt": "2021-11-17T23:35:32Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4wPHAh",
+          "commit": {
+            "abbreviatedOid": "5f2c6f3"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-11-17T23:35:54Z",
+          "updatedAt": "2021-11-17T23:35:54Z",
+          "comments": [
+            {
+              "originalPosition": 7,
+              "body": "I don't know if it's useful, but it probably doesn't hurt. Fix applied.",
+              "createdAt": "2021-11-17T23:35:54Z",
+              "updatedAt": "2021-11-17T23:35:54Z"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
