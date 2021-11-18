@@ -5,12 +5,12 @@
 Network Working Group                                        D. Bourdrez
 Internet-Draft                                                          
 Intended status: Informational                               H. Krawczyk
-Expires: 28 April 2022                               Algorand Foundation
+Expires: 22 May 2022                                 Algorand Foundation
                                                                  K. Lewi
                                                            Novi Research
                                                                C.A. Wood
                                                               Cloudflare
-                                                         25 October 2021
+                                                        18 November 2021
 
 
                   The OPAQUE Asymmetric PAKE Protocol
@@ -49,7 +49,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 28 April 2022.
+   This Internet-Draft will expire on 22 May 2022.
 
 Copyright Notice
 
@@ -61,9 +61,9 @@ Copyright Notice
    license-info) in effect on the date of publication of this document.
    Please review these documents carefully, as they describe your rights
    and restrictions with respect to this document.  Code Components
-   extracted from this document must include Simplified BSD License text
-   as described in Section 4.e of the Trust Legal Provisions and are
-   provided without warranty as described in the Simplified BSD License.
+   extracted from this document must include Revised BSD License text as
+   described in Section 4.e of the Trust Legal Provisions and are
+   provided without warranty as described in the Revised BSD License.
 
 Table of Contents
 
@@ -107,16 +107,17 @@ Table of Contents
    8.  Application Considerations
    9.  Implementation Considerations
    10. Security Considerations
-     10.1.  Security Analysis
-     10.2.  Related Protocols
-     10.3.  Identities
-     10.4.  Export Key Usage
-     10.5.  Static Diffie-Hellman Oracles
-     10.6.  Input Validation
-     10.7.  OPRF Hardening
-     10.8.  Client Enumeration
-     10.9.  Password Salt and Storage Implications
-     10.10. AKE Private Key Storage
+     10.1.  Notable Design Differences
+     10.2.  Security Analysis
+     10.3.  Related Protocols
+     10.4.  Identities
+     10.5.  Export Key Usage
+     10.6.  Static Diffie-Hellman Oracles
+     10.7.  Input Validation
+     10.8.  OPRF Hardening
+     10.9.  Client Enumeration
+     10.10. Password Salt and Storage Implications
+     10.11. AKE Private Key Storage
    11. IANA Considerations
    12. References
      12.1.  Normative References
@@ -393,7 +394,7 @@ Table of Contents
    a private key from a seed, and the cryptographic primitive in the AKE
    must therefore support such a possibility.
 
-   If applications implement Section 10.8, they MUST use the same
+   If applications implement Section 10.9, they MUST use the same
    mechanism throughout their lifecycle in order to avoid activity leaks
    due to switching.
 
@@ -571,7 +572,7 @@ Table of Contents
 
    *  server_identity: The server identity.  This is typically a domain
       name, e.g., example.com.  If not specified, it defaults to the
-      server's public key.  See Section 10.3 for information about this
+      server's public key.  See Section 10.4 for information about this
       identity.
 
    These credential values are used in the CleartextCredentials
@@ -754,10 +755,10 @@ Steps:
    parameters referenced above.
 
    Both client and server MUST validate the other party's public key
-   before use.  See Section 10.6 for more details.  Upon completion, the
+   before use.  See Section 10.7 for more details.  Upon completion, the
    server stores the client's credentials for later use.  Moreover, the
    client MAY use the output export_key for further application-specific
-   purposes; see Section 10.4.
+   purposes; see Section 10.5.
 
 5.1.  Registration Messages
 
@@ -869,7 +870,7 @@ Steps:
    client_identity (if different).  Note that the values oprf_seed and
    server_private_key from the server's setup phase must also be
    persisted.  The oprf_seed value SHOULD be used for all clients; see
-   Section 10.8.  The server_private_key may be unique for each client.
+   Section 10.9.  The server_private_key may be unique for each client.
 
 6.  Online Authenticated Key Exchange
 
@@ -915,7 +916,7 @@ Steps:
    The client receives two outputs: a session secret and an export key.
    The export key is only available to the client, and may be used for
    additional application-specific purposes, as outlined in
-   Section 10.4.  The output export_key MUST NOT be used in any way
+   Section 10.5.  The output export_key MUST NOT be used in any way
    before the protocol completes successfully.  See Appendix B for more
    details about this requirement.  The server receives a single output:
    a session secret matching the client's.
@@ -1573,7 +1574,7 @@ Steps:
       they SHOULD respond with a "fake" response in order to prevent
       active client enumeration attacks.  Servers that implement this
       mitigation SHOULD use the same configuration information (such as
-      the oprf_seed) for all clients; see Section 10.8.  In settings
+      the oprf_seed) for all clients; see Section 10.9.  In settings
       where this attack is not a concern, servers may choose to not
       support this functionality.
 
@@ -1629,7 +1630,50 @@ Steps:
    optimized performance to integration with existing authenticated key
    exchange protocols such as TLS.
 
-10.1.  Security Analysis
+10.1.  Notable Design Differences
+
+   [[RFC EDITOR: Please delete this section before publication.]]
+
+   The specification as written here differs from the original
+   cryptographic design in [OPAQUE].  The following list enumerates
+   important differences:
+
+   *  Clients construct envelope contents without revealing the password
+      to the server, as described in Section 5, whereas the servers
+      construct envelopes in [OPAQUE].
+
+   *  Envelopes do not contain encrypted credentials.  Instead,
+      envelopes contain information used to derive client private key
+      material for the AKE.
+
+   *  Envelopes are masked with a per-user masking key as a way of
+      preventing client enumeration attacks.  See Section 10.9 for more
+      details.
+
+   *  Per-user OPRF keys are derived from a client identity and cross-
+      user seed as a mitigation against client enumeration attacks.  See
+      Section 10.9 for more details.
+
+   *  The protocol outputs an export key for the client in addition to
+      shared session key that can be used for application-specific
+      purposes.
+
+   *  The protocol admits optional application-layer client and server
+      identities.  In the absence of these identities, client and server
+      are authenticated against their public keys.
+
+   *  The protocol admits application-specific context information
+      configured out-of-band in the AKE transcript.  This allows domain
+      separation between different application uses of OPAQUE.
+
+   *  Servers use a separate identifier for computing OPRF evaluations
+      and indexing into the password file storage, called the
+      credential_identifier.  This allows clients to change their
+      application-layer identity (client_identity) without inducing
+      server-side changes, e.g., by changing an email address associated
+      with a given account.
+
+10.2.  Security Analysis
 
    Jarecki et al.  [OPAQUE] proved the security of OPAQUE in a strong
    aPAKE model that ensures security against pre-computation attacks and
@@ -1663,7 +1707,7 @@ Steps:
    protocols for use in OPAQUE is to provide forward secrecy (against
    active attackers).
 
-10.2.  Related Protocols
+10.3.  Related Protocols
 
    Despite the existence of multiple designs for (PKI-free) aPAKE
    protocols, none of these protocols are secure against pre-computation
@@ -1689,7 +1733,7 @@ Steps:
    OPAQUE is therefore a suitable replacement for applications that use
    SRP.
 
-10.3.  Identities
+10.4.  Identities
 
    AKE protocols generate keys that need to be uniquely and verifiably
    bound to a pair of identities.  In the case of OPAQUE, those
@@ -1735,7 +1779,7 @@ Steps:
    unspecified (and using client_public_key and server_public_key
    instead) is acceptable.
 
-10.4.  Export Key Usage
+10.5.  Export Key Usage
 
    The export key can be used (separately from the OPAQUE protocol) to
    provide confidentiality and integrity to other data which only the
@@ -1744,7 +1788,7 @@ Steps:
    to access, then this export key can be used to encrypt these secrets
    so that they remain hidden from the server.
 
-10.5.  Static Diffie-Hellman Oracles
+10.6.  Static Diffie-Hellman Oracles
 
    While one can expect the practical security of the OPRF function
    (namely, the hardness of computing the function without knowing the
@@ -1757,7 +1801,7 @@ Steps:
    impractical as they translate into an infeasible number of failed
    authentication attempts directed at individual users.
 
-10.6.  Input Validation
+10.7.  Input Validation
 
    Both client and server MUST validate the other party's public key(s)
    used for the execution of OPAQUE.  This includes the keys shared
@@ -1771,7 +1815,7 @@ Steps:
    is not the point at infinity.  Additionally, validation MUST ensure
    the Diffie-Hellman shared secret is not the point at infinity.
 
-10.7.  OPRF Hardening
+10.8.  OPRF Hardening
 
    Hardening the output of the OPRF greatly increases the cost of an
    offline attack upon the compromise of the credential file at the
@@ -1782,7 +1826,7 @@ Steps:
    protocol on clients (specifically low-end devices) and protection
    against offline attacks after a server compromise.
 
-10.8.  Client Enumeration
+10.9.  Client Enumeration
 
    Client enumeration refers to attacks where the attacker tries to
    learn extra information about the behavior of clients that have
@@ -1836,7 +1880,7 @@ Steps:
    Applications should mitigate against this type of attack by rate
    limiting or otherwise restricting the registration flow.
 
-10.9.  Password Salt and Storage Implications
+10.10.  Password Salt and Storage Implications
 
    In OPAQUE, the OPRF key acts as the secret salt value that ensures
    the infeasibility of pre-computation attacks.  No extra salt value is
@@ -1860,7 +1904,7 @@ Steps:
    the server are possible to implement, e.g., detecting repeated
    passwords.
 
-10.10.  AKE Private Key Storage
+10.11.  AKE Private Key Storage
 
    Server implementations of OPAQUE do not need access to the raw AKE
    private key.  They only require the ability to compute shared secrets
@@ -1891,21 +1935,21 @@ Steps:
    [RFC2104]  Krawczyk, H., Bellare, M., and R. Canetti, "HMAC: Keyed-
               Hashing for Message Authentication", RFC 2104,
               DOI 10.17487/RFC2104, February 1997,
-              <https://datatracker.ietf.org/doc/html/rfc2104>.
+              <https://www.rfc-editor.org/rfc/rfc2104>.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
               DOI 10.17487/RFC2119, March 1997,
-              <https://datatracker.ietf.org/doc/html/rfc2119>.
+              <https://www.rfc-editor.org/rfc/rfc2119>.
 
    [RFC4086]  Eastlake 3rd, D., Schiller, J., and S. Crocker,
               "Randomness Requirements for Security", BCP 106, RFC 4086,
               DOI 10.17487/RFC4086, June 2005,
-              <https://datatracker.ietf.org/doc/html/rfc4086>.
+              <https://www.rfc-editor.org/rfc/rfc4086>.
 
    [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
               2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
-              May 2017, <https://datatracker.ietf.org/doc/html/rfc8174>.
+              May 2017, <https://www.rfc-editor.org/rfc/rfc8174>.
 
 12.2.  Informative References
 
@@ -1913,7 +1957,7 @@ Steps:
               Josefsson, "Argon2 Memory-Hard Function for Password
               Hashing and Proof-of-Work Applications", RFC 9106,
               DOI 10.17487/RFC9106, September 2021,
-              <https://datatracker.ietf.org/doc/html/rfc9106>.
+              <https://www.rfc-editor.org/rfc/rfc9106>.
 
    [AuCPace]  Haase, B. and B. Labrique, "AuCPace: Efficient verifier-
               based PAKE protocol tailored for the IIoT",
@@ -1974,35 +2018,33 @@ Steps:
    [PBKDF2]   Kaliski, B., "PKCS #5: Password-Based Cryptography
               Specification Version 2.0", RFC 2898,
               DOI 10.17487/RFC2898, September 2000,
-              <https://datatracker.ietf.org/doc/html/rfc2898>.
+              <https://www.rfc-editor.org/rfc/rfc2898>.
 
    [RFC2945]  Wu, T., "The SRP Authentication and Key Exchange System",
               RFC 2945, DOI 10.17487/RFC2945, September 2000,
-              <https://datatracker.ietf.org/doc/html/rfc2945>.
+              <https://www.rfc-editor.org/rfc/rfc2945>.
 
    [RFC5869]  Krawczyk, H. and P. Eronen, "HMAC-based Extract-and-Expand
               Key Derivation Function (HKDF)", RFC 5869,
               DOI 10.17487/RFC5869, May 2010,
-              <https://datatracker.ietf.org/doc/html/rfc5869>.
+              <https://www.rfc-editor.org/rfc/rfc5869>.
 
    [RFC8017]  Moriarty, K., Ed., Kaliski, B., Jonsson, J., and A. Rusch,
               "PKCS #1: RSA Cryptography Specifications Version 2.2",
               RFC 8017, DOI 10.17487/RFC8017, November 2016,
-              <https://datatracker.ietf.org/doc/html/rfc8017>.
+              <https://www.rfc-editor.org/rfc/rfc8017>.
 
    [RFC8125]  Schmidt, J., "Requirements for Password-Authenticated Key
               Agreement (PAKE) Schemes", RFC 8125, DOI 10.17487/RFC8125,
-              April 2017,
-              <https://datatracker.ietf.org/doc/html/rfc8125>.
+              April 2017, <https://www.rfc-editor.org/rfc/rfc8125>.
 
    [RFC8446]  Rescorla, E., "The Transport Layer Security (TLS) Protocol
               Version 1.3", RFC 8446, DOI 10.17487/RFC8446, August 2018,
-              <https://datatracker.ietf.org/doc/html/rfc8446>.
+              <https://www.rfc-editor.org/rfc/rfc8446>.
 
    [SCRYPT]   Percival, C. and S. Josefsson, "The scrypt Password-Based
               Key Derivation Function", RFC 7914, DOI 10.17487/RFC7914,
-              August 2016,
-              <https://datatracker.ietf.org/doc/html/rfc7914>.
+              August 2016, <https://www.rfc-editor.org/rfc/rfc7914>.
 
    [SIGNAL]   "Simplifying OTR deniability",
               https://signal.org/blog/simplifying-otr-deniability ,
