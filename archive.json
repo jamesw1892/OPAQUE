@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2021-11-18T01:01:19.576386+00:00",
+  "timestamp": "2021-11-21T01:03:33.316123+00:00",
   "repo": "cfrg/draft-irtf-cfrg-opaque",
   "labels": [
     {
@@ -5682,7 +5682,7 @@
       "labels": [],
       "body": "Perhaps alignment with HPKE would improve things? One downside is that HPKE does not make parameter types clear, which is currently done in the OPAQUE pseudocode. While we're in here, we should unify capitalization for the parameters. Inconsistent examples include:\r\n\r\n```\r\n- envelope, the client's `Envelope` structure\r\n...\r\n- server_identity, The optional encoded server identity.\r\n```\r\n\r\nAs an aside, this is probably a larger question for CFRG: how do we want to express pseudocode for implementers? ",
       "createdAt": "2021-08-10T18:19:32Z",
-      "updatedAt": "2021-09-22T22:30:35Z",
+      "updatedAt": "2021-11-18T23:31:50Z",
       "closedAt": null,
       "comments": [
         {
@@ -5691,6 +5691,13 @@
           "body": "I'll do this after @bytemare's abstraction changes land.",
           "createdAt": "2021-09-22T22:30:35Z",
           "updatedAt": "2021-09-22T22:30:35Z"
+        },
+        {
+          "author": "armfazh",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "https://www.ietf.org/about/groups/iesg/statements/formal-languages-use/\r\n\r\n```\r\n1. ikm = TripleDHIKM(state.client_secret, ke2.server_keyshare,\r\n    state.client_secret, server_public_key, client_private_key, ke2.server_keyshare)\r\n2. preamble = Preamble(client_identity, state.ke1, server_identity, ke2)\r\n3. Km2, Km3, session_key = DeriveKeys(ikm, preamble)\r\n4. expected_server_mac = MAC(Km2, Hash(preamble))\r\n5. If !ct_equal(ke2.server_mac, expected_server_mac),\r\n     raise HandshakeError\r\n6. client_mac = MAC(Km3, Hash(concat(preamble, expected_server_mac))\r\n7. Create KE3 ke3 with client_mac\r\n8. Output (ke3, session_key)\r\n```\r\nsome indentation can be done in order to make the code more legible.\r\n\r\n```\r\n1.   ikm = TripleDHIKM(\r\n                  state.client_secret, ke2.server_keyshare,\r\n                  state.client_secret, server_public_key, \r\n                  client_private_key, ke2.server_keyshare)\r\n2.   preamble = Preamble(\r\n                  client_identity, state.ke1, \r\n                  server_identity, ke2)\r\n3.   Km2, Km3, session_key = DeriveKeys(ikm, preamble)\r\n4.   expected_server_mac = MAC(Km2, Hash(preamble))\r\n5.   If !ct_equal(ke2.server_mac, expected_server_mac),\r\n5.1     raise HandshakeError\r\n6.   client_mac = MAC(Km3, Hash(\r\n                  concat(preamble, expected_server_mac))\r\n7.   Create KE3 ke3 with client_mac\r\n8.   Output (ke3, session_key)\r\n```\r\n\r\nAlternatively, the small scripts can be moved to a single section. In the main body, it defines only inputs and outputs.\r\n",
+          "createdAt": "2021-11-18T23:31:50Z",
+          "updatedAt": "2021-11-18T23:31:50Z"
         }
       ]
     },
@@ -6530,6 +6537,85 @@
           "body": "> but formally speaking, we do not have a proof of OPAQUE under the security definition behind POPRF as this proof relies on a UC object \r\n\r\nRight, and this is a gap I think we can overcome, as we're doing similar analyses for other CFRG documents.\r\n\r\n> If draft-voprf will have the hooks needed to implement 2HashDH then I see absolutely no reason not to include that instantiation in the document (while I see significant reason to include it).\r\n\r\nI think it complicates the implementation story to have both in the same document, under the same API (or syntax). 2HashDH doesn't support metadata, so would one use the same syntax to describe 2HashDH as one would to describe 3HashSDHI?\r\n\r\nIt would seem reasonable to me to instead keep these syntaxes separate, and then have instantiations for both in draft-irtf-cfrg-voprf. One syntax for POPRFs implemented based on 3HashSDHI, and another for OPRFs implemented with 2HashDH. ",
           "createdAt": "2021-11-01T14:40:02Z",
           "updatedAt": "2021-11-01T14:40:02Z"
+        }
+      ]
+    },
+    {
+      "number": 289,
+      "id": "I_kwDOD79ejs4_CuJM",
+      "title": "Add a section called Setup",
+      "url": "https://github.com/cfrg/draft-irtf-cfrg-opaque/issues/289",
+      "state": "OPEN",
+      "author": "armfazh",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Just like any other protocol, there is some preparation steps that must be done (off--line) before to run a protocol.\r\n\r\nI suggest including a section called Setup, enumerating all the steps and premises required by this phase.\r\n\r\nThis was already suggested: \r\n\r\n> I feel a lack of a section called Setup, like any other protocols has.\r\n\r\n_Originally posted by @armfazh in https://github.com/cfrg/draft-irtf-cfrg-opaque/pull/286#discussion_r751954650_",
+      "createdAt": "2021-11-18T18:38:57Z",
+      "updatedAt": "2021-11-18T18:54:09Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "body": "This content is already included in the text, so what specifically is the request here?",
+          "createdAt": "2021-11-18T18:54:09Z",
+          "updatedAt": "2021-11-18T18:54:09Z"
+        }
+      ]
+    },
+    {
+      "number": 290,
+      "id": "I_kwDOD79ejs4_Cv44",
+      "title": "Agree on the name of the second phase of the protocol",
+      "url": "https://github.com/cfrg/draft-irtf-cfrg-opaque/issues/290",
+      "state": "OPEN",
+      "author": "armfazh",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "The protocol has two phases Registration and Online Authentication.\r\n\r\nThe main piece of the Online Authentication phase is an Authenticated Key Exchange (AKE). but it is not the only piece.\r\n\r\nThe current title for the section explaining Online Authentication is  \"Online Authentication Key exchange\". However, I suggest the name should be \"Online Authentication\" as this section is in charge to describe not only the AKE but also how the AKE is invoked and how the state is managed. \r\n\r\n\r\n--\r\nSee more discussion at: \r\n\r\n_Originally posted by @armfazh in https://github.com/cfrg/draft-irtf-cfrg-opaque/pull/286#discussion_r751957364_",
+      "createdAt": "2021-11-18T18:47:16Z",
+      "updatedAt": "2021-11-19T00:10:23Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "body": "The output of the protocol is (1) a session key for both client and server, and (2) an export key for the client. I think renaming this to \"Online Authentication\" misses (1). I'm not sure of a phrase that encompasses both (1) and (2), but I agree that something more clear would be useful. ",
+          "createdAt": "2021-11-18T19:10:20Z",
+          "updatedAt": "2021-11-18T19:10:20Z"
+        },
+        {
+          "author": "armfazh",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "It may work to move Section 10.4 (https://www.ietf.org/archive/id/draft-irtf-cfrg-opaque-07.html#name-export-key-usage) right after the `Online Authenticated Key Exchange.` \r\n\r\nSo the message that the document must convey is that the output of the protocol is a session key and a secondary key that can be used by the client. Document might hint use cases for this secondary key.\r\n",
+          "createdAt": "2021-11-19T00:10:23Z",
+          "updatedAt": "2021-11-19T00:10:23Z"
+        }
+      ]
+    },
+    {
+      "number": 291,
+      "id": "I_kwDOD79ejs4_CwnB",
+      "title": "Determine the content of client/server states during online authentication",
+      "url": "https://github.com/cfrg/draft-irtf-cfrg-opaque/issues/291",
+      "state": "OPEN",
+      "author": "armfazh",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Currently the state is vaguely specified. Specification must be clearer in what is the content of the state. \r\n(this may need some minor fixes, but still needs to be addressed).\r\n\r\nRaised after:\r\n\r\n_Originally posted by @chris-wood in https://github.com/cfrg/draft-irtf-cfrg-opaque/pull/286#discussion_r751669794_",
+      "createdAt": "2021-11-18T18:50:33Z",
+      "updatedAt": "2021-11-19T00:13:44Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "armfazh",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "So, either formally specifying what the state contains, or removing at all the state structure are both good alternatives. Currently, it is specified something in between.",
+          "createdAt": "2021-11-19T00:13:44Z",
+          "updatedAt": "2021-11-19T00:13:44Z"
         }
       ]
     }
@@ -21911,13 +21997,13 @@
       "labels": [],
       "body": "After implementing OPAQUE I found several errors on the description of the algorithms.\r\nThis PR amends most of them, no changes on the algorithms nor test vectors.\r\nHope this PR helps to improve a bit the draft.",
       "createdAt": "2021-11-12T08:01:39Z",
-      "updatedAt": "2021-11-18T00:15:10Z",
+      "updatedAt": "2021-11-21T00:24:10Z",
       "baseRepository": "cfrg/draft-irtf-cfrg-opaque",
       "baseRefName": "master",
-      "baseRefOid": "04473ca51110577d58b3c46067402678f1d329d7",
+      "baseRefOid": "02871345acefcb7aa9bc78c48c4f8b059761d0d2",
       "headRepository": "armfazh/draft-irtf-cfrg-opaque",
       "headRefName": "fixInputs",
-      "headRefOid": "2a9dd6630a2a8c7939a11d00e9f2f3b233d05bab",
+      "headRefOid": "b413b7cbf3168d2d0b2aa10a4f5bec32c7a79215",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
@@ -21929,6 +22015,20 @@
           "body": "At a first quick look, it looks like this will change the vectors, since a DST is changed",
           "createdAt": "2021-11-17T23:34:04Z",
           "updatedAt": "2021-11-17T23:34:04Z"
+        },
+        {
+          "author": "armfazh",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "> At a first quick look, it looks like this will change the vectors, since a DST is changed\r\n\r\nIt doesn't because the code was wrong. I decided to fix the DST rather than the code. This can be changed later, if needed.",
+          "createdAt": "2021-11-18T06:58:17Z",
+          "updatedAt": "2021-11-18T06:58:17Z"
+        },
+        {
+          "author": "armfazh",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "There was 3 points I raised during this PR. They will be addressed later in a shorter PR.\r\nAlso, I reverted my changes on the state of the client and server, with the hope that it will be addressed in #291 .",
+          "createdAt": "2021-11-18T21:52:18Z",
+          "updatedAt": "2021-11-18T21:52:18Z"
         }
       ],
       "reviews": [
@@ -22083,6 +22183,764 @@
               "updatedAt": "2021-11-17T21:59:45Z"
             }
           ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4wQHfu",
+          "commit": {
+            "abbreviatedOid": "2a9dd66"
+          },
+          "author": "armfazh",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-11-18T07:01:08Z",
+          "updatedAt": "2021-11-18T07:01:08Z",
+          "comments": [
+            {
+              "originalPosition": 45,
+              "body": "I used the convention in the previous section where constants are explicitly itemized. I suggest this change because finding this parameter in the middle of a sentence is more difficult to parse.",
+              "createdAt": "2021-11-18T07:01:08Z",
+              "updatedAt": "2021-11-18T07:01:08Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4wQHsl",
+          "commit": {
+            "abbreviatedOid": "2a9dd66"
+          },
+          "author": "armfazh",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-11-18T07:02:26Z",
+          "updatedAt": "2021-11-18T07:02:26Z",
+          "comments": [
+            {
+              "originalPosition": 87,
+              "body": "I feel a lack of a section called Setup, like any other protocols has.",
+              "createdAt": "2021-11-18T07:02:26Z",
+              "updatedAt": "2021-11-18T07:02:26Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4wQIGb",
+          "commit": {
+            "abbreviatedOid": "cc6cefd"
+          },
+          "author": "armfazh",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-11-18T07:05:08Z",
+          "updatedAt": "2021-11-18T07:05:09Z",
+          "comments": [
+            {
+              "originalPosition": 116,
+              "body": "I changed this twice, I still didn't understand what is the convention.\r\n\r\nWhat must be on top of the arrow? the object type or an instance of such an object. I can change either way, but want to know what is the convention to follow.\r\n\r\n\r\n",
+              "createdAt": "2021-11-18T07:05:09Z",
+              "updatedAt": "2021-11-18T07:05:09Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4wQIOw",
+          "commit": {
+            "abbreviatedOid": "cc6cefd"
+          },
+          "author": "armfazh",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-11-18T07:05:56Z",
+          "updatedAt": "2021-11-18T07:05:56Z",
+          "comments": [
+            {
+              "originalPosition": 307,
+              "body": "Does this applies to all occurrences of `*_identity`?",
+              "createdAt": "2021-11-18T07:05:56Z",
+              "updatedAt": "2021-11-18T07:05:56Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4wQIoH",
+          "commit": {
+            "abbreviatedOid": "cc6cefd"
+          },
+          "author": "armfazh",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-11-18T07:08:26Z",
+          "updatedAt": "2021-11-18T07:08:27Z",
+          "comments": [
+            {
+              "originalPosition": 337,
+              "body": "My understanding of the draft is that during Online Authentication two tasks happen, and one of them is an Authenticated Key Exchange (AKE). However, Online Authentication, I think is a more general title for describing this big phase, later there is one section only of AKE.\r\n\r\n",
+              "createdAt": "2021-11-18T07:08:27Z",
+              "updatedAt": "2021-11-18T07:08:27Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4wQJpP",
+          "commit": {
+            "abbreviatedOid": "cc6cefd"
+          },
+          "author": "armfazh",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-11-18T07:14:50Z",
+          "updatedAt": "2021-11-18T07:14:50Z",
+          "comments": [
+            {
+              "originalPosition": 745,
+              "body": "Because the `AKE client state` only carries values from the AKE.\r\nThe external function (the one that calls the AKE) is the one that knows how to build KE1 during Start().\r\n ",
+              "createdAt": "2021-11-18T07:14:50Z",
+              "updatedAt": "2021-11-18T07:14:50Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4wQKEq",
+          "commit": {
+            "abbreviatedOid": "cc6cefd"
+          },
+          "author": "armfazh",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-11-18T07:17:31Z",
+          "updatedAt": "2021-11-18T07:17:32Z",
+          "comments": [
+            {
+              "originalPosition": 473,
+              "body": "not sure, change to what type? (didn't get your question, could you please elaborate)",
+              "createdAt": "2021-11-18T07:17:32Z",
+              "updatedAt": "2021-11-18T07:17:32Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4wRujL",
+          "commit": {
+            "abbreviatedOid": "cc6cefd"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-11-18T13:55:53Z",
+          "updatedAt": "2021-11-18T13:55:53Z",
+          "comments": [
+            {
+              "originalPosition": 116,
+              "body": "I don't know if we have a convention, but using the type here seems most clear.",
+              "createdAt": "2021-11-18T13:55:53Z",
+              "updatedAt": "2021-11-18T13:55:53Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4wRulb",
+          "commit": {
+            "abbreviatedOid": "cc6cefd"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-11-18T13:56:00Z",
+          "updatedAt": "2021-11-18T13:56:00Z",
+          "comments": [
+            {
+              "originalPosition": 87,
+              "body": "I don't think it's necessary.",
+              "createdAt": "2021-11-18T13:56:00Z",
+              "updatedAt": "2021-11-18T13:56:00Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4wRut6",
+          "commit": {
+            "abbreviatedOid": "cc6cefd"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-11-18T13:56:24Z",
+          "updatedAt": "2021-11-18T13:56:24Z",
+          "comments": [
+            {
+              "originalPosition": 45,
+              "body": "Well, it's not a function, so the sentence introducing the list would need to change if we were to take this suggestion.",
+              "createdAt": "2021-11-18T13:56:24Z",
+              "updatedAt": "2021-11-18T13:56:24Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4wRu3u",
+          "commit": {
+            "abbreviatedOid": "cc6cefd"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-11-18T13:56:53Z",
+          "updatedAt": "2021-11-18T13:56:53Z",
+          "comments": [
+            {
+              "originalPosition": 307,
+              "body": "When used as an octet string, yes.",
+              "createdAt": "2021-11-18T13:56:53Z",
+              "updatedAt": "2021-11-18T13:56:53Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4wRvJg",
+          "commit": {
+            "abbreviatedOid": "cc6cefd"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-11-18T13:57:45Z",
+          "updatedAt": "2021-11-18T13:57:45Z",
+          "comments": [
+            {
+              "originalPosition": 337,
+              "body": "OPAQUE is fundamentally a key exchange protocol, so the existing title seems more accurate.",
+              "createdAt": "2021-11-18T13:57:45Z",
+              "updatedAt": "2021-11-18T13:57:52Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4wRvT3",
+          "commit": {
+            "abbreviatedOid": "cc6cefd"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-11-18T13:58:16Z",
+          "updatedAt": "2021-11-18T13:58:17Z",
+          "comments": [
+            {
+              "originalPosition": 473,
+              "body": "Well, the function returns something of type `Response`, not `KE2`.",
+              "createdAt": "2021-11-18T13:58:17Z",
+              "updatedAt": "2021-11-18T13:58:17Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4wRve4",
+          "commit": {
+            "abbreviatedOid": "cc6cefd"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-11-18T13:58:48Z",
+          "updatedAt": "2021-11-18T13:58:48Z",
+          "comments": [
+            {
+              "originalPosition": 745,
+              "body": "This seems like an aesthetic change. Can we please keep these separate?",
+              "createdAt": "2021-11-18T13:58:48Z",
+              "updatedAt": "2021-11-18T13:58:48Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4wS0JM",
+          "commit": {
+            "abbreviatedOid": "cc6cefd"
+          },
+          "author": "armfazh",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-11-18T17:28:23Z",
+          "updatedAt": "2021-11-18T17:28:24Z",
+          "comments": [
+            {
+              "originalPosition": 87,
+              "body": "I think it is necessary. Shall we move this discussion to the list?",
+              "createdAt": "2021-11-18T17:28:23Z",
+              "updatedAt": "2021-11-18T17:28:24Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4wS0ai",
+          "commit": {
+            "abbreviatedOid": "cc6cefd"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-11-18T17:29:22Z",
+          "updatedAt": "2021-11-18T17:29:23Z",
+          "comments": [
+            {
+              "originalPosition": 87,
+              "body": "No, I don't think so. This is an editorial consideration. ",
+              "createdAt": "2021-11-18T17:29:23Z",
+              "updatedAt": "2021-11-18T17:29:23Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4wS29-",
+          "commit": {
+            "abbreviatedOid": "a545cec"
+          },
+          "author": "armfazh",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-11-18T17:38:48Z",
+          "updatedAt": "2021-11-18T17:38:49Z",
+          "comments": [
+            {
+              "originalPosition": 45,
+              "body": "updated the sentence. ",
+              "createdAt": "2021-11-18T17:38:48Z",
+              "updatedAt": "2021-11-18T17:38:49Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4wS4LJ",
+          "commit": {
+            "abbreviatedOid": "515717e"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-11-18T17:42:59Z",
+          "updatedAt": "2021-11-18T17:42:59Z",
+          "comments": [
+            {
+              "originalPosition": 45,
+              "body": "Looks good!",
+              "createdAt": "2021-11-18T17:42:59Z",
+              "updatedAt": "2021-11-18T17:42:59Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4wS4OP",
+          "commit": {
+            "abbreviatedOid": "515717e"
+          },
+          "author": "armfazh",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-11-18T17:43:10Z",
+          "updatedAt": "2021-11-18T17:43:10Z",
+          "comments": [
+            {
+              "originalPosition": 473,
+              "body": "No. It returns the result of calling `Response` function. (https://github.com/cfrg/draft-irtf-cfrg-opaque/blob/515717e8b6f19d427d6190f99450a850cfb709aa/draft-irtf-cfrg-opaque.md?plain=1#L1496) \r\n",
+              "createdAt": "2021-11-18T17:43:10Z",
+              "updatedAt": "2021-11-18T17:43:10Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4wPHBA",
+          "commit": {
+            "abbreviatedOid": "2a9dd66"
+          },
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "state": "CHANGES_REQUESTED",
+          "body": "",
+          "createdAt": "2021-11-17T23:35:58Z",
+          "updatedAt": "2021-11-18T17:44:42Z",
+          "comments": [
+            {
+              "originalPosition": 16,
+              "body": "@chris-wood hasn't this wording been discussed earlier ? (Can't remember the issue, I think it was with Hugo)",
+              "createdAt": "2021-11-17T23:35:58Z",
+              "updatedAt": "2021-11-18T17:44:42Z"
+            },
+            {
+              "originalPosition": 45,
+              "body": "+1 with mentioning the the recovery method.\n\nThe recovery method is indeed abstracted, and in this specification we focus on the method that derives the client private key from the hardened OPRF output. Another method is the RKR encrypted envelope.\n\nIt makes therefore sense to keep mentioning it as it has an effect on the size of the envelope.",
+              "createdAt": "2021-11-17T23:40:10Z",
+              "updatedAt": "2021-11-18T17:44:42Z"
+            },
+            {
+              "originalPosition": 81,
+              "body": "I like that !",
+              "createdAt": "2021-11-17T23:41:28Z",
+              "updatedAt": "2021-11-18T17:44:42Z"
+            },
+            {
+              "originalPosition": 83,
+              "body": "```suggestion\nIn the second stage the client recovers its authentication material from the server\n```\n",
+              "createdAt": "2021-11-17T23:42:07Z",
+              "updatedAt": "2021-11-18T17:44:42Z"
+            },
+            {
+              "originalPosition": 190,
+              "body": "```suggestion\n  e.g., \"example.com\". If not specified, it defaults to the server's public key.\n```\n",
+              "createdAt": "2021-11-17T23:45:11Z",
+              "updatedAt": "2021-11-18T17:44:42Z"
+            },
+            {
+              "originalPosition": 80,
+              "body": "```suggestion\nOPAQUE consists of two stages: registration and online authenticated key exchange.\n```\n\nCf. comment from @chris-wood on line 923 :)",
+              "createdAt": "2021-11-17T23:58:04Z",
+              "updatedAt": "2021-11-18T17:44:42Z"
+            },
+            {
+              "originalPosition": 143,
+              "body": "```suggestion\nThe online authenticated key exchange flow is shown below:\n```\n\nI suggest we stay consistent with comments on lines 483 and 923",
+              "createdAt": "2021-11-18T00:01:35Z",
+              "updatedAt": "2021-11-18T17:44:42Z"
+            },
+            {
+              "originalPosition": 395,
+              "body": "Why leaving out Nok?",
+              "createdAt": "2021-11-18T00:07:44Z",
+              "updatedAt": "2021-11-18T17:44:42Z"
+            },
+            {
+              "originalPosition": 13,
+              "body": "Why leaving out Nok?",
+              "createdAt": "2021-11-18T00:08:12Z",
+              "updatedAt": "2021-11-18T17:44:42Z"
+            },
+            {
+              "originalPosition": 430,
+              "body": "```suggestion\n- client_identity, the optional client identity, an octet string.\n```\n",
+              "createdAt": "2021-11-18T00:14:51Z",
+              "updatedAt": "2021-11-18T17:44:42Z"
+            },
+            {
+              "originalPosition": 431,
+              "body": "```suggestion\n- server_identity, the optional server identity, an octet string.\n```\n",
+              "createdAt": "2021-11-18T00:15:10Z",
+              "updatedAt": "2021-11-18T17:44:42Z"
+            },
+            {
+              "originalPosition": 419,
+              "body": "KE1 can be stored in the client state and then retrieved in the client ake finalisation.",
+              "createdAt": "2021-11-18T08:28:20Z",
+              "updatedAt": "2021-11-18T17:44:42Z"
+            },
+            {
+              "originalPosition": 415,
+              "body": "```suggestion\n5. Create KE1 ke1 with (request, auth_init)\n6. state.ke1 = ke1\n7. Output ke1\n```\n",
+              "createdAt": "2021-11-18T08:31:34Z",
+              "updatedAt": "2021-11-18T17:44:42Z"
+            },
+            {
+              "originalPosition": 391,
+              "body": "This should be ke1",
+              "createdAt": "2021-11-18T08:32:07Z",
+              "updatedAt": "2021-11-18T17:44:42Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4wS5DT",
+          "commit": {
+            "abbreviatedOid": "515717e"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-11-18T17:46:19Z",
+          "updatedAt": "2021-11-18T17:46:19Z",
+          "comments": [
+            {
+              "originalPosition": 473,
+              "body": "Oh, right! Sheesh. We need to really fix the names in this spec. \ud83e\udd26 ",
+              "createdAt": "2021-11-18T17:46:19Z",
+              "updatedAt": "2021-11-18T17:46:19Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4wS5JR",
+          "commit": {
+            "abbreviatedOid": "515717e"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-11-18T17:46:38Z",
+          "updatedAt": "2021-11-18T17:46:38Z",
+          "comments": [
+            {
+              "originalPosition": 16,
+              "body": "I totally don't care about the wording here, so both seem fine to me.",
+              "createdAt": "2021-11-18T17:46:38Z",
+              "updatedAt": "2021-11-18T17:46:39Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4wS_A2",
+          "commit": {
+            "abbreviatedOid": "515717e"
+          },
+          "author": "armfazh",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-11-18T18:09:17Z",
+          "updatedAt": "2021-11-18T18:09:18Z",
+          "comments": [
+            {
+              "originalPosition": 745,
+              "body": "Not sure how to implement your suggestion.\r\n\r\nJust to add more context and information about the fix:\r\n\r\nThere are two states, one wrapping the other: \r\nA: The Main State: (https://github.com/cfrg/draft-irtf-cfrg-opaque/blob/515717e8b6f19d427d6190f99450a850cfb709aa/draft-irtf-cfrg-opaque.md?plain=1#L988)\r\nwhich contains:\r\n- password, the input password; and\r\n- blind, the random blinding scalar returned by `Blind()`; and\r\n- B: client_ake_state, the client's AKE state if necessary.\r\n \r\nand B: the client_ake_state (https://github.com/cfrg/draft-irtf-cfrg-opaque/blob/515717e8b6f19d427d6190f99450a850cfb709aa/draft-irtf-cfrg-opaque.md?plain=1#L1249)\r\ncontaining:\r\n- client_secret, an opaque byte string of length Nsk.\r\n\r\n---\r\n\r\nke1 must live in the state, yes. the question is in which one?\r\n\r\nWe cannot store ke1 in state B, because ke1 is constructed as (https://github.com/cfrg/draft-irtf-cfrg-opaque/blob/515717e8b6f19d427d6190f99450a850cfb709aa/draft-irtf-cfrg-opaque.md?plain=1#L570\r\n)\r\n```\r\n- `KE1` is composed of the `CredentialRequest` and `AuthInit` messages.\r\n```\r\n\r\nAuthInit is created by the AKE, but CredentialRequest is not.\r\nSo the AKE cannot construct KE1, this is why KE1 must be passed as a parameter.\r\n\r\nHence, ke1 must live in the main state A. -- This part needed to be updated, and this is fixed now.\r\n",
+              "createdAt": "2021-11-18T18:09:18Z",
+              "updatedAt": "2021-11-18T18:09:18Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4wS_xG",
+          "commit": {
+            "abbreviatedOid": "e46f48c"
+          },
+          "author": "armfazh",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-11-18T18:12:20Z",
+          "updatedAt": "2021-11-18T18:12:21Z",
+          "comments": [
+            {
+              "originalPosition": 337,
+              "body": "I am talking about the `Online Authentication phase`, which is a combination of several primitives, one of them is AKE (which seems to be the most important, but not the only one). ",
+              "createdAt": "2021-11-18T18:12:21Z",
+              "updatedAt": "2021-11-18T18:12:21Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4wS_30",
+          "commit": {
+            "abbreviatedOid": "e46f48c"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-11-18T18:12:46Z",
+          "updatedAt": "2021-11-18T18:12:46Z",
+          "comments": [
+            {
+              "originalPosition": 745,
+              "body": "Well, this PR changes state from \"generic state\" to \"AKE client state,\" and I'm asking that we revert that change and address it separately. ",
+              "createdAt": "2021-11-18T18:12:46Z",
+              "updatedAt": "2021-11-18T18:12:46Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4wTAQG",
+          "commit": {
+            "abbreviatedOid": "e46f48c"
+          },
+          "author": "armfazh",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-11-18T18:14:16Z",
+          "updatedAt": "2021-11-18T18:14:16Z",
+          "comments": [
+            {
+              "originalPosition": 419,
+              "body": "yes, I just update the pr to do that.",
+              "createdAt": "2021-11-18T18:14:16Z",
+              "updatedAt": "2021-11-18T18:14:16Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4wTBOO",
+          "commit": {
+            "abbreviatedOid": "e46f48c"
+          },
+          "author": "armfazh",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-11-18T18:17:37Z",
+          "updatedAt": "2021-11-18T18:17:37Z",
+          "comments": [
+            {
+              "originalPosition": 395,
+              "body": "This parameter was not used",
+              "createdAt": "2021-11-18T18:17:37Z",
+              "updatedAt": "2021-11-18T18:17:37Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4wTBxJ",
+          "commit": {
+            "abbreviatedOid": "65dbd73"
+          },
+          "author": "armfazh",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-11-18T18:19:45Z",
+          "updatedAt": "2021-11-18T18:19:46Z",
+          "comments": [
+            {
+              "originalPosition": 13,
+              "body": "I think it's not used, and/or its definition is not correct.",
+              "createdAt": "2021-11-18T18:19:46Z",
+              "updatedAt": "2021-11-18T18:19:46Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4wTChj",
+          "commit": {
+            "abbreviatedOid": "65dbd73"
+          },
+          "author": "armfazh",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-11-18T18:22:46Z",
+          "updatedAt": "2021-11-18T18:22:47Z",
+          "comments": [
+            {
+              "originalPosition": 391,
+              "body": "fixed.",
+              "createdAt": "2021-11-18T18:22:46Z",
+              "updatedAt": "2021-11-18T18:22:47Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4wTFSf",
+          "commit": {
+            "abbreviatedOid": "81cc31f"
+          },
+          "author": "armfazh",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-11-18T18:34:00Z",
+          "updatedAt": "2021-11-18T18:34:00Z",
+          "comments": [
+            {
+              "originalPosition": 415,
+              "body": "I fixed this, please double-check. I may missed something.",
+              "createdAt": "2021-11-18T18:34:00Z",
+              "updatedAt": "2021-11-18T18:34:00Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4wTjbe",
+          "commit": {
+            "abbreviatedOid": "81cc31f"
+          },
+          "author": "armfazh",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-11-18T20:40:42Z",
+          "updatedAt": "2021-11-18T20:40:42Z",
+          "comments": [
+            {
+              "originalPosition": 87,
+              "body": "Reverted and will be discussed in #289 ",
+              "createdAt": "2021-11-18T20:40:42Z",
+              "updatedAt": "2021-11-18T20:40:42Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4wTkM9",
+          "commit": {
+            "abbreviatedOid": "0a5191a"
+          },
+          "author": "armfazh",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-11-18T20:44:26Z",
+          "updatedAt": "2021-11-18T20:44:27Z",
+          "comments": [
+            {
+              "originalPosition": 337,
+              "body": "After talked offline with Chris Wood, we agreed the current version is ok. So, I'm reverting.",
+              "createdAt": "2021-11-18T20:44:27Z",
+              "updatedAt": "2021-11-18T20:44:27Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4wZB4i",
+          "commit": {
+            "abbreviatedOid": "b413b7c"
+          },
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-11-20T23:49:27Z",
+          "updatedAt": "2021-11-20T23:49:27Z",
+          "comments": [
+            {
+              "originalPosition": 13,
+              "body": "It is used in `CreateCredentialResponse()`, 1st step, to derive the per-user OPRF key.",
+              "createdAt": "2021-11-20T23:49:27Z",
+              "updatedAt": "2021-11-20T23:49:27Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4wZB5C",
+          "commit": {
+            "abbreviatedOid": "b413b7c"
+          },
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-11-20T23:50:24Z",
+          "updatedAt": "2021-11-20T23:50:24Z",
+          "comments": [
+            {
+              "originalPosition": 27,
+              "body": "What do you suggest as parameters? Should we refer to the default parameters of the MHF?",
+              "createdAt": "2021-11-20T23:50:24Z",
+              "updatedAt": "2021-11-20T23:50:24Z"
+            }
+          ]
         }
       ]
     },
@@ -22091,24 +22949,26 @@
       "id": "PR_kwDOD79ejs4uq-0c",
       "title": "Add list of paper<>spec design differences",
       "url": "https://github.com/cfrg/draft-irtf-cfrg-opaque/pull/287",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "chris-wood",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "This list includes notable design differences from the original paper description of OPAQUE made to accommodate the specification. This is done to help track the delta between the protocol which has been analyzed and that which is being specified in CFRG.\r\n\r\ncc @hugokraw ",
       "createdAt": "2021-11-17T18:49:02Z",
-      "updatedAt": "2021-11-17T23:29:40Z",
+      "updatedAt": "2021-11-18T13:54:23Z",
       "baseRepository": "cfrg/draft-irtf-cfrg-opaque",
       "baseRefName": "master",
       "baseRefOid": "04473ca51110577d58b3c46067402678f1d329d7",
       "headRepository": "cfrg/draft-irtf-cfrg-opaque",
       "headRefName": "caw/paper-spec-design-differences",
       "headRefOid": "bd50e79339db6f246be58b78c9651d8c012593d8",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "closedAt": "2021-11-18T13:54:23Z",
+      "mergedAt": "2021-11-18T13:54:23Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "02871345acefcb7aa9bc78c48c4f8b059761d0d2"
+      },
       "comments": [
         {
           "author": "chris-wood",
@@ -22192,24 +23052,26 @@
       "id": "PR_kwDOD79ejs4urTzp",
       "title": "Update masking key description",
       "url": "https://github.com/cfrg/draft-irtf-cfrg-opaque/pull/288",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "chris-wood",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "cc @hugokraw ",
       "createdAt": "2021-11-17T20:49:44Z",
-      "updatedAt": "2021-11-17T23:35:54Z",
+      "updatedAt": "2021-11-20T00:56:41Z",
       "baseRepository": "cfrg/draft-irtf-cfrg-opaque",
       "baseRefName": "master",
       "baseRefOid": "04473ca51110577d58b3c46067402678f1d329d7",
       "headRepository": "cfrg/draft-irtf-cfrg-opaque",
       "headRefName": "caw/fix-masking-key-description",
       "headRefOid": "00616dee1a8de10cf9198eaf2d0250b25b10d247",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "closedAt": "2021-11-20T00:56:41Z",
+      "mergedAt": "2021-11-20T00:56:41Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "9f5e675a5fafb3c30d0ac0d3e29f260ae375293b"
+      },
       "comments": [],
       "reviews": [
         {
@@ -22291,8 +23153,47 @@
               "updatedAt": "2021-11-17T23:35:54Z"
             }
           ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4wYrak",
+          "commit": {
+            "abbreviatedOid": "00616de"
+          },
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-11-20T00:47:31Z",
+          "updatedAt": "2021-11-20T00:47:31Z",
+          "comments": []
         }
       ]
+    },
+    {
+      "number": 292,
+      "id": "PR_kwDOD79ejs4uvnZe",
+      "title": "Make Setup phase explicit and indexable.",
+      "url": "https://github.com/cfrg/draft-irtf-cfrg-opaque/pull/292",
+      "state": "OPEN",
+      "author": "armfazh",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Fixes #289 ",
+      "createdAt": "2021-11-18T23:54:37Z",
+      "updatedAt": "2021-11-18T23:54:37Z",
+      "baseRepository": "cfrg/draft-irtf-cfrg-opaque",
+      "baseRefName": "master",
+      "baseRefOid": "02871345acefcb7aa9bc78c48c4f8b059761d0d2",
+      "headRepository": "armfazh/draft-irtf-cfrg-opaque",
+      "headRefName": "setup",
+      "headRefOid": "c350ec87ef5913db173145fe3212ca577e7d3614",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": []
     }
   ]
 }
