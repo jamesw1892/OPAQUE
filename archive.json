@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2021-11-21T01:03:33.316123+00:00",
+  "timestamp": "2021-11-23T01:01:06.552793+00:00",
   "repo": "cfrg/draft-irtf-cfrg-opaque",
   "labels": [
     {
@@ -6607,7 +6607,7 @@
       "labels": [],
       "body": "Currently the state is vaguely specified. Specification must be clearer in what is the content of the state. \r\n(this may need some minor fixes, but still needs to be addressed).\r\n\r\nRaised after:\r\n\r\n_Originally posted by @chris-wood in https://github.com/cfrg/draft-irtf-cfrg-opaque/pull/286#discussion_r751669794_",
       "createdAt": "2021-11-18T18:50:33Z",
-      "updatedAt": "2021-11-19T00:13:44Z",
+      "updatedAt": "2021-11-21T01:33:59Z",
       "closedAt": null,
       "comments": [
         {
@@ -6616,6 +6616,13 @@
           "body": "So, either formally specifying what the state contains, or removing at all the state structure are both good alternatives. Currently, it is specified something in between.",
           "createdAt": "2021-11-19T00:13:44Z",
           "updatedAt": "2021-11-19T00:13:44Z"
+        },
+        {
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "body": "I suggest we define a generic structure in the first part of the spec\r\n```\r\nstruct {\r\n  OPRFState oprf;\r\n  AKEState ake;\r\n} ClientState;\r\n```\r\n\r\nThen, for whatever is chosen for the OPRF or AKE, it must define its own `OPRFState` and `AKEState`. In a later section, where ze specify each part, we can define\r\n```\r\nstruct {\r\n  string password;\r\n  uint8 data[Nsk];\r\n} OPRFState ;\r\n```\r\n\r\nand\r\n```\r\nstruct {\r\n  uint8 client_secret[Nsk];\r\n  KE1 ke1;\r\n} AKEState ;\r\n```",
+          "createdAt": "2021-11-21T01:33:59Z",
+          "updatedAt": "2021-11-21T01:33:59Z"
         }
       ]
     }
@@ -21997,7 +22004,7 @@
       "labels": [],
       "body": "After implementing OPAQUE I found several errors on the description of the algorithms.\r\nThis PR amends most of them, no changes on the algorithms nor test vectors.\r\nHope this PR helps to improve a bit the draft.",
       "createdAt": "2021-11-12T08:01:39Z",
-      "updatedAt": "2021-11-21T00:24:10Z",
+      "updatedAt": "2021-11-21T01:18:39Z",
       "baseRepository": "cfrg/draft-irtf-cfrg-opaque",
       "baseRefName": "master",
       "baseRefOid": "02871345acefcb7aa9bc78c48c4f8b059761d0d2",
@@ -22029,6 +22036,13 @@
           "body": "There was 3 points I raised during this PR. They will be addressed later in a shorter PR.\r\nAlso, I reverted my changes on the state of the client and server, with the hope that it will be addressed in #291 .",
           "createdAt": "2021-11-18T21:52:18Z",
           "updatedAt": "2021-11-18T21:52:18Z"
+        },
+        {
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Thank you @armfazh for your corrections! ",
+          "createdAt": "2021-11-21T01:18:39Z",
+          "updatedAt": "2021-11-21T01:18:39Z"
         }
       ],
       "reviews": [
@@ -22941,6 +22955,50 @@
               "updatedAt": "2021-11-20T23:50:24Z"
             }
           ]
+        },
+        {
+          "id": "PRR_kwDOD79ejs4wZCEk",
+          "commit": {
+            "abbreviatedOid": "b413b7c"
+          },
+          "author": "bytemare",
+          "authorAssociation": "COLLABORATOR",
+          "state": "CHANGES_REQUESTED",
+          "body": "",
+          "createdAt": "2021-11-21T00:07:09Z",
+          "updatedAt": "2021-11-21T01:16:50Z",
+          "comments": [
+            {
+              "originalPosition": 431,
+              "body": "`auth_finish` has not been defined, ke3 is already created",
+              "createdAt": "2021-11-21T00:07:09Z",
+              "updatedAt": "2021-11-21T01:16:50Z"
+            },
+            {
+              "originalPosition": 488,
+              "body": "Isn't `ServerFinalize(ke3)` sufficient?\r\n\r\nAn AKE could have more fields in ke3",
+              "createdAt": "2021-11-21T00:08:34Z",
+              "updatedAt": "2021-11-21T01:16:50Z"
+            },
+            {
+              "originalPosition": 747,
+              "body": "```suggestion\r\n- ke1, a KE1 message structure.\r\n- credential_response, a CredentialResponse structure.\r\n\r\n```",
+              "createdAt": "2021-11-21T00:17:38Z",
+              "updatedAt": "2021-11-21T01:16:50Z"
+            },
+            {
+              "originalPosition": 747,
+              "body": "This was already missing ! :)",
+              "createdAt": "2021-11-21T00:18:01Z",
+              "updatedAt": "2021-11-21T01:16:50Z"
+            },
+            {
+              "originalPosition": 780,
+              "body": "I suggest we keep genericity regarding K3, and define ServerFinish with taking a KE3 structure. KE3 holds AKE material only anyway. Other AKEs than 3DH could define their KE3 subfields themselves.",
+              "createdAt": "2021-11-21T00:24:10Z",
+              "updatedAt": "2021-11-21T01:16:50Z"
+            }
+          ]
         }
       ]
     },
@@ -23059,7 +23117,7 @@
       "labels": [],
       "body": "cc @hugokraw ",
       "createdAt": "2021-11-17T20:49:44Z",
-      "updatedAt": "2021-11-20T00:56:41Z",
+      "updatedAt": "2021-11-21T20:16:59Z",
       "baseRepository": "cfrg/draft-irtf-cfrg-opaque",
       "baseRefName": "master",
       "baseRefOid": "04473ca51110577d58b3c46067402678f1d329d7",
@@ -23072,7 +23130,15 @@
       "mergeCommit": {
         "oid": "9f5e675a5fafb3c30d0ac0d3e29f260ae375293b"
       },
-      "comments": [],
+      "comments": [
+        {
+          "author": "hugokraw",
+          "authorAssociation": "COLLABORATOR",
+          "body": "I see two places where the masking_key function is defined in English:\r\n- masking_key, an encryption key used by the server with the sole purpose \r\n  of defending against client enumeration attacks.\r\n- An encryption key used by the server to preserve confidentiality of the envelope during login\r\n  to defend against client enumeration attacks.\r\n\r\nLet's have only one definition (even if repeated in two places).\r\nIn any case use the first. The masking is not used for confidentiality of the envelope (this is not required). What the masking does is to re-randomize the envelope to avoid linkability of same-user logins and allow for fake envelopes as needed to prevent enumeration attacks.  This explanation can be added to the security considerations.\r\n\r\nAlso, _I would very much like_ to see in the Security Considerations a sentence saying that the use of the DeriveKeyPair function for computing the oprf_key is only needed as an artifact against enumeration attacks. The security of OPAQUE does not require this otherwise, i.e., it can choose OPRF keys for the different users as random independent (or pseudorandom)  keys. \r\n\r\nOne reason to say this is that choosing OPRF keys via DeriveKeyPair is suboptimal for threshold implementations of the OPRF function (this reason need not be said in this RFC except if we want to say something about threshold implementations).",
+          "createdAt": "2021-11-21T20:16:58Z",
+          "updatedAt": "2021-11-21T20:16:58Z"
+        }
+      ],
       "reviews": [
         {
           "id": "PRR_kwDOD79ejs4wPGjx",
@@ -23188,6 +23254,32 @@
       "headRepository": "armfazh/draft-irtf-cfrg-opaque",
       "headRefName": "setup",
       "headRefOid": "c350ec87ef5913db173145fe3212ca577e7d3614",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 293,
+      "id": "PR_kwDOD79ejs4u0PQi",
+      "title": "update Cloudflare affiliation name",
+      "url": "https://github.com/cfrg/draft-irtf-cfrg-opaque/pull/293",
+      "state": "OPEN",
+      "author": "bytemare",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "@chris-wood I believe this needs to be updated, correct?",
+      "createdAt": "2021-11-21T18:23:51Z",
+      "updatedAt": "2021-11-21T18:23:52Z",
+      "baseRepository": "cfrg/draft-irtf-cfrg-opaque",
+      "baseRefName": "master",
+      "baseRefOid": "9f5e675a5fafb3c30d0ac0d3e29f260ae375293b",
+      "headRepository": "cfrg/draft-irtf-cfrg-opaque",
+      "headRefName": "dbz/patch-cf-affiliation",
+      "headRefOid": "bc0947d3a449abeb9e77489eaf651ce95296d6f2",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
