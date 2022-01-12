@@ -1,3 +1,4 @@
+.vscode/
 *.sage.py
 __pycache__/
 clear_h_bls12381g2.sage
