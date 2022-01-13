@@ -1,6 +1,17 @@
+# vscode settings
 .vscode/
+
+# web client logs
+WebClient.log
+
+# preprocessed sage into python
 *.sage.py
+sagelib/
+
+# compiled python
 __pycache__/
+
+# files copied from submodules
 clear_h_bls12381g2.sage
 common.sage
 curves.sage
@@ -13,7 +24,6 @@ h2c_suite.sage
 hash_to_field.py
 iso_values.sage
 map_check.sage
-sagelib/
 sqrt.sage
 sswu_generic.sage
 sswu_opt_3mod4.sage
