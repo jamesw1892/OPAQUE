@@ -8,6 +8,7 @@ import hmac
 import hashlib
 import struct
 import random
+from typing import Union
 
 # Fix a seed so all test vectors are deterministic
 FIXED_SEED = "opaque".encode('utf-8')
@@ -25,7 +26,7 @@ else:
     def _strxor(str1, str2): return ''.join(chr(ord(s1) ^ ord(s2))
                                             for (s1, s2) in zip(str1, str2))
 
-def to_hex(octet_string):
+def to_hex(octet_string: Union[str, bytes, bytearray]) -> str:
     if isinstance(octet_string, str):
         return "".join("{:02x}".format(ord(c)) for c in octet_string)
     if isinstance(octet_string, bytes):
@@ -33,13 +34,13 @@ def to_hex(octet_string):
     assert isinstance(octet_string, bytearray)
     return ''.join(format(x, '02x') for x in octet_string)
 
-def random_bytes(n):
+def random_bytes(n: int) -> bytes:
     return I2OSP(random.randrange(2**(8*n)), n)
 
-def zero_bytes(n):
+def zero_bytes(n: int) -> bytearray:
     return bytearray([0] * n)
 
-def xor(a, b):
+def xor(a, b) -> bytes:
     if len(a) != len(b):
         print(len(a), len(b))
         assert len(a) == len(b)
@@ -48,10 +49,10 @@ def xor(a, b):
         c[i] = c[i] ^^ v  # bitwise XOR
     return bytes(c)
 
-def hkdf_extract(config, salt, ikm):
+def hkdf_extract(config, salt: bytes, ikm: bytes) -> bytes:
     return hmac.digest(salt, ikm, config.hash)
 
-def hkdf_expand(config, prk, info, L):
+def hkdf_expand(config, prk: bytes, info: bytes, L: int) -> bytes:
     # https://tools.ietf.org/html/rfc5869
     # N = ceil(L/HashLen)
     # T = T(1) | T(2) | T(3) | ... | T(N)
@@ -76,7 +77,7 @@ def hkdf_expand(config, prk, info, L):
 #    opaque label<8..255> = "OPAQUE-" + Label;
 #    opaque context<0..255> = Context;
 # } HkdfLabel;
-def hkdf_expand_label(config, secret, label, context, length):
+def hkdf_expand_label(config, secret: bytes, label: bytes, context: bytes, length: int) -> bytes:
     def build_label(length, label, context):
         return I2OSP(length, 2) + encode_vector_len(_as_bytes("OPAQUE-") + label, 1) + encode_vector_len(context, 1)
     hkdf_label = build_label(length, label, context)
@@ -84,11 +85,11 @@ def hkdf_expand_label(config, secret, label, context, length):
 
 # Derive-Secret(Secret, Label, Transcript) =
 #     HKDF-Expand-Label(Secret, Label, Hash(Transcript), Nh)
-def derive_secret(config, secret, label, transcript_hash):
+def derive_secret(config, secret: bytes, label: bytes, transcript_hash: bytes):
     return hkdf_expand_label(config, secret, label, transcript_hash, config.hash().digest_size)
 
 # defined in RFC 3447, section 4.1
-def I2OSP(val, length):
+def I2OSP(val, length: int) -> bytes:
     val = int(val)
     if val < 0 or val >= (1 << (8 * length)):
         raise ValueError("bad I2OSP call: val=%d length=%d" % (val, length))
@@ -102,7 +103,7 @@ def I2OSP(val, length):
     return ret
 
 # defined in RFC 3447, section 4.2
-def OS2IP(octets, skip_assert=False):
+def OS2IP(octets: bytes, skip_assert: bool=False) -> bytes:
     ret = 0
     for octet in struct.unpack("=" + "B" * len(octets), octets):
         ret = ret << 8
@@ -135,7 +136,7 @@ def OS2IP_le(octets, skip_assert=False):
         assert octets == I2OSP_le(ret, len(octets))
     return ret
 
-def encode_vector_len(data, L):
+def encode_vector_len(data: bytes, L) -> bytes:
     return len(data).to_bytes(L, 'big') + data
 
 def decode_vector_len(data_bytes, L):
@@ -146,7 +147,7 @@ def decode_vector_len(data_bytes, L):
         raise Exception("Insufficient length")
     return data_bytes[L:L+data_len], L+data_len
 
-def encode_vector(data):
+def encode_vector(data: bytes) -> bytes:
     return encode_vector_len(data, 2)
 
 def decode_vector(data_bytes):

@@ -7,7 +7,7 @@ import json
 import hmac
 import hashlib
 import struct
-from typing import Tuple
+from typing import Tuple, Union
 
 try:
     from sagelib.opaque_common import I2OSP, OS2IP, encode_vector, encode_vector_len, decode_vector, decode_vector_len, OPAQUE_NONCE_LENGTH
@@ -42,7 +42,7 @@ class CleartextCredentials(object):
         return f"CleartextCredentials(pkS={self.pkS.hex()}, idU={self.idU.hex()}, idS={self.idS.hex()})"
 
 class Credentials(object):
-    def __init__(self, skU: bytes, pkU: bytes, idU: bytes = None, idS: bytes = None):
+    def __init__(self, skU: bytes, pkU: bytes, idU: Union[bytes, None] = None, idS: Union[bytes, None] = None):
         self.skU = skU
         self.pkU = pkU
         self.idU = idU
