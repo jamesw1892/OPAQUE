@@ -34,3 +34,12 @@ clean:
 .PHONY: distclean
 distclean: clean
 	rm -rf vectors ascii
+
+runserver: pyfiles
+	sage server.sage
+
+runclient: pyfiles
+	sage client.sage
+
+runwebclient: pyfiles
+	sage web.sage
