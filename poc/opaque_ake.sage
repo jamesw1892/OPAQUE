@@ -7,7 +7,7 @@ import json
 import hmac
 import hashlib
 import struct
-
+from typing import Tuple, Dict
 from collections import namedtuple
 
 try:
@@ -66,7 +66,7 @@ class OPAQUE3DH(KeyExchange):
         self.config = config
         self.core = OPAQUECore(config)
 
-    def json(self):
+    def json(self) -> Dict[str, str]:
         return {
             "Name": "3DH",
             "Group": self.config.group.name,
@@ -84,7 +84,7 @@ class OPAQUE3DH(KeyExchange):
             "Nok": str(self.config.Nok),
         }
 
-    def derive_3dh_keys(self, dh_components, info):
+    def derive_3dh_keys(self, dh_components: TripleDHComponents, info: bytes) -> Tuple[bytes, bytes, bytes, bytes]:
         dh1 = dh_components.sk1 * dh_components.pk1
         dh2 = dh_components.sk2 * dh_components.pk2
         dh3 = dh_components.sk3 * dh_components.pk3
@@ -108,7 +108,7 @@ class OPAQUE3DH(KeyExchange):
 
         return server_mac_key, client_mac_key, session_key, handshake_secret
 
-    def generate_ke1(self, pwdU):
+    def generate_ke1(self, pwdU: bytes) -> bytes:
         cred_request, cred_metadata = self.core.create_credential_request(pwdU)
         serialized_request = cred_request.serialize()
 
@@ -125,7 +125,7 @@ class OPAQUE3DH(KeyExchange):
 
         return serialized_request + ke1.serialize()
 
-    def generate_ke2(self, msg, oprf_seed, credential_identifier, envU, masking_key, idS, skS, pkS, idU, pkU):
+    def generate_ke2(self, msg: bytes, oprf_seed: bytes, credential_identifier: bytes, envU: Envelope, masking_key: bytes, idS: bytes, skS, pkS, idU: bytes, pkU) -> bytes:
         cred_request, offset = deserialize_credential_request(self.config, msg)
         serialized_request = cred_request.serialize()
         ke1 = deserialize_tripleDH_init(self.config, msg[offset:])
@@ -180,7 +180,7 @@ class OPAQUE3DH(KeyExchange):
 
         return serialized_response + ake2.serialize()
 
-    def generate_ke3(self, msg, idU, pkU, idS):
+    def generate_ke3(self, msg: bytes, idU: bytes, pkU, idS: bytes) -> bytes:
         cred_response, offset = deserialize_credential_response(self.config, msg)
         serialized_response = cred_response.serialize()
         ake2 = deserialize_tripleDH_respond(self.config, msg[offset:])
@@ -240,9 +240,9 @@ class OPAQUE3DH(KeyExchange):
 
         return ke3.serialize()
 
-    def finish(self, msg):
+    def finish(self, msg: bytes) -> bytes:
         ke3 = deserialize_tripleDH_finish(self.config, msg)
-        
+
         client_mac_key = self.client_mac_key
         self.hasher.update(self.server_mac)
         transcript_hash = self.hasher.digest()
@@ -252,11 +252,22 @@ class OPAQUE3DH(KeyExchange):
 
         return self.session_key
 
+class TripleDHMessageInit(object):
+    def __init__(self, nonceU: bytes, epkU: bytes):
+        self.nonceU = nonceU
+        self.epkU = epkU
+
+    def serialize(self) -> bytes:
+        return self.nonceU + self.epkU
+
+    def __str__(self) -> str:
+        return f"TripleDHMessageInit(nonceU={self.nonceU.hex()}, epkU={self.epkU.hex()})"
+
 # struct {
 #      opaque nonceU[32];
 #      opaque epkU[LK];
 #  } KE1M;
-def deserialize_tripleDH_init(config, data):
+def deserialize_tripleDH_init(config, data: bytes) -> TripleDHMessageInit:
     nonceU = data[0:OPAQUE_NONCE_LENGTH]
     epkU_bytes = data[OPAQUE_NONCE_LENGTH:]
     length = config.oprf_suite.group.element_byte_length()
@@ -264,20 +275,24 @@ def deserialize_tripleDH_init(config, data):
         raise Exception("Invalid epkU length: %d %d" % (len(epkU_bytes), length))
     return TripleDHMessageInit(nonceU, epkU_bytes)
 
-class TripleDHMessageInit(object):
-    def __init__(self, nonceU, epkU):
-        self.nonceU = nonceU
-        self.epkU = epkU
+class TripleDHMessageRespond(object):
+    def __init__(self, nonceS: bytes, epkS: bytes, mac: bytes):
+        self.nonceS = nonceS
+        self.epkS = epkS
+        self.mac = mac
 
-    def serialize(self):
-        return self.nonceU + self.epkU
+    def serialize(self) -> bytes:
+        return self.nonceS + self.epkS + self.mac
+
+    def __str__(self) -> str:
+        return f"TripleDHMessageRespond(nonceS={self.nonceS.hex()}, epkS={self.epkS.hex()}, macS={self.mac.hex()})"
 
 # struct {
 #      opaque nonceS[32];
 #      opaque epkS[LK];
 #      opaque mac[LH];
 #  } KE2M;
-def deserialize_tripleDH_respond(config, data):
+def deserialize_tripleDH_respond(config, data: bytes) -> TripleDHMessageRespond:
     length = config.oprf_suite.group.element_byte_length()
     nonceS = data[0:OPAQUE_NONCE_LENGTH]
     epkS = data[OPAQUE_NONCE_LENGTH:OPAQUE_NONCE_LENGTH+length]
@@ -286,26 +301,20 @@ def deserialize_tripleDH_respond(config, data):
         raise Exception("Invalid MAC length: %d %d" % (len(mac), config.hash().digest_size))
     return TripleDHMessageRespond(nonceS, epkS, mac)
 
-class TripleDHMessageRespond(object):
-    def __init__(self, nonceS, epkS, mac):
-        self.nonceS = nonceS
-        self.epkS = epkS
+class TripleDHMessageFinish(object):
+    def __init__(self, mac: bytes):
         self.mac = mac
 
-    def serialize(self):
-        return self.nonceS + self.epkS + self.mac
+    def serialize(self) -> bytes:
+        return self.mac
+
+    def __str__(self) -> str:
+        return f"TripleDHMessageFinish(macU={self.mac.hex()})"
 
 # struct {
 #      opaque mac[LH];
 #  } KE3M;
-def deserialize_tripleDH_finish(config, data):
+def deserialize_tripleDH_finish(config, data: bytes) -> TripleDHMessageFinish:
     if len(data) != config.hash().digest_size:
         raise Exception("Invalid MAC length: %d %d" % (len(data), config.hash().digest_size))
     return TripleDHMessageFinish(data)
-
-class TripleDHMessageFinish(object):
-    def __init__(self, mac):
-        self.mac = mac
-
-    def serialize(self):
-        return self.mac
