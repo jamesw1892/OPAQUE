@@ -14,7 +14,7 @@ try:
     from sagelib.opaque_common import _as_bytes
     from sagelib.opaque_core import OPAQUECore
     from sagelib.opaque_messages import deserialize_registration_response, deserialize_credential_response
-    from sagelib.server import SOCKET, Mode, CONFIG, IDS, INFO, RECV_LEN, formatKE1, formatKE2, formatKE3
+    from sagelib.server import SOCKET, Mode, CONFIG, IDS, RECV_LEN, formatKE1, formatKE2, formatKE3
 except ImportError as e:
     sys.exit("Error loading preprocessed sage files. Try running `make setup && make clean pyfiles`. Full error: " + e)
 
@@ -47,7 +47,7 @@ def client_registration(connection: socket.socket, config: Configuration,
     logging.info(f"Received response:\n{response}")
 
     # finalise request, create record and derive export key
-    record, export_key = core.finalize_request(pwdU, blind, response, INFO, idU, IDS)
+    record, export_key = core.finalize_request(pwdU, blind, response, idU, IDS)
 
     # serialise and send the record
     connection.send(record.serialize())
@@ -98,7 +98,7 @@ def client_login(connection: socket.socket, config: Configuration,
 
     # recover credentials and derive export key
     try:
-        skU_bytes, pkS_bytes, export_key = core.recover_credentials(pwdU, blind, response, INFO, idU, IDS)
+        skU_bytes, pkS_bytes, export_key = core.recover_credentials(pwdU, blind, response, idU, IDS)
     except:
         logging.warning("Invalid username and/or password\n")
         return None, None, None

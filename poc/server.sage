@@ -47,9 +47,6 @@ class Mode(Enum):
                 return mode
         raise ValueError("Invalid mode")
 
-# extra information not needed for us
-INFO = _as_bytes("")
-
 # server's identifier
 IDS = _as_bytes("server.com")
 
@@ -119,7 +116,7 @@ def server_registration(connection: socket.socket, config: Configuration,
     logging.info(f"Received registration request:\n{request}")
 
     # create the registration response
-    response, _ = core.create_registration_response(request, pkS_bytes, oprf_seed, idU, INFO)
+    response, _ = core.create_registration_response(request, pkS_bytes, oprf_seed, idU)
 
     # serialise and send the registration response
     connection.send(response.serialize())
@@ -160,7 +157,7 @@ def server_login(connection: socket.socket, config: Configuration, idU: bytes,
     logging.info(f"Received credential request:\n{request}")
 
     # create the credential response
-    response = core.create_credential_response(request, pkS_bytes, oprf_seed, record.envU, idU, record.masking_key, INFO)
+    response = core.create_credential_response(request, pkS_bytes, oprf_seed, record.envU, idU, record.masking_key)
 
     # serialise and send the credential response
     connection.send(response.serialize())

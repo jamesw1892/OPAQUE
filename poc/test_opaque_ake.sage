@@ -8,7 +8,7 @@ from collections import namedtuple
 
 try:
     from sagelib.oprf import oprf_ciphersuites, ciphersuite_ristretto255_sha512, ciphersuite_decaf448_shake256, ciphersuite_p256_sha256, ciphersuite_p384_sha384, ciphersuite_p521_sha512
-    from sagelib.opaque_core import OPAQUECore, HKDF, HMAC, MHF, identity_harden
+    from sagelib.opaque_core import OPAQUECore, HKDF, HMAC, MHF, identity_stretch
     from sagelib.opaque_messages import RegistrationUpload, Envelope, deserialize_envelope, deserialize_registration_request, deserialize_registration_response, deserialize_registration_upload, \
             deserialize_credential_request, deserialize_credential_response
     from sagelib.groups import GroupRistretto255, GroupDecaf448, GroupP256, GroupP384, GroupP521
@@ -22,7 +22,7 @@ default_opaque_configuration = Configuration(
     HKDF(hashlib.sha512),
     HMAC(hashlib.sha512),
     hashlib.sha512, 
-    MHF("Identity", identity_harden),
+    MHF("Identity", identity_stretch),
     GroupRistretto255(),
     _as_bytes("OPAQUE-POC"),
 )
@@ -33,6 +33,7 @@ def test_core_protocol_serialization():
 
     config = default_opaque_configuration 
     group = config.group
+    (_, _) = group.key_gen()
     skS, pkS = group.key_gen()
     skS_enc = group.serialize_scalar(skS)
     pkS_enc = group.serialize(pkS)
@@ -47,13 +48,13 @@ def test_core_protocol_serialization():
         config, serialized_request)
     assert request == deserialized_request
 
-    response, kU = core.create_registration_response(request, pkS_enc, oprf_seed, idU, _as_bytes(""))
+    response, kU = core.create_registration_response(request, pkS_enc, oprf_seed, idU)
     serialized_response = response.serialize()
     deserialized_response = deserialize_registration_response(
         config, serialized_response)
     assert response == deserialized_response
 
-    record, export_key = core.finalize_request(pwdU, metadata, response, _as_bytes(""))
+    record, export_key = core.finalize_request(pwdU, metadata, response)
     serialized_envU = record.envU.serialize()
     deserialized_envU, envU_len = deserialize_envelope(config, serialized_envU)
     assert envU_len == len(serialized_envU)
@@ -67,14 +68,14 @@ def test_core_protocol_serialization():
     assert cred_request == deserialized_request
     assert length == len(serialized_request)
 
-    cred_response = core.create_credential_response(cred_request, pkS_enc, oprf_seed, record.envU, idU, record.masking_key, _as_bytes(""))
+    cred_response = core.create_credential_response(cred_request, pkS_enc, oprf_seed, record.envU, idU, record.masking_key)
     serialized_response = cred_response.serialize()
     deserialized_response, length = deserialize_credential_response(
         config, serialized_response)
     assert cred_response == deserialized_response
     assert length == len(serialized_response)
 
-    recovered_skU, recovered_pkS, recovered_export_key = core.recover_credentials(pwdU, cred_metadata, cred_response, _as_bytes(""))
+    recovered_skU, recovered_pkS, recovered_export_key = core.recover_credentials(pwdU, cred_metadata, cred_response)
 
     # Check that recovered credentials match the registered credentials
     assert export_key == recovered_export_key
@@ -86,6 +87,7 @@ def test_registration_and_authentication():
 
     config = default_opaque_configuration 
     group = config.group
+    (_, _) = group.key_gen()
     skS, pkS = group.key_gen()
     skS_enc = group.serialize_scalar(skS)
     pkS_enc = group.serialize(pkS)
@@ -94,19 +96,19 @@ def test_registration_and_authentication():
     core = OPAQUECore(config)
 
     request, metadata = core.create_registration_request(pwdU)
-    response, kU = core.create_registration_response(request, pkS_enc, oprf_seed, idU, _as_bytes(""))
-    record, export_key = core.finalize_request(pwdU, metadata, response, _as_bytes(""))
+    response, kU = core.create_registration_response(request, pkS_enc, oprf_seed, idU)
+    record, export_key = core.finalize_request(pwdU, metadata, response)
 
     cred_request, cred_metadata = core.create_credential_request(pwdU)
-    cred_response = core.create_credential_response(cred_request, pkS_enc, oprf_seed, record.envU, idU, record.masking_key, _as_bytes(""))
-    recovered_skU, recovered_pkS, recovered_export_key = core.recover_credentials(pwdU, cred_metadata, cred_response, _as_bytes(""))
+    cred_response = core.create_credential_response(cred_request, pkS_enc, oprf_seed, record.envU, idU, record.masking_key)
+    recovered_skU, recovered_pkS, recovered_export_key = core.recover_credentials(pwdU, cred_metadata, cred_response)
 
     assert export_key == recovered_export_key
 
     cred_request, cred_metadata = core.create_credential_request(badPwdU)
-    cred_response = core.create_credential_response(cred_request, pkS_enc, oprf_seed, record.envU, idU, record.masking_key, _as_bytes(""))
+    cred_response = core.create_credential_response(cred_request, pkS_enc, oprf_seed, record.envU, idU, record.masking_key)
     try:
-        recovered_skU, recovered_pkS, recovered_export_key = core.recover_credentials(badPwdU, cred_metadata, cred_response, _as_bytes(""))
+        recovered_skU, recovered_pkS, recovered_export_key = core.recover_credentials(badPwdU, cred_metadata, cred_response)
         assert False
     except:
         # We expect the MAC authentication tag to fail, so should get here
@@ -117,7 +119,6 @@ TestVectorParams = namedtuple("TestVectorParams", "is_fake idU credential_identi
 def run_test_vector(params):
     is_fake = params.is_fake
     idU = params.idU
-    info = _as_bytes("")
     credential_identifier = params.credential_identifier
     idS = params.idS
     pwdU = params.pwdU
@@ -127,6 +128,7 @@ def run_test_vector(params):
     mhf = params.mhf
     group = params.group
 
+    (_, _) = group.key_gen()
     (skS, pkS) = group.key_gen()
     skS_bytes = group.serialize_scalar(skS)
     pkS_bytes = group.serialize(pkS)
@@ -139,8 +141,8 @@ def run_test_vector(params):
 
     if not is_fake:
         reg_request, metadata = core.create_registration_request(pwdU)
-        reg_response, kU = core.create_registration_response(reg_request, pkS_bytes, oprf_seed, credential_identifier, info)
-        record, export_key = core.finalize_request(pwdU, metadata, reg_response, info, idU, idS)
+        reg_response, kU = core.create_registration_response(reg_request, pkS_bytes, oprf_seed, credential_identifier)
+        record, export_key = core.finalize_request(pwdU, metadata, reg_response, idU, idS)
         pkU_enc = record.pkU
         pkU = group.deserialize(pkU_enc)
         pkU_bytes = pkU_enc
@@ -257,8 +259,8 @@ def test_3DH():
     # Configurations specified here:
     # https://cfrg.github.io/draft-irtf-cfrg-opaque/draft-irtf-cfrg-opaque.html#name-configurations
     configs = [
-        (oprf_ciphersuites[ciphersuite_ristretto255_sha512], hashlib.sha512, MHF("Identity", identity_harden), GroupRistretto255()),
-        (oprf_ciphersuites[ciphersuite_p256_sha256], hashlib.sha256, MHF("Identity", identity_harden), GroupP256()),
+        (oprf_ciphersuites[ciphersuite_ristretto255_sha512], hashlib.sha512, MHF("Identity", identity_stretch), GroupRistretto255()),
+        (oprf_ciphersuites[ciphersuite_p256_sha256], hashlib.sha256, MHF("Identity", identity_stretch), GroupP256()),
     ]
 
     vectors = []
