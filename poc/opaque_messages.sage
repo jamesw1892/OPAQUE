@@ -108,7 +108,7 @@ class RegistrationRequest(ProtocolMessage):
         return f"RegistrationRequest(data={self.data.hex()})"
 
 # struct {
-#     SerializedElement data;
+#     opaque blinded_message[Noe];
 # } RegistrationRequest;
 def deserialize_registration_request(config, msg_bytes: bytes) -> RegistrationRequest:
     length = config.oprf_suite.group.element_byte_length()
@@ -128,7 +128,7 @@ class RegistrationResponse(ProtocolMessage):
         return f"RegistrationResponse(data={self.data.hex()}, pkS={self.pkS.hex()})"
 
 # struct {
-#     SerializedElement data;
+#     opaque evaluated_message[Noe];
 #     opaque pkS[Npk];
 # } RegistrationResponse;
 def deserialize_registration_response(config, msg_bytes: bytes) -> RegistrationResponse:
@@ -180,7 +180,7 @@ class CredentialRequest(ProtocolMessage):
         return f"CredentialRequest(data={self.data.hex()})"
 
 # struct {
-#     SerializedElement data;
+#     opaque blinded_message[Noe];
 # } CredentialRequest;
 def deserialize_credential_request(config, msg_bytes: bytes) -> Tuple[CredentialRequest, int]:
     length = config.oprf_suite.group.element_byte_length()
@@ -201,7 +201,7 @@ class CredentialResponse(ProtocolMessage):
         return f"CredentialResponse(data={self.data.hex()}, masking_nonce={self.masking_nonce.hex()}, masked_response={self.masked_response.hex()})"
 
 # struct {
-#     SerializedElement data;
+#     opaque evaluated_message[Noe];
 #     opaque masking_nonce[32];
 #     opaque masked_response[Npk + Ne];
 # } CredentialResponse;

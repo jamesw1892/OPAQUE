@@ -11,16 +11,11 @@ from typing import Tuple, Callable
 from hash import scrypt
 
 try:
-    from sagelib.oprf import SetupBaseServer, SetupBaseClient, Evaluation
+    from sagelib.oprf import SetupOPRFClient, SetupOPRFServer, DeriveKeyPair, MODE_OPRF
     from sagelib.opaque_messages import RegistrationRequest, RegistrationResponse, RegistrationUpload, CredentialRequest, CredentialResponse, CleartextCredentials, Envelope, deserialize_envelope
     from sagelib.opaque_common import to_hex, derive_secret, hkdf_expand_label, hkdf_expand, hkdf_extract, random_bytes, xor, I2OSP, OS2IP, OS2IP_le, encode_vector, encode_vector_len, decode_vector, decode_vector_len, _as_bytes, OPAQUE_NONCE_LENGTH
 except ImportError as e:
     sys.exit("Error loading preprocessed sage files. Try running `make setup && make clean pyfiles`. Full error: " + e)
-
-def DeriveKeyPair(suite, seed):
-    skS = suite.group.hash_to_scalar(seed, _as_bytes("OPAQUE-DeriveKeyPair"))
-    pkS = skS * suite.group.generator()
-    return skS, pkS
 
 OPAQUE_SEED_LENGTH = 32
 
@@ -28,13 +23,11 @@ class OPAQUECore(object):
     def __init__(self, config):
         self.config = config
 
-    def derive_random_pwd(self, pwdU, response, blind, info):
-        oprf_context = SetupBaseClient(self.config.oprf_suite)
-        if info == None:
-            info = _as_bytes("")
-        y = oprf_context.finalize(pwdU, blind, response.data, None, None, info)
-        y_harden = self.config.mhf.harden(y)
-        return self.config.kdf.extract(_as_bytes(""), y + y_harden)
+    def derive_random_pwd(self, pwdU, response, blind):
+        oprf_context = SetupOPRFClient(self.config.oprf_suite)
+        oprf_output = oprf_context.finalize(pwdU, blind, self.config.oprf_suite.group.deserialize(response.data), None, None, None)
+        stretched_oprf_output = self.config.mhf.stretch(oprf_output)
+        return self.config.kdf.extract(_as_bytes(""), oprf_output + stretched_oprf_output)
 
     def derive_masking_key(self, random_pwd) -> bytes:
         Nh = self.config.hash().digest_size
@@ -42,17 +35,22 @@ class OPAQUECore(object):
         return masking_key
 
     def create_registration_request(self, pwdU):
-        oprf_context = SetupBaseClient(self.config.oprf_suite)
+        oprf_context = SetupOPRFClient(self.config.oprf_suite)
         blind, blinded_element = oprf_context.blind(pwdU)
-        request = RegistrationRequest(blinded_element)
+        blinded_message = self.config.oprf_suite.group.serialize(blinded_element)
+        request = RegistrationRequest(blinded_message)
         return request, blind
 
-    def create_registration_response(self, request, pkS, oprf_seed, credential_identifier, info):
+    def create_registration_response(self, request, pkS, oprf_seed, credential_identifier):
         ikm = self.config.kdf.expand(oprf_seed, credential_identifier + _as_bytes("OprfKey"), OPAQUE_SEED_LENGTH)
-        (kU, _) = DeriveKeyPair(self.config.oprf_suite, ikm)
-        oprf_context = SetupBaseServer(self.config.oprf_suite, kU)
-        data, _, _ = oprf_context.evaluate(request.data, info)
-        response = RegistrationResponse(data, pkS)
+        (kU, _) = DeriveKeyPair(MODE_OPRF, self.config.oprf_suite, ikm, _as_bytes("OPAQUE-DeriveKeyPair"))
+        oprf_context = SetupOPRFServer(self.config.oprf_suite, kU)
+
+        blinded_element = self.config.oprf_suite.group.deserialize(request.data)
+        evaluated_element, _, _ = oprf_context.evaluate(blinded_element, None)
+        evaluated_message = self.config.oprf_suite.group.serialize(evaluated_element)
+
+        response = RegistrationResponse(evaluated_message, pkS)
         return response, kU
 
     def recover_public_key(self, private_key):
@@ -63,9 +61,7 @@ class OPAQUECore(object):
         return self.config.group.serialize(pk)
 
     def derive_group_key_pair(self, seed):
-        skS = self.config.group.hash_to_scalar(seed, dst=_as_bytes("OPAQUE-DeriveAuthKeyPair"))
-        pkS = skS * self.config.group.generator()
-        return (skS, pkS)
+        return DeriveKeyPair(MODE_OPRF, self.config.oprf_suite, seed, _as_bytes("OPAQUE-DeriveAuthKeyPair"))
 
     def create_cleartext_credentials(self, server_public_key, client_public_key, server_identity, client_identity) -> CleartextCredentials:
         if server_identity == None:
@@ -95,8 +91,8 @@ class OPAQUECore(object):
 
         return envelope, client_public_key, masking_key, export_key
 
-    def finalize_request(self, pwdU, blind, response, info, idU=None, idS=None) -> Tuple[RegistrationUpload, bytes]:
-        random_pwd = self.derive_random_pwd(pwdU, response, blind, info)
+    def finalize_request(self, pwdU, blind, response, idU=None, idS=None):
+        random_pwd = self.derive_random_pwd(pwdU, response, blind)
         envelope, client_public_key, masking_key, export_key = self.create_envelope(random_pwd, response.pkS, idU, idS)
         record = RegistrationUpload(client_public_key, masking_key, envelope)
 
@@ -106,17 +102,17 @@ class OPAQUECore(object):
         return record, export_key
 
     def create_credential_request(self, pwdU):
-        oprf_context = SetupBaseClient(self.config.oprf_suite)
+        oprf_context = SetupOPRFClient(self.config.oprf_suite)
         blind, blinded_element = oprf_context.blind(pwdU)
-        request = CredentialRequest(blinded_element)
+        request = CredentialRequest(self.config.oprf_suite.group.serialize(blinded_element))
         return request, blind
 
-    def create_credential_response(self, request, pkS, oprf_seed, envU, credential_identifier, masking_key, info) -> CredentialResponse:
+    def create_credential_response(self, request, pkS, oprf_seed, envU, credential_identifier, masking_key):
         ikm = self.config.kdf.expand(oprf_seed, credential_identifier + _as_bytes("OprfKey"), OPAQUE_SEED_LENGTH)
-        (kU, _) = DeriveKeyPair(self.config.oprf_suite, ikm)
+        (kU, _) = DeriveKeyPair(MODE_OPRF, self.config.oprf_suite, ikm, _as_bytes("OPAQUE-DeriveKeyPair"))
 
-        oprf_context = SetupBaseServer(self.config.oprf_suite, kU)
-        Z, _, _ = oprf_context.evaluate(request.data, info)
+        oprf_context = SetupOPRFServer(self.config.oprf_suite, kU)
+        Z, _, _ = oprf_context.evaluate(self.config.oprf_suite.group.deserialize(request.data), None)
 
         masking_nonce = random_bytes(OPAQUE_NONCE_LENGTH)
         Npk = self.config.Npk
@@ -126,7 +122,7 @@ class OPAQUECore(object):
 
         self.masking_nonce = masking_nonce
 
-        response = CredentialResponse(Z, masking_nonce, masked_response)
+        response = CredentialResponse(self.config.oprf_suite.group.serialize(Z), masking_nonce, masked_response)
         return response
 
     def recover_keys(self, random_pwd, envelope_nonce) -> Tuple[bytes, bytes]:
@@ -152,8 +148,8 @@ class OPAQUECore(object):
 
         return client_private_key, export_key
 
-    def recover_credentials(self, pwdU, blind, response, info, idU = None, idS = None) -> Tuple[bytes, bytes, bytes]:
-        random_pwd = self.derive_random_pwd(pwdU, response, blind, info)
+    def recover_credentials(self, pwdU, blind, response, idU = None, idS = None):
+        random_pwd = self.derive_random_pwd(pwdU, response, blind)
         masking_key = self.derive_masking_key(random_pwd)
         Npk = self.config.Npk
         Ne = self.config.Nm + OPAQUE_NONCE_LENGTH
@@ -172,14 +168,14 @@ class OPAQUECore(object):
         return skU, server_public_key, export_key
 
 class MHF(object):
-    def __init__(self, name: str, harden: Callable[[bytes], bytes]):
+    def __init__(self, name: str, stretch: Callable[[bytes], bytes]):
         self.name = name
-        self.harden = harden
+        self.stretch = stretch
 
 def scrypt_harden(pwd: bytes) -> bytes:
     return scrypt(pwd, b'', 32768, 8, 1, 64)
 
-def identity_harden(pwd: bytes) -> bytes:
+def identity_stretch(pwd: bytes) -> bytes:
     return pwd
 
 class KDF(object):
@@ -235,8 +231,8 @@ class HMAC(MAC):
     def mac(self, key, input):
         return hmac.digest(key, input, self.hash)
 
-def scrypt_harden(pwd):
+def scrypt_stretch(pwd):
     return scrypt(pwd, b'', 32768, 8, 1, 64)
 
-def identity_harden(pwd):
+def identity_stretch(pwd):
     return pwd
