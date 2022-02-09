@@ -43,3 +43,6 @@ runclient: pyfiles
 
 runwebclient: pyfiles
 	sage web.sage
+
+testflow: pyfiles
+	sage test_flow.sage
