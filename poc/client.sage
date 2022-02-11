@@ -19,15 +19,14 @@ except ImportError as e:
     sys.exit("Error loading preprocessed sage files. Try running `make setup && make clean pyfiles`. Full error: " + e)
 
 def client_registration(connection: socket.socket, config: Configuration,
-                        idU: bytes, pwdU: bytes) -> Tuple[Any, bytes]:
+                        idU: bytes, pwdU: bytes) -> bytes:
     """
     Run the client's registration flow to store its credentials on the server.
 
     The client inputs its username and password (encoded as bytes) and outputs
-    its public key to be used during login as well as an export key which can
-    be used for application-specific purposes like encrypting additional
-    information to the server. config is the OPRF settings that the client and
-    server will use.
+    an export key which can be used for application-specific purposes like
+    encrypting additional information to the server. config is the OPRF
+    settings that the client and server will use.
     """
 
     logging.info("Starting registration")
@@ -57,10 +56,7 @@ def client_registration(connection: socket.socket, config: Configuration,
 
     logging.info("Completed registration\n")
 
-    # retrieve pkU to use when logging in with AKE
-    pkU = config.group.deserialize(record.pkU)
-
-    return pkU, export_key
+    return export_key
 
 def client_login(connection: socket.socket, config: Configuration,
                  idU: bytes, pwdU: bytes) -> Tuple[Union[bytes, None],
@@ -110,7 +106,7 @@ def client_login(connection: socket.socket, config: Configuration,
     return export_key, skU_bytes, pkS_bytes
 
 def client_login_ake(connection: socket.socket, config: Configuration,
-                     idU: bytes, pwdU: bytes, pkU) -> Tuple[Union[bytes, None],
+                     idU: bytes, pwdU: bytes) -> Tuple[Union[bytes, None],
                                                             Union[bytes, None]]:
     """
     Run the client's login flow with authenticated key exchange to retrieve the
@@ -125,10 +121,7 @@ def client_login_ake(connection: socket.socket, config: Configuration,
 
     If the username and/or password are incorrect, both return values are None.
 
-    config is the OPRF settings that the client and server will use. pkU is the
-    client's public key saved after registration that is required to recover
-    credentials. pkU is not encoded so for example a point on an elliptic curve
-    (the generator * the corresponding private key).
+    config is the OPRF settings that the client and server will use.
     """
 
     logging.info("Starting login with AKE")
@@ -147,7 +140,10 @@ def client_login_ake(connection: socket.socket, config: Configuration,
 
     # recover credentials and derive export and session keys
     try:
-        serialized_ke3 = kex.generate_ke3(serialized_ke2, idU, pkU, IDS)
+
+        # don't provide pkU because it is only required if idU is not provided,
+        # but we always use idU
+        serialized_ke3 = kex.generate_ke3(serialized_ke2, idU, None, IDS)
     except:
         logging.warning("Invalid username and/or password\n")
         return None, None
@@ -167,11 +163,11 @@ def client_login_ake(connection: socket.socket, config: Configuration,
 
 class Client:
     """
-    Store the client's state between registration and login
+    Facilitate easy envoking of client registration and login (with and without
+    AKE) methods to test them - just return whether successful.
     """
 
     def __init__(self, config: Configuration):
-        self.pkU = None
         self.config = config
 
     def do(self, username: str, password: str, mode: Mode) -> bool:
@@ -212,7 +208,7 @@ class Client:
 
             # for registration, get an export key
             if mode is Mode.REGISTRATION:
-                self.pkU, export_key = client_registration(connection, self.config, idU, pwdU)
+                export_key = client_registration(connection, self.config, idU, pwdU)
 
                 # registration is always successful
                 return True
@@ -229,7 +225,7 @@ class Client:
             # for login with AKE, get an export key and session key that the
             # server also has to facilitate further communication
             else:
-                export_key, session_key = client_login_ake(connection, self.config, idU, pwdU, self.pkU)
+                export_key, session_key = client_login_ake(connection, self.config, idU, pwdU)
 
                 # successful (username & password correct) iff export_key is
                 # not None
