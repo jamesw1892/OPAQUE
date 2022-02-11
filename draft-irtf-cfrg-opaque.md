@@ -138,7 +138,7 @@ protocols"
 
   keyagreement: DOI.10.6028/NIST.SP.800-56Ar3
 
-  OPAQUE:
+  JKX18:
     title: "OPAQUE: An Asymmetric PAKE Protocol Secure Against Pre-Computation Attacks"
     # see the quotes above? Needed because of the embedded colon.
     author:
@@ -343,16 +343,16 @@ OPAQUE depends on the following cryptographic protocols and primitives:
 
 - Oblivious Pseudorandom Function (OPRF); {{deps-oprf}}
 - Key Derivation Function (KDF); {{deps-symmetric}}
-- Message Authenticate Code (MAC); {{deps-symmetric}}
+- Message Authentication Code (MAC); {{deps-symmetric}}
 - Cryptographic Hash Function; {{deps-hash}}
 - Memory-Hard Function (MHF); {{deps-hash}}
 - Key Recovery Mechanism; {{deps-keyrec}}
 - Authenticated Key Exchange (AKE) protocol; {{deps-ake}}
 
 This section describes these protocols and primitives in more detail. Unless said
-otherwise, all random nonces and key derivation seeds used in these dependencies and
-the rest of the OPAQUE protocol are of length `Nn` and `Nseed` bytes, respectively,
-where `Nn` = `Nseed` = 32.
+otherwise, all random nonces and seeds used in these dependencies and the rest of
+the OPAQUE protocol are of length `Nn` and `Nseed` bytes, respectively, where
+`Nn` = `Nseed` = 32.
 
 ## Oblivious Pseudorandom Function {#deps-oprf}
 
@@ -652,7 +652,7 @@ Input:
 - client_identity, The optional encoded client identity.
 
 Output:
-- cleartext_credentials, a CleartextCredentials structure
+- cleartext_credentials, a CleartextCredentials structure.
 
 def CreateCleartextCredentials(server_public_key, client_public_key,
                                server_identity, client_identity):
@@ -748,7 +748,7 @@ Output:
 - export_key, an additional client key.
 
 Exceptions:
-- KeyRecoveryError, when the key fails to be recovered
+- EnvelopeRecoveryError, the envelope fails to be recovered.
 
 def Recover(randomized_pwd, server_public_key, envelope,
             server_identity, client_identity):
@@ -760,10 +760,8 @@ def Recover(randomized_pwd, server_public_key, envelope,
   cleartext_creds = CreateCleartextCredentials(server_public_key,
                       client_public_key, server_identity, client_identity)
   expected_tag = MAC(auth_key, concat(envelope.nonce, cleartext_creds))
-
-  if !ct_equal(envelope.auth_tag, expected_tag)
-    raise KeyRecoveryError
-
+  If !ct_equal(envelope.auth_tag, expected_tag)
+    raise EnvelopeRecoveryError
   return (client_private_key, export_key)
 ~~~
 
@@ -1068,7 +1066,7 @@ def ClientInit(password):
 ClientFinish
 
 State:
-- state, a ClientState structure
+- state, a ClientState structure.
 
 Input:
 - client_identity, the optional encoded client identity, which is set
@@ -1350,15 +1348,13 @@ computed using Km2, defined below.
 We assume the following functions to exist for all candidate groups in this
 setting:
 
-- RecoverPublicKey(private_key): Recover the public key related to the input
-  `private_key`.
 - DeriveAuthKeyPair(seed): Derive a private and public authentication key pair
   deterministically from the input `seed`. This function is implemented as
   DeriveKeyPair(seed, "OPAQUE-DeriveAuthKeyPair"), where DeriveKeyPair is
   as specified in {{OPRF, Section 3.2}}.
 - GenerateAuthKeyPair(): Return a randomly generated private and public key
-  pair. This can be implemented by generating a random private key `sk`, then
-  computing `pk = RecoverPublicKey(sk)`.
+  pair. This can be implemented by invoking DeriveAuthKeyPair with `Nseed`
+  random bytes as input.
 - SerializeElement(element): A member function of the underlying group that
   maps `element` to a unique byte array, mirrored from the definition of the
   similarly-named function of the OPRF group described in
@@ -1496,7 +1492,7 @@ Output:
 - session_key, the shared session secret.
 
 Exceptions:
-- HandshakeError, when the handshake fails
+- ServerAuthenticationError, the handshake fails.
 
 def ClientFinalize(client_identity, client_private_key, server_identity,
                    server_public_key, ke2):
@@ -1510,7 +1506,7 @@ def ClientFinalize(client_identity, client_private_key, server_identity,
   Km2, Km3, session_key = DeriveKeys(ikm, preamble)
   expected_server_mac = MAC(Km2, Hash(preamble))
   if !ct_equal(ke2.server_mac, expected_server_mac),
-    raise HandshakeError
+    raise ServerAuthenticationError
   client_mac = MAC(Km3, Hash(concat(preamble, expected_server_mac))
   Create KE3 ke3 with client_mac
   return (ke3, session_key)
@@ -1572,11 +1568,11 @@ Output:
 - session_key, the shared session secret if and only if KE3 is valid.
 
 Exceptions:
-- HandshakeError, when the handshake fails
+- ClientAuthenticationError, the handshake fails.
 
 def ServerFinish(ke3):
   if !ct_equal(ke3.client_mac, state.expected_client_mac):
-    raise HandshakeError
+    raise ClientAuthenticationError
   return state.session_key
 ~~~
 
@@ -1653,29 +1649,67 @@ applications can use to control OPAQUE:
 
 # Implementation Considerations {#implementation-considerations}
 
-Implementations of OPAQUE should consider addressing the following:
+This section documents considerations for OPAQUE implementations. This includes
+implementation safeguards and error handling considerations.
 
-- Clearing secrets out of memory: All private key material and intermediate values,
-including the outputs of the key exchange phase, should not be retained in memory after
-deallocation.
-- Constant-time operations: All operations, particularly the cryptographic and group
-arithmetic operations, should be constant-time and independent of the bits of any secrets.
-This includes any conditional branching during the creation of the credential response,
-to support implementations which provide mitigations against client enumeration attacks.
-- Deserialization checks: When parsing messages that have crossed trust boundaries (e.g.
-a network wire), implementations should properly handle all error conditions covered in
-{{OPRF}} and abort accordingly.
-- Additional client-side entropy: OPAQUE supports the ability to incorporate the
-client identity alongside the password to be input to the OPRF. This provides additional
-client-side entropy which can supplement the entropy that should be introduced by the
-server during an honest execution of the protocol. This also provides domain separation
+## Implementation Safeguards
+
+Certain information created, exchanged, and processed in OPAQUE is sensitive.
+Specifically, all private key material and intermediate values, along with the
+outputs of the key exchange phase, are all secret. Implementations should not
+retain these values in memory when no longer needed. Moreover, all operations,
+particularly the cryptographic and group arithmetic operations, should be
+constant-time and independent of the bits of any secrets. This includes any
+conditional branching during the creation of the credential response, as needed
+to mitigate against client enumeration attacks.
+
+As specified in {{offline-phase}} and {{online-phase}}, OPAQUE only requires
+the client password as input to the OPRF for registration and authentication.
+However, implementations can incorporate the client identity alongside the
+password as input to the OPRF. This provides additional client-side entropy
+which can supplement the entropy that should be introduced by the server during
+an honest execution of the protocol. This also provides domain separation
 between different clients that might otherwise share the same password.
-- Server-authenticated channels: Note that online guessing attacks
-(against any Asymmetric PAKE) can be done from both the client side and the server side.
-In particular, a malicious server can attempt to simulate honest responses in order to
-learn the client's password. This means that additional checks should be considered in
-a production deployment of OPAQUE: for instance, ensuring that there is a
+
+Finally, note that online guessing attacks (against any aPAKE) can be done from
+both the client side and the server side. In particular, a malicious server can
+attempt to simulate honest responses in order to learn the client's password.
+Implementations and deployments of OPAQUE SHOULD consider additional checks to
+mitigate this type of attack: for instance, by ensuring that there is a
 server-authenticated channel over which OPAQUE registration and login is run.
+
+## Error Considerations
+
+Some functions included in this specification are fallible. For example, the
+authenticated key exchange protocol may fail because the client's password was
+incorrect or the authentication check failed, yielding an error. The explicit
+errors generated throughout this specifiation, along with conditions that lead
+to each error, are as follows:
+
+- EnvelopeRecoveryError: The envelope Recover function failed to produce any
+  authentication key material; {{envelope-recovery}}.
+- ServerAuthenticationError: The client failed to complete the authenticated
+  key exchange protocol with the server; {{ake-client}}.
+- ClientAuthenticationError: The server failed to complete the authenticated
+  key exchange protocol with the client; {{ake-server}}.
+
+Beyond these explicit errors, OPAQUE implementations can produce implicit errors.
+For example, if protocol messages sent between client and server do not match
+their expected size, an implementaton should produce an error. More generally,
+if any protocol message received from the peer is invalid, perhaps because the
+message contains an invalid public key (indicated by the AKE DeserializeElement
+function failing) or an invalid OPRF element (indicated by the OPRF DeserializeElement),
+then an implementation should produce an error.
+
+The errors in this document are meant as a guide for implementors. They are not an
+exhaustive list of all the errors an implementation might emit. For example, an
+implementation might run out of memory.
+
+<!--
+TODO(caw): As part of https://github.com/cfrg/draft-irtf-cfrg-opaque/issues/312, address
+the failure case that occurs when Blind fails, noting that this is an exceptional case that
+happens with negligible probability
+-->
 
 # Security Considerations {#security-considerations}
 
@@ -1696,25 +1730,25 @@ protocols such as TLS.
 
 [[RFC EDITOR: Please delete this section before publication.]]
 
-The specification as written here differs from the original cryptographic design in {{OPAQUE}}
+The specification as written here differs from the original cryptographic design in {{JKX18}}
 and the corresponding CFRG document {{I-D.krawczyk-cfrg-opaque-03}}, both of which were used
 as input to the CFRG PAKE competition. This section describes these differences, including
-their motivation and explanation as to why they do not alter or otherwise affect the core
-security proofs or analysis in {{OPAQUE}}.
+their motivation and explanation as to why they preserve the provable security of OPAQUE based
+on {{JKX18}}.
 
 The following list enumerates important functional differences that were made
-as part of the protocol specification process to address applicaton or
+as part of the protocol specification process to address application or
 implementation considerations.
 
 - Clients construct envelope contents without revealing the password to the
   server, as described in {{offline-phase}}, whereas the servers construct
-  envelopes in {{OPAQUE}}. This change adds to the security of the protocol.
-  {{OPAQUE}} considered the case where the envelope was constructed by the
+  envelopes in {{JKX18}}. This change adds to the security of the protocol.
+  {{JKX18}} considered the case where the envelope was constructed by the
   server for reasons of compatibility with previous UC modeling. An upcoming
   paper analyzes the registration phase as specified in this document. This
   change was made to support registration flows where the client chooses the
   password and wishes to keep it secret from the server, and it is compatible
-  with the variant in {{OPAQUE}} that was originally analyzed.
+  with the variant in {{JKX18}} that was originally analyzed.
 - Envelopes do not contain encrypted credentials. Instead, envelopes contain
   information used to derive client private key material for the AKE. This
   variant is also analyzed in the new paper referred to in the previous item.
@@ -1773,46 +1807,46 @@ implementation considerations.
   protocol is secure. The choice of such inputs is up to the application.
 
 The following list enumerates notable differences and refinements from the original
-cryptographic design in {{OPAQUE}} and the corresponding CFRG document
+cryptographic design in {{JKX18}} and the corresponding CFRG document
 {{I-D.krawczyk-cfrg-opaque-03}} that were made to make this specification
 suitable for interoperable implementations.
 
-- {{OPAQUE}} used a generic prime-order group for the DH-OPRF and HMQV operations,
+- {{JKX18}} used a generic prime-order group for the DH-OPRF and HMQV operations,
   and includes necessary prime-order subgroup checks when receiving attacker-controlled
   values over the wire. This specification instantiates the prime-order group using for
   3DH using prime-order groups based on elliptic curves, as described in
   {{I-D.irtf-cfrg-voprf, Section 2.1}}. This specification also delegates OPRF group
   choice and operations to {{!I-D.irtf-cfrg-voprf}}. As such, the prime-order group as used
   in the OPRF and 3DH as specified in this document both adhere to the requirements as
-  {{OPAQUE}}.
-- {{OPAQUE}} specified DH-OPRF (see Appendix B) to instantiate
+  {{JKX18}}.
+- {{JKX18}} specified DH-OPRF (see Appendix B) to instantiate
   the OPRF functionality in the protocol. A critical part of DH-OPRF is the
   hash-to-group operation, which was not instantiated in the original analysis.
   However, the requirements for this operation were included. This specification
   instantiates the OPRF functionality based on the {{I-D.irtf-cfrg-voprf}}, which
-  is identical to the DH-OPRF functionality in {{OPAQUE}} and, concretely, uses
+  is identical to the DH-OPRF functionality in {{JKX18}} and, concretely, uses
   the hash-to-curve functions in {{?I-D.irtf-cfrg-hash-to-curve}}. All hash-to-curve
   methods in {{I-D.irtf-cfrg-hash-to-curve}} are compliant with the requirement
-  in {{OPAQUE}}, namely, that the output be a member of the prime-order group.
-- {{OPAQUE}} and {{I-D.krawczyk-cfrg-opaque-03}} both used HMQV as the AKE
+  in {{JKX18}}, namely, that the output be a member of the prime-order group.
+- {{JKX18}} and {{I-D.krawczyk-cfrg-opaque-03}} both used HMQV as the AKE
   for the protocol. However, this document fully specifies 3DH instead of HMQV
   (though a sketch for how to instantiate OPAQUE using HMQV is included in {{hmqv-sketch}}).
-  Since 3DH satisfies the essential requirements for the AKE as described in {{OPAQUE}}
+  Since 3DH satisfies the essential requirements for the AKE as described in {{JKX18}}
   and {{I-D.krawczyk-cfrg-opaque-03}}, as recalled in {{security-analysis}}, this change
   preserves the overall security of the protocol. 3DH was chosen for its
   simplicity and ease of implementation.
-- The DH-OPRF and HMQV instantiation of OPAQUE in {{OPAQUE}}, Figure 12 uses
+- The DH-OPRF and HMQV instantiation of OPAQUE in {{JKX18}}, Figure 12 uses
   a different transcript than that which is described in this specification. In particular,
   the key exchange transcript specified in {{ake-protocol}} is a superset of the transcript
-  as defined in {{OPAQUE}}. This was done to align with best practices, such as is
+  as defined in {{JKX18}}. This was done to align with best practices, such as is
   done for key exchange protocols like TLS 1.3 {{RFC8446}}.
-- Neither {{OPAQUE}} nor {{I-D.krawczyk-cfrg-opaque-03}} included wire format details for the
+- Neither {{JKX18}} nor {{I-D.krawczyk-cfrg-opaque-03}} included wire format details for the
   protocol, which is essential for interoperability. This specification fills this
   gap by including such wire format details and corresponding test vectors; see {{test-vectors}}.
 
 ## Security Analysis {#security-analysis}
 
-Jarecki et al. {{OPAQUE}} proved the security of OPAQUE
+Jarecki et al. {{JKX18}} proved the security of OPAQUE
 in a strong aPAKE model that ensures security against pre-computation attacks
 and is formulated in the Universal Composability (UC) framework {{Canetti01}}
 under the random oracle model. This assumes security of the OPRF
@@ -1854,7 +1888,7 @@ Either these protocols do not use a salt at all or, if they do, they
 transmit the salt from server to client in the clear, hence losing the
 secrecy of the salt and its defense against pre-computation.
 
-We note that as shown in {{OPAQUE}}, these protocols, and any aPAKE
+We note that as shown in {{JKX18}}, these protocols, and any aPAKE
 in the model from {{GMR06}}, can be converted into an aPAKE secure against
 pre-computation attacks at the expense of an additional OPRF execution.
 
@@ -2007,7 +2041,7 @@ disclose their passwords to the server, even during registration. Note that a co
 server can run an exhaustive offline dictionary attack to validate guesses for the client's
 password; this is inevitable in any aPAKE protocol. (OPAQUE enables defense against such
 offline dictionary attacks by distributing the server so that an offline attack is only
-possible if all - or a minimal number of - servers are compromised {{OPAQUE}}.) Furthermore,
+possible if all - or a minimal number of - servers are compromised {{JKX18}}.) Furthermore,
 if the server does not sample this OPRF key with sufficiently high entropy, or if it is not
 kept hidden from an adversary, then any derivatives from the client's password may also be
 susceptible to an offline dictionary attack to recover the original password.
