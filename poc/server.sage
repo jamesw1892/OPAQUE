@@ -284,10 +284,10 @@ def main(config: Configuration):
     logging.basicConfig(level=logging.INFO, format="Server %(levelname)s: %(message)s")
 
     # create a fake record that we can use if the client has not previously registered
-    # we still do the login flow to prevent client enumeration
-    # recommended https://www.ietf.org/archive/id/draft-irtf-cfrg-opaque-07.html#section-6.3.2.2-4
-    fake_record = RegistrationUpload(random_bytes(config.Npk), random_bytes(config.Nh),
-                                    Envelope(zero_bytes(config.Nn), zero_bytes(config.Nm)))
+    # we still do the login flow to prevent client enumeration. Recommended here:
+    # https://www.ietf.org/archive/id/draft-irtf-cfrg-opaque-07.html#section-6.3.2.2-4
+    fake_record = RegistrationUpload(config.group.serialize(config.group.key_gen()[1]),
+        random_bytes(config.Nh), Envelope(zero_bytes(config.Nn), zero_bytes(config.Nm)))
 
     # stores registered credentials where the key is a byte string idU - the
     # client identity which is the same as the credential identifier for us
