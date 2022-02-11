@@ -300,8 +300,7 @@ def main(config: Configuration):
     # https://www.ietf.org/archive/id/draft-irtf-cfrg-opaque-07.html#name-finalize-registration
     skS, pkS = config.group.key_gen()
     pkS_bytes = config.group.serialize(pkS)
-    oprf_seed = random_bytes(config.oprf_suite.group.scalar_byte_length())
-    # oprf_seed = random_bytes(config.hash().digest_size) # TODO: which sized OPRF seed is correct?
+    oprf_seed = random_bytes(config.Nh)
 
     # set up server and listen for connections
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server:
