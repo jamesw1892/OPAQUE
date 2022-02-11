@@ -286,8 +286,10 @@ def main(config: Configuration):
     # create a fake record that we can use if the client has not previously registered
     # we still do the login flow to prevent client enumeration. Recommended here:
     # https://www.ietf.org/archive/id/draft-irtf-cfrg-opaque-07.html#section-6.3.2.2-4
-    fake_record = RegistrationUpload(config.group.serialize(config.group.key_gen()[1]),
-        random_bytes(config.Nh), Envelope(zero_bytes(config.Nn), zero_bytes(config.Nm)))
+    _, random_pk = config.group.key_gen()
+    serialised_random_pk = config.group.serialize(random_pk)
+    empty_envelope = Envelope(zero_bytes(config.Nn), zero_bytes(config.Nm))
+    fake_record = RegistrationUpload(serialised_random_pk, random_bytes(config.Nh), empty_envelope)
 
     # stores registered credentials where the key is a byte string idU - the
     # client identity which is the same as the credential identifier for us
