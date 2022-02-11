@@ -201,7 +201,7 @@ class Client:
                 connection.connect(SOCKET)
             except Exception as e:
                 logging.error("Server not up, run 'make runserver'")
-                raise e
+                exit(1)
 
             # send mode followed by colon followed by username
             connection.send((mode.value + ":").encode() + idU)
