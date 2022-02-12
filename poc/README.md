@@ -17,6 +17,8 @@ To get to grips with hash-to-curve algorithms, I look at a use of them - OPAQUE.
 
 ## Usage
 
+Before first use, download the submodules and run `make setup` to copy necessary files from them into this directory.
+
 1. Decide on the socket for the server (IP address and port number) and change this at the top of `server.sage`. If client and server are on the same device then leave as the default which uses `localhost:1337`
 1. Run `make runserver` on the device acting as the server
 1. Run the client on the device acting as the client:
