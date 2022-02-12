@@ -1,10 +1,22 @@
 # Extended OPAQUE Proof-of-Concept
 
-To get to grips with hash-to-curve algorithms, I look at a use of them - OPAQUE. To really see how the protocol flow works, I extend the existing proof-of-concept created by the CFRG of the IRTF and write a client and server so we can see it in action.
+This extension of the reference OPAQUE proof-of-concept adds a client and server to clearly show the inputs the client and server need, the outputs they produce and the steps they need to take in the OPAQUE protocol.
+
+In `client.sage` and `server.sage`, there are functions for registration, login without AKE (Authenticated Key Exchange) and login with AKE. These aim to show, as clearly as possible, what the client and server do at each stage including sending messages, receiving messages and doing computation. The computations required already have functions in the existing proof-of-concept that I call. Their inner workings are explained in detail in the OPAQUE specification.
+
+Other functions in `client.sage` and `server.sage` facilitate the connection between client and server using sockets, and determine which mode to use (registration, login without AKE or login with AKE). However some parts are important for the core OPAQUE protocol, for example, in the `main` method in `server.sage`, the server generates a keypair and OPRF seed which are required inputs to the core functions.
+
+We also show how to prevent client enumeration (at least for login) by creating a fake record that is used if a login is attempted with an unregistered username.
+
+We log many things, including messages sent/received and keys derived, to clearly demonstrate how the OPAQUE protocol works in action.
+
+`web.sage` is a web interface for the client to replace the command-line interface in `client.sage`. It calls the core functions in `client.sage` for the back-end. In addition to being more user-friendly than the command-line interface, this formats messages and keys clearly so it's easy to see what's happening.
+
+`test_flow.sage` tests the client and server code by acting as a client and performing several requests to the server (which must be running before running this test). It tries things such as logging in with an unregistered username.
 
 ## Links
 
-- [Original OPAQUE Proof-of-Concept](https://github.com/cfrg/draft-irtf-cfrg-opaque/tree/master/poc)
+- [Reference OPAQUE Proof-of-Concept](https://github.com/cfrg/draft-irtf-cfrg-opaque/tree/master/poc)
 - [This Extended OPAQUE Proof-of-Concept](https://github.com/jamesw1892/OPAQUE/tree/master/poc)
 - [OPAQUE Specification](https://datatracker.ietf.org/doc/draft-irtf-cfrg-opaque/) which explains how the protocol works
 - Related documents to OPAQUE:
