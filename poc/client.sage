@@ -19,7 +19,7 @@ except ImportError as e:
     sys.exit("Error loading preprocessed sage files. Try running `make setup && make clean pyfiles`. Full error: " + e)
 
 def client_registration(connection: socket.socket, config: Configuration,
-                        idU: bytes, pwdU: bytes) -> bytes:
+                        idU: bytes, pwdU: bytes) -> Union[bytes, None]:
     """
     Run the client's registration flow to store its credentials on the server.
 
@@ -27,6 +27,8 @@ def client_registration(connection: socket.socket, config: Configuration,
     an export key which can be used for application-specific purposes like
     encrypting additional information to the server. config is the OPRF
     settings that the client and server will use.
+
+    If this username has already been registered then return None.
     """
 
     logging.info("Starting registration")
@@ -42,7 +44,12 @@ def client_registration(connection: socket.socket, config: Configuration,
 
     # receive and deserialise the registration response
     serialized_response = connection.recv(RECV_LEN)
-    response = deserialize_registration_response(config, serialized_response)
+    try:
+        response = deserialize_registration_response(config, serialized_response)
+    except: # if this fails, the username has already been registered
+        logging.warning("Already registered username\n")
+        return None
+
     logging.info(f"Received response:\n{response}")
 
     # finalise request, create record and derive export key
@@ -176,9 +183,9 @@ class Client:
         be an instance of 'Mode' to determine what to do - register, login, or
         login with AKE.
 
-        Return whether successful. Registration is always successful, login
-        (with and without ake) is unsuccessful iff the username or password is
-        incorrect.
+        Return whether successful. Registration is unsuccessful iff that
+        username has already been registered, login (with and without ake) is
+        unsuccessful iff the username or password is incorrect.
 
         This immediately tries to connect to the server and if unsuccessful, an
         exception will be thrown, so ensure the server is running first by
@@ -206,8 +213,8 @@ class Client:
             if mode is Mode.REGISTRATION:
                 export_key = client_registration(connection, self.config, idU, pwdU)
 
-                # registration is always successful
-                return True
+                # successful (username unregistered) iff export_key is not None
+                return export_key is not None
 
             # for login without AKE, get an export key and credentials stored
             # on the server - the client's private key and server's public key

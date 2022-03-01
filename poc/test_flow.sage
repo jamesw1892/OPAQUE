@@ -47,4 +47,7 @@ logging.info("Testing login without AKE with not the most recent credentials use
 assert client.do("k", "p", Mode.LOGIN_AKE)
 assert client.do("j", "p", Mode.LOGIN_AKE)
 
+logging.info("Testing registration with an already registered username")
+assert not client.do("j", "r", Mode.REGISTRATION)
+
 logging.info("All tests passed!")

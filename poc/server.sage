@@ -245,10 +245,20 @@ def handle_connection(connection: socket.socket, config: Configuration, oprf_see
     mode = Mode.get(msg[0])
     idU = msg[1].encode() # keep username as bytes
 
-    # for registration, run the main flow and save the record under the username
+    # for registration:
     if mode is Mode.REGISTRATION:
-        record = server_registration(connection, config, idU, oprf_seed, pkS_bytes)
-        records[idU] = record
+
+        # if the username has already been registered then tell the client
+        # this will make the next deserialisation step fail and the client
+        # should interpret this to mean the username is already registered
+        if idU in records:
+            connection.send("Username already registered".encode())
+            logging.warning("Username already registered\n")
+
+        # otherwise run the main flow and save the record under the username
+        else:
+            record = server_registration(connection, config, idU, oprf_seed, pkS_bytes)
+            records[idU] = record
 
     # for login (with or without AKE)
     elif mode is Mode.LOGIN or mode is Mode.LOGIN_AKE:

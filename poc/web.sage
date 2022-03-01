@@ -206,6 +206,15 @@ def HtmlRegistrationSuccess() -> str:
     """
     return getSkeletonHTML("Registration Success", f"<p>You have successfully registered.</p><p><a href='/'>Home</a></p>{messages()}")
 
+def HtmlRegistrationFailure() -> str:
+    """
+    Return the HTML for the registration failure page seen after submitting a
+    username and password for registration but the username has already been
+    registered. This needs to be dynamic because the HTML includes the logs
+    of all messages sent so far which needs to be updated each time.
+    """
+    return getSkeletonHTML("Registration Failure", f"<p>This username has already been registered, pick a new one.</p><p><a href='/'>Home</a></p>{messages()}")
+
 def HtmlLoginSuccess() -> str:
     """
     Return the HTML for the login success page seen after submitting a username
@@ -313,10 +322,17 @@ class MyServer(BaseHTTPRequestHandler):
             logging.info(f"Password: {password}")
 
             # if registering, run the client's registration function
-            # and give the registration successful HTML
             if self.path == "/register":
-                self.client.do(username, password, Mode.REGISTRATION)
-                html = HtmlRegistrationSuccess()
+                success = self.client.do(username, password, Mode.REGISTRATION)
+
+                # if successful, give the registration success HTML
+                if success:
+                    html = HtmlRegistrationSuccess()
+
+                # otherwise it was unsuccessful so the username has already
+                # been registered so give the registration failure HTML
+                else:
+                    html = HtmlRegistrationFailure()
 
             # if logging in, run the client's login function
             elif self.path == "/login":
