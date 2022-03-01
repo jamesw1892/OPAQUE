@@ -111,7 +111,7 @@ def formatLog(line: str) -> str:
         masking_key = spl[2].split(", ")[0]
         nonce = spl[4].split(", ")[0]
         auth_tag = spl[5][:-3]
-        html += "RegistrationUpload:"
+        html += "Registration Upload:"
         sub_items.extend([f"<b>Client Public Key</b>: {pkU}",
                           f"<b>Masking Key</b>: {masking_key}",
                           f"<b>Nonce</b>: {nonce}",
