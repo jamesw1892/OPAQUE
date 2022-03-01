@@ -245,9 +245,6 @@ def handle_connection(connection: socket.socket, config: Configuration, oprf_see
     mode = Mode.get(msg[0])
     idU = msg[1].encode() # keep username as bytes
 
-    # send back mode to confirm
-    connection.send(mode.value.encode())
-
     # for registration, run the main flow and save the record under the username
     if mode is Mode.REGISTRATION:
         record = server_registration(connection, config, idU, oprf_seed, pkS_bytes)

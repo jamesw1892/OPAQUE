@@ -7,7 +7,7 @@ Communicates with the server using a socket.
 import logging
 import socket
 import sys
-from typing import Tuple, Union, Any
+from typing import Tuple, Union
 
 try:
     from sagelib.opaque_ake import Configuration, OPAQUE3DH
@@ -201,10 +201,6 @@ class Client:
 
             # send mode followed by colon followed by username
             connection.send((mode.value + ":").encode() + idU)
-
-            # receive mode back to confirm
-            if connection.recv(RECV_LEN).decode() != mode.value:
-                raise Exception("Mode not confirmed")
 
             # for registration, get an export key
             if mode is Mode.REGISTRATION:
