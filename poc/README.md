@@ -50,6 +50,6 @@ The following configurations can easily be changed:
     - KDF (Key Derivation Function): Can be an instance of `HKDF` from `opaque_core.sage` created from SHA-512 or SHA-256
     - MAC (Message Authentication Code): Can be an instance of `HMAC` from `opaque_core.sage` created from SHA-512 or SHA-256
     - Hash - like SHA-256 or SHA-512
-    - MHF (Message Hardening Function) - can be Argon2, scrypt or PBKDF2 but must have fixed parameter choices. An instance of `MHF` in `opaque_core.sage`
+    - KSF (Key Stretching Function) - can be Argon2, scrypt or PBKDF2 but must have fixed parameter choices. An instance of `KeyStretchingFunction` in `opaque_core.sage`
     - Group - the topic of Hash-to-Curve (see links) - should match that of OPRF, such as ristretto255 or P-256. An instance of a subclass of `Group` such as `GroupP256` or `GroupRistretto255` in `groups.sage` (from OPRF code, imports Hash-to-Curve code)
     - Context - byte string representing application specific information or configuration parameters needed to prevent cross-protocol or downgrade attacks
