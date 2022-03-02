@@ -1,8 +1,8 @@
 # Extended OPAQUE Proof-of-Concept
 
-This extension of the reference OPAQUE proof-of-concept adds a client and server to clearly show the inputs the client and server need, the outputs they produce and the steps they need to take in the OPAQUE protocol.
+This extension of the CFRG reference OPAQUE proof-of-concept adds a client and server to clearly show the inputs the client and server need, the outputs they produce and the steps they need to take in the OPAQUE protocol.
 
-In `client.sage` and `server.sage`, there are functions for registration, login without AKE (Authenticated Key Exchange) and login with AKE. These aim to show, as clearly as possible, what the client and server do at each stage including sending messages, receiving messages and doing computation. The computations required already have functions in the existing proof-of-concept that I call. Their inner workings are explained in detail in the OPAQUE specification.
+In `client.sage` and `server.sage`, there are functions for registration, login without AKE (Authenticated Key Exchange) and login with AKE. These aim to show, as clearly as possible, what the client and server do at each stage including sending messages, receiving messages and doing computation. The CFRG proof-of-concept already has functions for the computations required which this extension makes use of. Their inner workings are explained in detail in the OPAQUE specification.
 
 Other functions in `client.sage` and `server.sage` facilitate the connection between client and server using sockets, and determine which mode to use (registration, login without AKE or login with AKE). However some parts are important for the core OPAQUE protocol, for example, in the `main` method in `server.sage`, the server generates a keypair and OPRF seed which are required inputs to the core functions.
 
@@ -44,7 +44,7 @@ The following configurations can easily be changed:
 
 - **Communicating Socket**: The socket that the server listens on can be changed by changing the `SOCKET` constant at the top of `server.sage`. By default, it is `localhost:1337`
 - **Web Socket**: The socket that the web client runs on (which must be different to the communicating socket) can be changed by editing the `WEB_SOCKET` constant at the top of `web.sage`. By default, it is `localhost:8080`
-- **Logging**: `client.sage`, `server.sage` and `web.sage` define their own logging configurations. The command-line client and server define them at the top of their `main` methods and log to stderr, whereas the web client defines it at the top of the file and logs to both stderr and a log file. The web client reads this log file to displays the messages send/received and keys derived on the web page.
+- **Logging**: `client.sage`, `server.sage` and `web.sage` define their own logging configurations. The command-line client and server define them at the top of their `main` methods and log to stderr, whereas the web client defines it at the top of the file and logs to both stderr and a log file. The web client reads this log file to display the messages send/received and keys derived on the web page.
 - **OPAQUE Configuration**: The cryptographic configuration that OPAQUE uses can be changed by editing the `CONFIG` constant at the top of `server.sage`. By default, it is the same default as defined by the CFRG in their test file. It must be an instance of `Configuration` which is defined in `opaque_ake.sage`. This configuration consists of the following and is detailed in section 7 of the draft:
     - OPRF suite (Oblivious Pseudo-Random Function) - the topic of VOPRF (see links). For example OPRF(ristretto255, SHA-512) and OPRF(P-256, SHA-256)
     - KDF (Key Derivation Function): Can be an instance of `HKDF` from `opaque_core.sage` created from SHA-512 or SHA-256
