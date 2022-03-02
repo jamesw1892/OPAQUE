@@ -33,7 +33,7 @@ class Mode(Enum):
     """
 
     REGISTRATION = "r"
-    LOGIN = "l"
+    LOGIN_NO_AKE = "l"
     LOGIN_AKE = "a"
 
     @staticmethod
@@ -131,10 +131,11 @@ def server_registration(connection: socket.socket, config: Configuration,
 
     return record
 
-def server_login(connection: socket.socket, config: Configuration, idU: bytes,
+def server_login_no_ake(connection: socket.socket, config: Configuration, idU: bytes,
                  oprf_seed: bytes, pkS_bytes: bytes, record: RegistrationUpload):
     """
-    Run the server's login flow to send the client's credentials to them.
+    Run the server's login flow without AKE to send the client's credentials to
+    them.
 
     The server inputs its parameters (config) and the record corresponding to
     the client (record) which has already been retrieved based on the username.
@@ -147,7 +148,7 @@ def server_login(connection: socket.socket, config: Configuration, idU: bytes,
     oprf_seed is the seed for OPRF.
     """
 
-    logging.info("Starting login")
+    logging.info("Starting login without AKE")
 
     core = OPAQUECore(config)
 
@@ -163,7 +164,7 @@ def server_login(connection: socket.socket, config: Configuration, idU: bytes,
     connection.send(response.serialize())
     logging.info(f"Sent credential response:\n{response}")
 
-    logging.info("Completed login\n")
+    logging.info("Completed login without AKE\n")
 
 def server_login_ake(connection: socket.socket, config: Configuration, idU: bytes,
                      oprf_seed: bytes, record: RegistrationUpload, skS,
@@ -261,7 +262,7 @@ def handle_connection(connection: socket.socket, config: Configuration, oprf_see
             records[idU] = record
 
     # for login (with or without AKE)
-    elif mode is Mode.LOGIN or mode is Mode.LOGIN_AKE:
+    elif mode is Mode.LOGIN_NO_AKE or mode is Mode.LOGIN_AKE:
 
         # if the username has been registered, use it
         if idU in records:
@@ -274,8 +275,8 @@ def handle_connection(connection: socket.socket, config: Configuration, oprf_see
             logging.info("Record faked")
 
         # run the relevant flow
-        if mode is Mode.LOGIN:
-            server_login(connection, config, idU, oprf_seed, pkS_bytes, record)
+        if mode is Mode.LOGIN_NO_AKE:
+            server_login_no_ake(connection, config, idU, oprf_seed, pkS_bytes, record)
         else:
             session_key = server_login_ake(connection, config, idU, oprf_seed, record, skS, pkS)
 

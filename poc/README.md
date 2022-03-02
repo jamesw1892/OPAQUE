@@ -34,7 +34,7 @@ Before first use, download the submodules and run `make setup` to copy necessary
 1. Decide on the socket for the server (IP address and port number) and change this at the top of `server.sage`. If client and server are on the same device then leave as the default which uses `localhost:1337`
 1. Run `make runserver` on the device acting as the server
 1. Run the client on the device acting as the client:
-    - For a command-line client, run `make runclient` and you will be prompted in the terminal to register or login and enter your credentials
+    - For a command-line client, run `make runclient` and you will be prompted in the terminal to register or login (with or without AKE) and enter your credentials
     - For a web client, run `make runwebclient` and you will be prompted in the terminal what the URL is. This can be changed at the top of `web.sage`
     - To test the extension, run `make testflow`
 

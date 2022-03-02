@@ -19,29 +19,29 @@ logging.info("Testing registration")
 assert client.do("j", "p", Mode.REGISTRATION)
 
 logging.info("Testing login without AKE with correct credentials")
-assert client.do("j", "p", Mode.LOGIN)
+assert client.do("j", "p", Mode.LOGIN_NO_AKE)
 
 logging.info("Testing login with AKE with correct credentials")
 assert client.do("j", "p", Mode.LOGIN_AKE)
 
 logging.info("Testing login without AKE with incorrect password")
-assert not client.do("j", "q", Mode.LOGIN)
+assert not client.do("j", "q", Mode.LOGIN_NO_AKE)
 
 logging.info("Testing login with AKE with incorrect password")
 assert not client.do("j", "q", Mode.LOGIN_AKE)
 
 logging.info("Testing login without AKE with unregistered username")
-assert not client.do("k", "p", Mode.LOGIN)
+assert not client.do("k", "p", Mode.LOGIN_NO_AKE)
 
 logging.info("Testing login with AKE with unregistered username")
 assert not client.do("k", "p", Mode.LOGIN_AKE)
 
 # register and login with another username
 assert client.do("k", "p", Mode.REGISTRATION)
-assert client.do("k", "p", Mode.LOGIN)
+assert client.do("k", "p", Mode.LOGIN_NO_AKE)
 
 logging.info("Testing login without AKE with not the most recent credentials used")
-assert client.do("j", "p", Mode.LOGIN)
+assert client.do("j", "p", Mode.LOGIN_NO_AKE)
 
 logging.info("Testing login with AKE with not the most recent credentials used")
 assert client.do("k", "p", Mode.LOGIN_AKE)

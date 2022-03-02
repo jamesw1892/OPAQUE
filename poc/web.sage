@@ -38,8 +38,7 @@ def getSkeletonForm(title: str) -> str:
     """
     Return a string of HTML containing a form to enter a username and password.
     This can be inserted between <body></body> tags to form part of an HTML file.
-    Title will be the ID of the form, the webpage to POST the form data to, and
-    the text on the submit button.
+    Title will be the ID of the form and the webpage to POST the form data to.
     """
 
     return f"""
@@ -53,7 +52,7 @@ def getSkeletonForm(title: str) -> str:
         <br>
         <input type="password" id="password" name="password">
         <br>
-        <input type="submit" value="{title.title()}">
+        <input type="submit" value="Submit">
     </form>
     """
 
@@ -188,14 +187,14 @@ def messages() -> str:
     return html + "</ol>"
 
 # generate static HTML pages
-HTML_404      = getSkeletonHTML("404 Not Found"          , "<p>This page does not exist</p>")
-HTML_HOME     = getSkeletonHTML("OPAQUE Proof of Concept", "<p><a href=/register>Register</a></p>"
-                                                         + "<p><a href=/login>Login</a></p>"
-                                                         + "<p><a href=/ake>Login with AKE</a></p>"
-                                                         + "<p><a href=/messages>Messages and Keys</a></p>")
-HTML_REGISTER = getSkeletonHTML("Register"               , getSkeletonForm("register"))
-HTML_LOGIN    = getSkeletonHTML("Login"                  , getSkeletonForm("login"))
-HTML_AKE      = getSkeletonHTML("Login with AKE"         , getSkeletonForm("ake"))
+HTML_404          = getSkeletonHTML("404 Not Found"          , "<p>This page does not exist</p>")
+HTML_HOME         = getSkeletonHTML("OPAQUE Proof of Concept", "<p><a href=/register>Register</a></p>"
+                                                             + "<p><a href=/login-no-ake>Login without AKE</a></p>"
+                                                             + "<p><a href=/login-ake>Login with AKE</a></p>"
+                                                             + "<p><a href=/messages>Messages and Keys</a></p>")
+HTML_REGISTER     = getSkeletonHTML("Register"               , getSkeletonForm("register"))
+HTML_LOGIN_NO_AKE = getSkeletonHTML("Login without AKE"      , getSkeletonForm("login-no-ake"))
+HTML_LOGIN_AKE    = getSkeletonHTML("Login with AKE"         , getSkeletonForm("login-ake"))
 
 def HtmlRegistrationSuccess() -> str:
     """
@@ -256,8 +255,8 @@ class MyServer(BaseHTTPRequestHandler):
         Respond to a GET request.
         If the path is '/' then serve the home page.
         If the path is '/register' then serve the register page.
-        If the path is '/login' then serve the login page.
-        If the path is '/ake' then serve the login with ake page.
+        If the path is '/login-no-ake' then serve the login without AKE page.
+        If the path is '/login-ake' then serve the login with AKE page.
         If the path is '/messages' then serve the messages and keys page.
         Otherwise, serve the 404 Not Found page.
         """
@@ -268,10 +267,10 @@ class MyServer(BaseHTTPRequestHandler):
             html = HTML_HOME
         elif self.path == "/register":
             html = HTML_REGISTER
-        elif self.path == "/login":
-            html = HTML_LOGIN
-        elif self.path == "/ake":
-            html = HTML_AKE
+        elif self.path == "/login-no-ake":
+            html = HTML_LOGIN_NO_AKE
+        elif self.path == "/login-ake":
+            html = HTML_LOGIN_AKE
         elif self.path == "/messages":
             html = HtmlMessages()
 
@@ -293,8 +292,8 @@ class MyServer(BaseHTTPRequestHandler):
         """
         Respond to a POST request.
         If the path is '/register' then run the registration flow.
-        If the path is '/login' then run the login flow without AKE.
-        If the path is '/ake' then run the login flow with AKE.
+        If the path is '/login-no-ake' then run the login flow without AKE.
+        If the path is '/login-ake' then run the login flow with AKE.
         Otherwise, serve the 404 Not Found page.
         """
 
@@ -321,7 +320,7 @@ class MyServer(BaseHTTPRequestHandler):
             logging.info(f"Username: {username}")
             logging.info(f"Password: {password}")
 
-            # if registering, run the client's registration function
+            # run the client's registration function
             if self.path == "/register":
                 success = self.client.do(username, password, Mode.REGISTRATION)
 
@@ -334,9 +333,9 @@ class MyServer(BaseHTTPRequestHandler):
                 else:
                     html = HtmlRegistrationFailure()
 
-            # if logging in, run the client's login function
-            elif self.path == "/login":
-                success = self.client.do(username, password, Mode.LOGIN)
+            # run the client's login without AKE function
+            elif self.path == "/login-no-ake":
+                success = self.client.do(username, password, Mode.LOGIN_NO_AKE)
 
                 # if successful, give the login success HTML
                 if success:
@@ -347,8 +346,8 @@ class MyServer(BaseHTTPRequestHandler):
                 else:
                     html = HtmlLoginFailure()
 
-            # if logging in with AKE, run the client's login with ake function
-            elif self.path == "/ake":
+            # run the client's login with ake function
+            elif self.path == "/login-ake":
                 success = self.client.do(username, password, Mode.LOGIN_AKE)
 
                 # if successful, give the login success HTML

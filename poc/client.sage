@@ -65,12 +65,12 @@ def client_registration(connection: socket.socket, config: Configuration,
 
     return export_key
 
-def client_login(connection: socket.socket, config: Configuration,
+def client_login_no_ake(connection: socket.socket, config: Configuration,
                  idU: bytes, pwdU: bytes) -> Tuple[Union[bytes, None],
                  Union[bytes, None], Union[bytes, None]]:
     """
-    Run the client's login flow to retrieve the credentials stored on the server
-    during registration.
+    Run the client's login flow without AKE to retrieve the credentials
+    stored on the server during registration.
 
     The client inputs its username and password which should be already
     registered and outputs an export key which can be used for application-
@@ -83,7 +83,7 @@ def client_login(connection: socket.socket, config: Configuration,
     config is the OPRF settings that the client and server will use.
     """
 
-    logging.info("Starting login")
+    logging.info("Starting login without AKE")
 
     core = OPAQUECore(config)
 
@@ -108,7 +108,7 @@ def client_login(connection: socket.socket, config: Configuration,
 
     logging.info(f"Derived export key:\nExport key: {export_key.hex()}")
 
-    logging.info("Completed login and successfully recovered credentials\n")
+    logging.info("Completed login without AKE and successfully recovered credentials\n")
 
     return export_key, skU_bytes, pkS_bytes
 
@@ -180,8 +180,8 @@ class Client:
     def do(self, username: str, password: str, mode: Mode) -> bool:
         """
         Connect to the server and run the flow according to 'mode' which must
-        be an instance of 'Mode' to determine what to do - register, login, or
-        login with AKE.
+        be an instance of 'Mode' to determine what to do - register, login
+        without AKE, or login with AKE.
 
         Return whether successful. Registration is unsuccessful iff that
         username has already been registered, login (with and without ake) is
@@ -218,8 +218,8 @@ class Client:
 
             # for login without AKE, get an export key and credentials stored
             # on the server - the client's private key and server's public key
-            elif mode is Mode.LOGIN:
-                export_key, skU_bytes, pkS_bytes = client_login(connection, self.config, idU, pwdU)
+            elif mode is Mode.LOGIN_NO_AKE:
+                export_key, skU_bytes, pkS_bytes = client_login_no_ake(connection, self.config, idU, pwdU)
 
                 # successful (username & password correct) iff export_key is
                 # not None
@@ -249,16 +249,17 @@ def main(config: Configuration):
     while True:
 
         # get mode from the user
-        inp = input(f"Register ({Mode.REGISTRATION.value}) or login ({Mode.LOGIN.value}) or" +
-        f" login with authenticated key exchange ({Mode.LOGIN_AKE.value}) or quit (q)? ")
+        inp = input(f"Register ({Mode.REGISTRATION.value}) or login without " + 
+            f"AKE (Authenticated Key Exchange) ({Mode.LOGIN_NO_AKE.value}) " +
+            f"or login with AKE ({Mode.LOGIN_AKE.value}) or quit (q)? ")
 
         # if the user wanted to quit, exit
         if inp == "q":
             break
 
         # if the user input an invalid mode, restart loop to ask again
-        if inp not in [Mode.REGISTRATION.value, Mode.LOGIN.value, Mode.LOGIN_AKE.value]:
-            print(f"Must enter '{Mode.REGISTRATION.value}', '{Mode.LOGIN.value}', '{Mode.LOGIN_AKE.value}', or 'q'")
+        if inp not in [Mode.REGISTRATION.value, Mode.LOGIN_NO_AKE.value, Mode.LOGIN_AKE.value]:
+            print(f"Must enter '{Mode.REGISTRATION.value}', '{Mode.LOGIN_NO_AKE.value}', '{Mode.LOGIN_AKE.value}', or 'q'")
             continue
 
         # get username and password from the user
