@@ -159,6 +159,11 @@ def formatLog(line: str) -> str:
         html += "Triple DH Message Finish:"
         sub_items.append(f"<b>Client MAC</b>: {mac}")
 
+    # if this is a line describing what the mode, username, and password are
+    # then it should be a title separating the lists
+    elif line.startswith("Registration") or line.startswith("Login"):
+        return f"</ol><h3>{line}</h3><ol>"
+
     # otherwise just add it verbatim
     else:
         html += line
@@ -170,7 +175,7 @@ def formatLog(line: str) -> str:
             html += f"<li>{item}</li>"
         html += "</ul>"
 
-    return html
+    return f"<li>{html}</li>"
 
 def messages() -> str:
     """
@@ -183,7 +188,7 @@ def messages() -> str:
     with open(LOG_FILE_NAME) as f:
         for line in f:
             if not line.startswith("Client") and not line.isspace():
-                html += f"<li>{formatLog(line)}</li>"
+                html += formatLog(line)
     return html + "</ol>"
 
 # generate static HTML pages
@@ -317,46 +322,53 @@ class MyServer(BaseHTTPRequestHandler):
 
         # if the username and password were present then proceed
         else:
-            logging.info(f"Username: {username}")
-            logging.info(f"Password: {password}")
 
             # run the client's registration function
             if self.path == "/register":
+                logging.info(f"Starting flow:\nRegistration with username '{username}' and password '{password}'")
                 success = self.client.do(username, password, Mode.REGISTRATION)
 
                 # if successful, give the registration success HTML
                 if success:
+                    logging.info("Completed flow:\nSuccessful")
                     html = HtmlRegistrationSuccess()
 
                 # otherwise it was unsuccessful so the username has already
                 # been registered so give the registration failure HTML
                 else:
+                    logging.info("Completed flow:\nFailed: Already registered username")
                     html = HtmlRegistrationFailure()
 
             # run the client's login without AKE function
             elif self.path == "/login-no-ake":
+                logging.info(f"Starting flow:\nLogin without AKE with username '{username}' and password '{password}'")
                 success = self.client.do(username, password, Mode.LOGIN_NO_AKE)
 
                 # if successful, give the login success HTML
                 if success:
+                    logging.info("Completed flow:\nSuccessful")
                     html = HtmlLoginSuccess()
 
                 # otherwise it was unsuccessful so the username and/or
                 # password is incorrect so give the login failure HTML
                 else:
+                    logging.info("Completed flow:\nFailed: Incorrect username or password")
                     html = HtmlLoginFailure()
 
             # run the client's login with ake function
             elif self.path == "/login-ake":
+                logging.info(f"Starting flow:\nLogin with AKE with username '{username}' and password '{password}'")
                 success = self.client.do(username, password, Mode.LOGIN_AKE)
 
                 # if successful, give the login success HTML
                 if success:
+                    logging.info("Completed flow:\nSuccessful")
                     html = HtmlLoginSuccess()
 
                 # otherwise it was unsuccessful so the username and/or
                 # password is incorrect so give the login failure HTML
                 else:
+                    logging.info("Completed flow:\nFailed: Incorrect username or password")
                     html = HtmlLoginFailure()
 
         # if the request was not valid, send 404 response with the 404 HTML
