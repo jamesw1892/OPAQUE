@@ -40,10 +40,10 @@ assert not client.do("k", "p", Mode.LOGIN_AKE)
 assert client.do("k", "p", Mode.REGISTRATION)
 assert client.do("k", "p", Mode.LOGIN)
 
-logging.info("Testing login with AKE with not the most recent credentials used")
+logging.info("Testing login without AKE with not the most recent credentials used")
 assert client.do("j", "p", Mode.LOGIN)
 
-logging.info("Testing login without AKE with not the most recent credentials used")
+logging.info("Testing login with AKE with not the most recent credentials used")
 assert client.do("k", "p", Mode.LOGIN_AKE)
 assert client.do("j", "p", Mode.LOGIN_AKE)
 
