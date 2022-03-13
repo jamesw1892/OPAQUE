@@ -47,7 +47,7 @@ def client_registration(connection: socket.socket, config: Configuration,
     try:
         response = deserialize_registration_response(config, serialized_response)
     except: # if this fails, the username has already been registered
-        logging.warning("Already registered username\n")
+        logging.warning("Username already registered\n")
         return None
 
     logging.info(f"Received response:\n{response}")

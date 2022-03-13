@@ -336,7 +336,7 @@ class MyServer(BaseHTTPRequestHandler):
                 # otherwise it was unsuccessful so the username has already
                 # been registered so give the registration failure HTML
                 else:
-                    logging.info("Completed flow:\nFailed: Already registered username")
+                    logging.info("Completed flow:\nFailed: Username already registered")
                     html = HtmlRegistrationFailure()
 
             # run the client's login without AKE function
