@@ -14,7 +14,7 @@ try:
     from sagelib.opaque_common import _as_bytes
     from sagelib.opaque_core import OPAQUECore
     from sagelib.opaque_messages import deserialize_registration_response, deserialize_credential_response
-    from sagelib.server import SOCKET, Mode, CONFIG, IDS, RECV_LEN, formatKE1, formatKE2, formatKE3
+    from sagelib.server import SOCKET, Mode, CONFIG, IDS, RECV_LEN, RNG, formatKE1, formatKE2, formatKE3
 except ImportError as e:
     sys.exit("Error loading preprocessed sage files. Try running `make setup && make clean pyfiles`. Full error: " + e)
 
@@ -33,7 +33,7 @@ def client_registration(connection: socket.socket, config: Configuration,
 
     logging.info("Starting registration")
 
-    core = OPAQUECore(config)
+    core = OPAQUECore(config, RNG)
 
     # create the registration request
     request, blind = core.create_registration_request(pwdU)
@@ -85,7 +85,7 @@ def client_login_no_ake(connection: socket.socket, config: Configuration,
 
     logging.info("Starting login without AKE")
 
-    core = OPAQUECore(config)
+    core = OPAQUECore(config, RNG)
 
     # create the credential request
     request, blind = core.create_credential_request(pwdU)
@@ -133,7 +133,7 @@ def client_login_ake(connection: socket.socket, config: Configuration,
 
     logging.info("Starting login with AKE")
 
-    kex = OPAQUE3DH(config)
+    kex = OPAQUE3DH(config, RNG)
 
     # create ke1
     serialized_ke1 = kex.generate_ke1(pwdU)

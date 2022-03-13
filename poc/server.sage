@@ -13,8 +13,9 @@ from typing import Dict, Union
 
 try:
     from sagelib.opaque_ake import Configuration, OPAQUE3DH, deserialize_tripleDH_init, deserialize_tripleDH_respond, deserialize_tripleDH_finish
-    from sagelib.opaque_common import random_bytes, _as_bytes, zero_bytes
+    from sagelib.opaque_common import _as_bytes, zero_bytes
     from sagelib.opaque_core import OPAQUECore
+    from sagelib.opaque_drng import OPAQUEDRNG
     from sagelib.opaque_messages import deserialize_registration_request, deserialize_registration_upload, deserialize_credential_response, deserialize_credential_request, RegistrationUpload, Envelope
     from sagelib.test_opaque_ake import default_opaque_configuration
 except ImportError as e:
@@ -52,6 +53,9 @@ IDS = _as_bytes("server.com")
 
 # maximum number of bytes to receive through the socket each time
 RECV_LEN = 1024
+
+# random number generator
+RNG = OPAQUEDRNG(_as_bytes("client server poc extension"))
 
 def formatKE1(config: Configuration, serialized_ke1: bytes) -> str:
     """
@@ -108,7 +112,7 @@ def server_registration(connection: socket.socket, config: Configuration,
 
     logging.info("Starting registration")
 
-    core = OPAQUECore(config)
+    core = OPAQUECore(config, RNG)
 
     # receive and deserialise the registration request
     serialized_request = connection.recv(RECV_LEN)
@@ -150,7 +154,7 @@ def server_login_no_ake(connection: socket.socket, config: Configuration, idU: b
 
     logging.info("Starting login without AKE")
 
-    core = OPAQUECore(config)
+    core = OPAQUECore(config, RNG)
 
     # receive and deserialise the credential request
     serialized_request = connection.recv(RECV_LEN)
@@ -189,7 +193,7 @@ def server_login_ake(connection: socket.socket, config: Configuration, idU: byte
 
     logging.info("Starting login with AKE")
 
-    kex = OPAQUE3DH(config)
+    kex = OPAQUE3DH(config, RNG)
 
     # receive ke1
     serialized_ke1 = connection.recv(RECV_LEN)
@@ -294,10 +298,11 @@ def main(config: Configuration):
     # create a fake record that we can use if the client has not previously registered
     # we still do the login flow to prevent client enumeration. Recommended here:
     # https://www.ietf.org/archive/id/draft-irtf-cfrg-opaque-07.html#section-6.3.2.2-4
-    _, random_pk = config.group.key_gen()
+    random_sk = ZZ(config.group.random_scalar(RNG))
+    random_pk = random_sk * config.group.generator()
     serialised_random_pk = config.group.serialize(random_pk)
     empty_envelope = Envelope(zero_bytes(config.Nn), zero_bytes(config.Nm))
-    fake_record = RegistrationUpload(serialised_random_pk, random_bytes(config.Nh), empty_envelope)
+    fake_record = RegistrationUpload(serialised_random_pk, RNG.random_bytes(config.Nh), empty_envelope)
 
     # stores registered credentials where the key is a byte string idU - the
     # client identity which is the same as the credential identifier for us
@@ -308,9 +313,10 @@ def main(config: Configuration):
     # these can be kept the same for all clients as stated here:
     # https://www.ietf.org/archive/id/draft-irtf-cfrg-opaque-07.html#section-5-1
     # https://www.ietf.org/archive/id/draft-irtf-cfrg-opaque-07.html#name-finalize-registration
-    skS, pkS = config.group.key_gen()
+    skS = ZZ(config.group.random_scalar(RNG))
+    pkS = skS * config.group.generator()
     pkS_bytes = config.group.serialize(pkS)
-    oprf_seed = random_bytes(config.Nh)
+    oprf_seed = RNG.random_bytes(config.Nh)
 
     # set up server and listen for connections
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server:
