@@ -182,6 +182,7 @@ def messages() -> str:
     Return a string of HTML containing a title and an ordered list of the
     messages sent between client and server and keys derived. These are the
     lines in the log file that do not start with 'Client'.
+    This returns all messages in the log file.
     """
 
     html = "<h2>Messages Sent/Received and Keys Generated (in hex)</h2><ol>"
@@ -190,6 +191,21 @@ def messages() -> str:
             if not line.startswith("Client") and not line.isspace():
                 html += formatLog(line)
     return html + "</ol>"
+
+def mostRecentMessages() -> str:
+    """
+    Return a string of HTML containing a title and an ordered list of the
+    messages sent between client and server and keys derived. These are the
+    lines in the log file that do not start with 'Client'.
+    This only returns the most recent group of messages.
+    """
+
+    msgs = messages()
+    title_without_close_h2 = msgs.split("</h2>")[0]
+    most_recent_messages_without_open_h3_split_on_close_h3 = msgs.split("<h3>")[-1].split("</h3>")
+    most_recent_title = most_recent_messages_without_open_h3_split_on_close_h3[0]
+    most_recent_messages = most_recent_messages_without_open_h3_split_on_close_h3[1]
+    return f"{title_without_close_h2} for {most_recent_title}</h2>{most_recent_messages}"
 
 # generate static HTML pages
 HTML_404          = getSkeletonHTML("404 Not Found"          , "<p>This page does not exist</p>")
@@ -206,36 +222,36 @@ def HtmlRegistrationSuccess() -> str:
     Return the HTML for the registration success page seen after submitting a
     username and password for registration and the server succeeding in the
     registration. This needs to be dynamic because the HTML includes the logs
-    of all messages sent so far which needs to be updated each time.
+    of the most recent messages sent which needs to be updated each time.
     """
-    return getSkeletonHTML("Registration Success", f"<p>You have successfully registered.</p><p><a href='/'>Home</a></p>{messages()}")
+    return getSkeletonHTML("Registration Success", f"<p>You have successfully registered.</p><p><a href='/'>Home</a></p>{mostRecentMessages()}")
 
 def HtmlRegistrationFailure() -> str:
     """
     Return the HTML for the registration failure page seen after submitting a
     username and password for registration but the username has already been
     registered. This needs to be dynamic because the HTML includes the logs
-    of all messages sent so far which needs to be updated each time.
+    of the most recent messages sent which needs to be updated each time.
     """
-    return getSkeletonHTML("Registration Failure", f"<p>This username has already been registered, pick a new one.</p><p><a href='/'>Home</a></p>{messages()}")
+    return getSkeletonHTML("Registration Failure", f"<p>This username has already been registered, pick a new one.</p><p><a href='/'>Home</a></p>{mostRecentMessages()}")
 
 def HtmlLoginSuccess() -> str:
     """
     Return the HTML for the login success page seen after submitting a username
     and password for login (with or without AKE) and the credentials being
     correct. This needs to be dynamic because the HTML includes the logs of all
-    messages sent so far which needs to be updated each time.
+    of the most recent messages sent which needs to be updated each time.
     """
-    return getSkeletonHTML("Login Success", f"<p>You have successfully logged in.</p><p><a href='/'>Home</a></p>{messages()}")
+    return getSkeletonHTML("Login Success", f"<p>You have successfully logged in.</p><p><a href='/'>Home</a></p>{mostRecentMessages()}")
 
 def HtmlLoginFailure() -> str:
     """
     Return the HTML for the login failure page seen after submitting a username
     and password for login (with or without AKE) and the credentials being
     incorrect. This needs to be dynamic because the HTML includes the logs of all
-    messages sent so far which needs to be updated each time.
+    of the most recent messages sent which needs to be updated each time.
     """
-    return getSkeletonHTML("Login Failure", f"<p>Incorrect username and/or password.</p><p><a href='/'>Home</a></p>{messages()}")
+    return getSkeletonHTML("Login Failure", f"<p>Incorrect username and/or password.</p><p><a href='/'>Home</a></p>{mostRecentMessages()}")
 
 def HtmlMessages() -> str:
     """
