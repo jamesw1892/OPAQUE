@@ -3,7 +3,6 @@
 
 import sys
 import hmac
-from typing import Tuple, Callable
 from hash import scrypt
 
 try:
@@ -26,7 +25,7 @@ class OPAQUECore(object):
         stretched_oprf_output = self.config.ksf.stretch(oprf_output)
         return self.config.kdf.extract(_as_bytes(""), oprf_output + stretched_oprf_output)
 
-    def derive_masking_key(self, random_pwd) -> bytes:
+    def derive_masking_key(self, random_pwd):
         Nh = self.config.hash().digest_size
         masking_key = self.config.kdf.expand(random_pwd, _as_bytes("MaskingKey"), Nh)
         return masking_key
@@ -60,14 +59,14 @@ class OPAQUECore(object):
     def derive_group_key_pair(self, seed):
         return DeriveKeyPair(MODE_OPRF, self.config.oprf_suite, seed, _as_bytes("OPAQUE-DeriveAuthKeyPair"))
 
-    def create_cleartext_credentials(self, server_public_key, client_public_key, server_identity, client_identity) -> CleartextCredentials:
+    def create_cleartext_credentials(self, server_public_key, client_public_key, server_identity, client_identity):
         if server_identity == None:
             server_identity = server_public_key
         if client_identity == None:
             client_identity = client_public_key
         return CleartextCredentials(server_public_key, client_identity, server_identity)
 
-    def create_envelope(self, random_pwd, server_public_key, idU, idS) -> Tuple[Envelope, bytes, bytes, bytes]:
+    def create_envelope(self, random_pwd, server_public_key, idU, idS):
         envelope_nonce = self.rng.random_bytes(OPAQUE_NONCE_LENGTH)
         Nh = self.config.hash().digest_size
         auth_key = self.config.kdf.expand(random_pwd, envelope_nonce + _as_bytes("AuthKey"), Nh)
@@ -122,14 +121,14 @@ class OPAQUECore(object):
         response = CredentialResponse(self.config.oprf_suite.group.serialize(Z), masking_nonce, masked_response)
         return response
 
-    def recover_keys(self, random_pwd, envelope_nonce) -> Tuple[bytes, bytes]:
+    def recover_keys(self, random_pwd, envelope_nonce):
         seed = self.config.kdf.expand(random_pwd, envelope_nonce + _as_bytes("PrivateKey"), OPAQUE_SEED_LENGTH)
         (client_private_key, client_public_key) = self.derive_group_key_pair(seed)
         sk_bytes = self.config.group.serialize_scalar(client_private_key)
         pk_bytes = self.config.group.serialize(client_public_key)
         return sk_bytes, pk_bytes
 
-    def recover_envelope(self, random_pwd, server_public_key, client_identity, server_identity, envelope) -> Tuple[bytes, bytes]:
+    def recover_envelope(self, random_pwd, server_public_key, client_identity, server_identity, envelope):
         Nh = self.config.hash().digest_size
         auth_key = self.config.kdf.expand(random_pwd, envelope.nonce + _as_bytes("AuthKey"), Nh)
         export_key = self.config.kdf.expand(random_pwd, envelope.nonce + _as_bytes("ExportKey"), Nh)
@@ -165,14 +164,14 @@ class OPAQUECore(object):
         return skU, server_public_key, export_key
 
 class KeyStretchingFunction(object):
-    def __init__(self, name: str, stretch: Callable[[bytes], bytes]):
+    def __init__(self, name, stretch):
         self.name = name
         self.stretch = stretch
 
-def scrypt_harden(pwd: bytes) -> bytes:
+def scrypt_stretch(pwd):
     return scrypt(pwd, b'', 32768, 8, 1, 64)
 
-def identity_stretch(pwd: bytes) -> bytes:
+def identity_stretch(pwd):
     return pwd
 
 class KDF(object):
@@ -193,7 +192,7 @@ class HKDF(KDF):
     def extract(self, salt, ikm):
         return hmac.digest(salt, ikm, self.hash)
 
-    def expand(self, prk: bytes, info: bytes, L: int) -> bytes:
+    def expand(self, prk, info, L):
         # https://tools.ietf.org/html/rfc5869
         # N = ceil(L/HashLen)
         # T = T(1) | T(2) | T(3) | ... | T(N)

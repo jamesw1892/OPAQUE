@@ -3,13 +3,12 @@
 
 import hmac
 import struct
-from typing import Union
 
 def _as_bytes(x): return x if isinstance(x, bytes) else bytes(x, "utf-8")
 
 OPAQUE_NONCE_LENGTH = 32
 
-def to_hex(octet_string: Union[str, bytes, bytearray]) -> str:
+def to_hex(octet_string):
     if isinstance(octet_string, str):
         return "".join("{:02x}".format(ord(c)) for c in octet_string)
     if isinstance(octet_string, bytes):
@@ -17,10 +16,10 @@ def to_hex(octet_string: Union[str, bytes, bytearray]) -> str:
     assert isinstance(octet_string, bytearray)
     return ''.join(format(x, '02x') for x in octet_string)
 
-def zero_bytes(n: int) -> bytearray:
+def zero_bytes(n):
     return bytearray([0] * n)
 
-def xor(a, b) -> bytes:
+def xor(a, b):
     if len(a) != len(b):
         print(len(a), len(b))
         assert len(a) == len(b)
@@ -29,10 +28,10 @@ def xor(a, b) -> bytes:
         c[i] = c[i] ^^ v  # bitwise XOR
     return bytes(c)
 
-def hkdf_extract(config, salt: bytes, ikm: bytes) -> bytes:
+def hkdf_extract(config, salt, ikm):
     return hmac.digest(salt, ikm, config.hash)
 
-def hkdf_expand(config, prk: bytes, info: bytes, L: int) -> bytes:
+def hkdf_expand(config, prk, info, L):
     # https://tools.ietf.org/html/rfc5869
     # N = ceil(L/HashLen)
     # T = T(1) | T(2) | T(3) | ... | T(N)
@@ -57,7 +56,7 @@ def hkdf_expand(config, prk: bytes, info: bytes, L: int) -> bytes:
 #    opaque label<8..255> = "OPAQUE-" + Label;
 #    opaque context<0..255> = Context;
 # } HkdfLabel;
-def hkdf_expand_label(config, secret: bytes, label: bytes, context: bytes, length: int) -> bytes:
+def hkdf_expand_label(config, secret, label, context, length):
     def build_label(length, label, context):
         return I2OSP(length, 2) + encode_vector_len(_as_bytes("OPAQUE-") + label, 1) + encode_vector_len(context, 1)
     hkdf_label = build_label(length, label, context)
@@ -65,11 +64,11 @@ def hkdf_expand_label(config, secret: bytes, label: bytes, context: bytes, lengt
 
 # Derive-Secret(Secret, Label, Transcript) =
 #     HKDF-Expand-Label(Secret, Label, Hash(Transcript), Nh)
-def derive_secret(config, secret: bytes, label: bytes, transcript_hash: bytes):
+def derive_secret(config, secret, label, transcript_hash):
     return hkdf_expand_label(config, secret, label, transcript_hash, config.hash().digest_size)
 
 # defined in RFC 3447, section 4.1
-def I2OSP(val, length: int) -> bytes:
+def I2OSP(val, length):
     val = int(val)
     if val < 0 or val >= (1 << (8 * length)):
         raise ValueError("bad I2OSP call: val=%d length=%d" % (val, length))
@@ -83,7 +82,7 @@ def I2OSP(val, length: int) -> bytes:
     return ret
 
 # defined in RFC 3447, section 4.2
-def OS2IP(octets: bytes, skip_assert: bool=False) -> bytes:
+def OS2IP(octets, skip_assert=False):
     ret = 0
     for octet in struct.unpack("=" + "B" * len(octets), octets):
         ret = ret << 8
@@ -116,7 +115,7 @@ def OS2IP_le(octets, skip_assert=False):
         assert octets == I2OSP_le(ret, len(octets))
     return ret
 
-def encode_vector_len(data: bytes, L) -> bytes:
+def encode_vector_len(data, L):
     return len(data).to_bytes(L, 'big') + data
 
 def decode_vector_len(data_bytes, L):
@@ -127,7 +126,7 @@ def decode_vector_len(data_bytes, L):
         raise Exception("Insufficient length")
     return data_bytes[L:L+data_len], L+data_len
 
-def encode_vector(data: bytes) -> bytes:
+def encode_vector(data):
     return encode_vector_len(data, 2)
 
 def decode_vector(data_bytes):
