@@ -29,7 +29,7 @@ We log many things, including messages sent/received and keys derived, to clearl
 
 ## Usage
 
-Before first use, download the submodules and run `make setup` to copy necessary files from them into this directory.
+Before first use, download the submodules and run `make setup` to copy necessary files from them into this directory. Then test the existing proof-of-concept including generating test vectors with `make vectors`.
 
 1. Decide on the socket for the server (IP address and port number) and change this at the top of `server.sage`. If client and server are on the same device then leave as the default which uses `localhost:1337`
 1. Run `make runserver` on the device acting as the server
