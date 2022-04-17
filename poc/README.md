@@ -18,13 +18,13 @@ We log many things, including messages sent/received and keys derived, to clearl
 
 - [Reference OPAQUE Proof-of-Concept](https://github.com/cfrg/draft-irtf-cfrg-opaque/tree/master/poc)
 - [This Extended OPAQUE Proof-of-Concept](https://github.com/jamesw1892/OPAQUE/tree/master/poc)
-- [OPAQUE Specification](https://datatracker.ietf.org/doc/draft-irtf-cfrg-opaque/) which explains how the protocol works
+- [OPAQUE Draft Specification](https://datatracker.ietf.org/doc/draft-irtf-cfrg-opaque/) which explains how the protocol works
 - Related documents to OPAQUE:
     - VOPRF:
-        - [Specification](https://datatracker.ietf.org/doc/draft-irtf-cfrg-voprf/)
+        - [Draft Specification](https://datatracker.ietf.org/doc/draft-irtf-cfrg-voprf/)
         - [Reference Proof-of-Concept](https://github.com/cfrg/draft-irtf-cfrg-voprf/tree/master/poc)
     - Hash-To-Curve:
-        - [Specification](https://datatracker.ietf.org/doc/draft-irtf-cfrg-hash-to-curve/)
+        - [Draft Specification](https://datatracker.ietf.org/doc/draft-irtf-cfrg-hash-to-curve/)
         - [Reference Proof-of-Concept](https://github.com/cfrg/draft-irtf-cfrg-hash-to-curve/tree/master/poc)
 
 ## Usage
@@ -42,14 +42,14 @@ Before first use, download the submodules and run `make setup` to copy necessary
 
 The following configurations can easily be changed:
 
-- **Communicating Socket**: The socket that the server listens on can be changed by changing the `SOCKET` constant at the top of `server.sage`. By default, it is `localhost:1337`
-- **Web Socket**: The socket that the web client runs on (which must be different to the communicating socket) can be changed by editing the `WEB_SOCKET` constant at the top of `web.sage`. By default, it is `localhost:8080`
-- **Logging**: `client.sage`, `server.sage` and `web.sage` define their own logging configurations. The command-line client and server define them at the top of their `main` methods and log to stderr, whereas the web client defines it at the top of the file and logs to both stderr and a log file. The web client reads this log file to display the messages sent/received and keys derived on the web page.
-- **OPAQUE Configuration**: The cryptographic configuration that OPAQUE uses can be changed by editing the `CONFIG` constant at the top of `server.sage`. By default, it is the same default as defined by the CFRG in their test file. It must be an instance of `Configuration` which is defined in `opaque_ake.sage`. This configuration consists of the following and is detailed in section 7 of the draft:
-    - OPRF suite (Oblivious Pseudo-Random Function) - the topic of VOPRF (see links). For example OPRF(ristretto255, SHA-512) and OPRF(P-256, SHA-256)
-    - KDF (Key Derivation Function): Can be an instance of `HKDF` from `opaque_core.sage` created from SHA-512 or SHA-256
-    - MAC (Message Authentication Code): Can be an instance of `HMAC` from `opaque_core.sage` created from SHA-512 or SHA-256
-    - Hash - like SHA-256 or SHA-512
-    - KSF (Key Stretching Function) - can be Argon2, scrypt or PBKDF2 but must have fixed parameter choices. An instance of `KeyStretchingFunction` in `opaque_core.sage`
-    - Group - the topic of Hash-to-Curve (see links) - should match that of OPRF, such as ristretto255 or P-256. An instance of a subclass of `Group` such as `GroupP256` or `GroupRistretto255` in `groups.sage` (from OPRF code, imports Hash-to-Curve code)
-    - Context - byte string representing application specific information or configuration parameters needed to prevent cross-protocol or downgrade attacks
+- **Communicating Socket**: The socket that the server listens on can be changed by editing the `SOCKET` constant at the top of `server.sage`. By default, it is `localhost:1337`.
+- **Web Socket**: The socket that the web client runs on (which must be different to the communicating socket) can be changed by editing the `WEB_SOCKET` constant at the top of `web.sage`. By default, it is `localhost:8080`.
+- **Logging**: `client.sage`, `server.sage` and `web.sage` define their own logging configurations. The command-line client and server define them at the top of their `main` methods and log to `stderr`, whereas the web client defines it at the top of the file and logs to both `stderr` and a log file. The web client reads this log file to display the messages sent and received, and keys derived on the web interface.
+- **OPAQUE Configuration**: The cryptographic configuration that OPAQUE uses can be changed by editing the `CONFIG` constant at the top of `server.sage`. By default, it is the same as the default defined by the CFRG in their test file: `default_opaque_configuration` in `test_opaque_ake.sage`. It must be an instance of `Configuration` which is defined in `opaque_ake.sage`. This configuration consists of the following and is detailed in Section 7 of the OPAQUE draft (see links):
+    - **OPRF (Oblivious Pseudo-Random Function) Suite**: The topic of the VOPRF CFRG draft (see links). For example OPRF(ristretto255, SHA-512) or OPRF(P-256, SHA-256).
+    - **KDF (Key Derivation Function)**: Can be an instance of `HKDF` from `opaque_core.sage` constructed from SHA-512 or SHA-256 for example.
+    - **MAC (Message Authentication Code)**: Can be an instance of `HMAC` from `opaque_core.sage` constructed from SHA-512 or SHA-256 for example.
+    - **Hash Function**: Such as SHA-256 or SHA-512.
+    - **MHF (Memory Hard Function)**: Can be Argon2, Scrypt or PBKDF2 but must have fixed parameter choices. An instance of `KeyStretchingFunction` in `opaque_core.sage`.
+    - **Group**: The hash to curve group that is the topic of the Hash to Curve draft (see links). It should match that of OPRF, such as ristretto255 or P-256. An instance of a subclass of `Group` such as `GroupP256` or `GroupRistretto255` in `groups.sage` (from OPRF code, imports Hash-to-Curve code).
+    - **Context**: A byte string representing application specific information or configuration parameters needed to prevent cross-protocol or downgrade attacks.
