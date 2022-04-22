@@ -22,7 +22,7 @@ except ImportError as e:
     sys.exit("Error loading preprocessed sage files. Try running `make setup && make clean pyfiles`. Full error: " + e)
 
 # use localhost for testing
-SOCKET = ("127.0.0.1", 1337)
+SOCKET = ("127.0.0.1", 31415)
 
 # configuration to use
 CONFIG = default_opaque_configuration

@@ -31,7 +31,7 @@ We log many things, including messages sent/received and keys derived, to clearl
 
 Before first use, download the submodules and run `make setup` to copy necessary files from them into this directory. Then test the existing proof-of-concept including generating test vectors with `make vectors`.
 
-1. Decide on the socket for the server (IP address and port number) and change this at the top of `server.sage`. If client and server are on the same device then leave as the default which uses `localhost:1337`
+1. Decide on the socket for the server (IP address and port number) and change this at the top of `server.sage`. If client and server are on the same device then leave as the default which uses `localhost:31415`
 1. Run `make runserver` on the device acting as the server
 1. Run the client on the device acting as the client:
     - For a command-line client, run `make runclient` and you will be prompted in the terminal to register or login (with or without AKE) and enter your credentials
@@ -42,7 +42,7 @@ Before first use, download the submodules and run `make setup` to copy necessary
 
 The following configurations can easily be changed:
 
-- **Communicating Socket**: The socket that the server listens on can be changed by editing the `SOCKET` constant at the top of `server.sage`. By default, it is `localhost:1337`.
+- **Communicating Socket**: The socket that the server listens on can be changed by editing the `SOCKET` constant at the top of `server.sage`. By default, it is `localhost:31415`.
 - **Web Socket**: The socket that the web client runs on (which must be different to the communicating socket) can be changed by editing the `WEB_SOCKET` constant at the top of `web.sage`. By default, it is `localhost:8080`.
 - **Logging**: `client.sage`, `server.sage` and `web.sage` define their own logging configurations. The command-line client and server define them at the top of their `main` methods and log to `stderr`, whereas the web client defines it at the top of the file and logs to both `stderr` and a log file. The web client reads this log file to display the messages sent and received, and keys derived on the web interface.
 - **OPAQUE Configuration**: The cryptographic configuration that OPAQUE uses can be changed by editing the `CONFIG` constant at the top of `server.sage`. By default, it is the same as the default defined by the CFRG in their test file: `default_opaque_configuration` in `test_opaque_ake.sage`. It must be an instance of `Configuration` which is defined in `opaque_ake.sage`. This configuration consists of the following and is detailed in Section 7 of the OPAQUE draft (see links):
