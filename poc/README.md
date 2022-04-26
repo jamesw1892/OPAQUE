@@ -25,7 +25,7 @@ We log many things, including messages sent/received and keys derived, to clearl
         - [Reference Proof-of-Concept](https://github.com/cfrg/draft-irtf-cfrg-voprf/tree/master/poc)
     - Hash-To-Curve:
         - [Draft Specification](https://datatracker.ietf.org/doc/draft-irtf-cfrg-hash-to-curve/)
-        - [Reference Proof-of-Concept](https://github.com/cfrg/draft-irtf-cfrg-hash-to-curve/tree/master/poc)
+        - [Reference Proof-of-Concept](https://github.com/cfrg/draft-irtf-cfrg-hash-to-curve/tree/main/poc)
 
 ## Usage
 
