@@ -18,7 +18,7 @@ We log many things, including messages sent/received and keys derived, to clearl
 
 - [Reference OPAQUE Proof-of-Concept](https://github.com/cfrg/draft-irtf-cfrg-opaque/tree/master/poc)
 - [This Extended OPAQUE Proof-of-Concept](https://github.com/jamesw1892/OPAQUE/tree/master/poc)
-- [OPAQUE Draft Specification](https://datatracker.ietf.org/doc/draft-irtf-cfrg-opaque/) which explains how the protocol works
+- [OPAQUE Draft Specification](https://datatracker.ietf.org/doc/draft-irtf-cfrg-opaque/)
 - Related documents to OPAQUE:
     - VOPRF:
         - [Draft Specification](https://datatracker.ietf.org/doc/draft-irtf-cfrg-voprf/)
