@@ -675,7 +675,7 @@ Exceptions:
 def Recover(randomized_pwd, server_public_key, envelope,
             server_identity, client_identity):
   auth_key = Expand(randomized_pwd, concat(envelope.nonce, "AuthKey"), Nh)
-  export_key = Expand(randomized_pwd, concat(envelope.nonce, "ExportKey", Nh)
+  export_key = Expand(randomized_pwd, concat(envelope.nonce, "ExportKey"), Nh)
   seed = Expand(randomized_pwd, concat(envelope.nonce, "PrivateKey"), Nseed)
   (client_private_key, client_public_key) = DeriveAuthKeyPair(seed)
 
@@ -1000,7 +1000,7 @@ struct {
 
 client_nonce: A fresh randomly generated nonce of length `Nn`.
 
-client_keyshare: A serialized client ephemeral key share of fixed size `Npk`.
+client_keyshare: A serialized client ephemeral public key of fixed size `Npk`.
 
 ~~~
 struct {
@@ -1023,7 +1023,7 @@ struct {
 
 server_nonce: A fresh randomly generated nonce of length `Nn`.
 
-server_keyshare: Server ephemeral key share of fixed size `Npk`, where `Npk`
+server_keyshare: A server ephemeral public key of fixed size `Npk`, where `Npk`
 depends on the corresponding prime order group.
 
 server_mac: An authentication tag computed over the handshake transcript
@@ -1078,7 +1078,7 @@ Output:
 - ke1, a KE1 message structure.
 
 def ClientInit(password):
-  credential_request, blind = CreateCredentialRequest(password)
+  request, blind = CreateCredentialRequest(password)
   state.password = password
   state.blind = blind
   ke1 = AuthClientStart(request)
@@ -1117,6 +1117,7 @@ def ServerInit(server_identity, server_private_key, server_public_key,
   auth_response = AuthServerRespond(server_identity, server_private_key,
     client_identity, record.client_public_key, ke1, credential_response)
   Create KE2 ke2 with (credential_response, auth_response)
+  return ke2
 ~~~
 
 ### ClientFinish
@@ -1204,7 +1205,7 @@ blinded_message: A serialized OPRF group element.
 struct {
   uint8 evaluated_message[Noe];
   uint8 masking_nonce[Nn];
-  uint8 masked_response[Npk + Ne];
+  uint8 masked_response[Npk + Nn + Nm];
 } CredentialResponse;
 ~~~
 
@@ -1294,7 +1295,7 @@ def CreateCredentialResponse(request, server_public_key, record,
   masking_nonce = random(Nn)
   credential_response_pad = Expand(record.masking_key,
                                    concat(masking_nonce, "CredentialResponsePad"),
-                                   Npk + Ne)
+                                   Npk + Nn + Nm)
   masked_response = xor(credential_response_pad,
                         concat(server_public_key, record.envelope))
   Create CredentialResponse response with (evaluated_message, masking_nonce, masked_response)
@@ -1308,7 +1309,7 @@ argument that is configured so that:
 
 - `record.client_public_key` is set to a randomly generated public key of length `Npk`
 - `record.masking_key` is set to a random byte string of length `Nh`
-- `record.envelope` is set to the byte string consisting only of zeros of length `Ne`
+- `record.envelope` is set to the byte string consisting only of zeros of length `Nn + Nm`
 
 It is RECOMMENDED that a fake client record is created once (e.g. as the first user record
 of the application) and stored alongside legitimate client records. This allows servers to locate
@@ -1352,7 +1353,7 @@ def RecoverCredentials(password, blind, response,
   masking_key = Expand(randomized_pwd, "MaskingKey", Nh)
   credential_response_pad = Expand(masking_key,
                                    concat(response.masking_nonce, "CredentialResponsePad"),
-                                   Npk + Ne)
+                                   Npk + Nn + Nm)
   concat(server_public_key, envelope) = xor(credential_response_pad,
                                               response.masked_response)
   (client_private_key, export_key) =
@@ -1565,7 +1566,7 @@ def AuthClientFinalize(client_identity, client_private_key, server_identity,
   expected_server_mac = MAC(Km2, Hash(preamble))
   if !ct_equal(ke2.server_mac, expected_server_mac),
     raise ServerAuthenticationError
-  client_mac = MAC(Km3, Hash(concat(preamble, expected_server_mac))
+  client_mac = MAC(Km3, Hash(concat(preamble, expected_server_mac)))
   Create KE3 ke3 with client_mac
   return (ke3, session_key)
 ~~~
@@ -1614,9 +1615,9 @@ def AuthServerRespond(server_identity, server_private_key, client_identity,
 
   Km2, Km3, session_key = DeriveKeys(ikm, preamble)
   server_mac = MAC(Km2, Hash(preamble))
-  expected_client_mac = MAC(Km3, Hash(concat(preamble, server_mac))
+  expected_client_mac = MAC(Km3, Hash(concat(preamble, server_mac)))
 
-  state.expected_client_mac = MAC(Km3, Hash(concat(preamble, server_mac))
+  state.expected_client_mac = MAC(Km3, Hash(concat(preamble, server_mac)))
   state.session_key = session_key
   Create AuthResponse auth_response with (server_nonce, server_keyshare, server_mac)
   return auth_response
@@ -1661,7 +1662,7 @@ such that the following conditions are met:
   to align with the target security level of the OPAQUE configuration. For example,
   if the target security parameter for the configuration is 128-bits, then `Nh` SHOULD be at least 32 bytes.
 - The KSF has fixed parameters, chosen by the application, and implements the
-  interface in {{dependencies}}. Examples include Argon2 {{?ARGON2=RFC9106}},
+  interface in {{dependencies}}. Examples include Argon2id {{?ARGON2=RFC9106}},
   scrypt {{?SCRYPT=RFC7914}}, and PBKDF2 {{?PBKDF2=RFC2898}} with fixed parameter choices.
 - The Group mode identifies the group used in the OPAQUE-3DH AKE. This SHOULD
   match that of the OPRF. For example, if the OPRF is OPRF(ristretto255, SHA-512),
@@ -1673,8 +1674,9 @@ parameters that are needed to prevent cross-protocol or downgrade attacks.
 
 Absent an application-specific profile, the following configurations are RECOMMENDED:
 
-- OPRF(ristretto255, SHA-512), HKDF-SHA-512, HMAC-SHA-512, SHA-512, Scrypt(32768,8,1), internal, ristretto255
-- OPRF(P-256, SHA-256), HKDF-SHA-256, HMAC-SHA-256, SHA-256, Scrypt(32768,8,1), internal, P-256
+- OPRF(ristretto255, SHA-512), HKDF-SHA-512, HMAC-SHA-512, SHA-512,
+    Argon2id(t=1, p=4, m=2^21), ristretto255
+- OPRF(P-256, SHA-256), HKDF-SHA-256, HMAC-SHA-256, SHA-256, Argon2id(t=1, p=4, m=2^21), P-256
 
 Future configurations may specify different combinations of dependent algorithms,
 with the following considerations:
@@ -2252,7 +2254,7 @@ computed as in OPAQUE-3DH.
 
 The key schedule would also change. Specifically, the key schedule `preamble` value would
 use a different constant prefix -- "SIGMA-I" instead of "3DH" -- and the `IKM` computation
-would use only the ephemeral key shares exchanged between client and server.
+would use only the ephemeral public keys exchanged between client and server.
 
 # Test Vectors {#test-vectors}
 
