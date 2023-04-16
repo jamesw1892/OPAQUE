@@ -219,6 +219,24 @@ protocols"
         ins: WhatsApp
         name: WhatsApp
 
+  TOPPSS:
+    title: "TOPPSS: Cost-minimal Password-Protected Secret Sharing based on Threshold OPRF"
+    seriesinfo: Applied Cryptology and Network Security – ACNS 2017
+    date: 2017
+    author:
+      -
+        ins: S. Jarecki
+        name: Stanislaw Jarecki
+      -
+        ins: A. Kiayias
+        name: Aggelos Kiayias
+      -
+        ins: H. Krawczyk
+        name: Hugo Krawczyk
+      -
+        ins: J. Xu
+        name: Jiayu Xu
+
   RFC2945:
   RFC5869:
   RFC8125:
@@ -320,6 +338,7 @@ The following functions are used throughout this document:
 - concat(x0, ..., xN): Concatenate byte strings. For example,
   `concat(0x01, 0x0203, 0x040506) = 0x010203040506`.
 - random(n): Generate a cryptographically secure pseudorandom byte string of length `n` bytes.
+- zeroes(n): Generate a string of `n` bytes all equal to 0 (zero).
 - xor(a,b): Apply XOR to byte strings. For example, `xor(0xF0F0, 0x1234) = 0xE2C4`.
   It is an error to call this function with arguments of unequal length.
 - ct_equal(a, b): Return `true` if `a` is equal to `b`, and false otherwise.
@@ -357,7 +376,7 @@ the OPAQUE protocol are of length `Nn` and `Nseed` bytes, respectively, where
 An Oblivious Pseudorandom Function (OPRF) is a two-party protocol between client and
 server for computing a PRF such that the client learns the PRF output and neither party learns
 the input of the other. This specification depends on the prime-order OPRF construction specified
-in {{!OPRF=I-D.irtf-cfrg-voprf}}, draft version -10, using the OPRF mode (0x00) from {{OPRF, Section 3.1}}.
+in {{!OPRF=I-D.irtf-cfrg-voprf}}, draft version -20, using the OPRF mode (0x00) from {{OPRF, Section 3.1}}.
 
 The following OPRF client APIs are used:
 
@@ -415,9 +434,9 @@ API and parameters:
 This specification makes use of a Key Stretching Function (KSF), which is a slow
 and expensive cryptographic hash function with the following API:
 
-- Stretch(msg, params): Apply a key stretching function with parameters
-  `params` to stretch the input `msg` and harden it against offline
-  dictionary attacks. This function also needs to satisfy collision resistance.
+- Stretch(msg): Apply a key stretching function to stretch the input `msg` and
+  harden it against offline dictionary attacks. This function also needs to
+  satisfy collision resistance.
 
 # Protocol Overview {#protocol-overview}
 
@@ -441,7 +460,7 @@ each client).
 ## Offline Registration
 
 Registration is the only stage in OPAQUE that requires a server-authenticated
-and confidential channel: either physical, out-of-band, PKI-based, etc.
+channel with confidentiality and integrity: either physical, out-of-band, PKI-based, etc.
 
 The client inputs its credentials, which include its password and user
 identifier, and the server inputs its parameters, which include its private key
@@ -620,7 +639,7 @@ new `envelope_nonce`, to completion.
 Store
 
 Input:
-- randomized_pwd, a randomized password.
+- randomized_password, a randomized password.
 - server_public_key, the encoded server public key for
   the AKE protocol.
 - server_identity, the optional encoded server identity.
@@ -633,18 +652,18 @@ Output:
   of defending against client enumeration attacks.
 - export_key, an additional client key.
 
-def Store(randomized_pwd, server_public_key, server_identity, client_identity):
+def Store(randomized_password, server_public_key, server_identity, client_identity):
   envelope_nonce = random(Nn)
-  masking_key = Expand(randomized_pwd, "MaskingKey", Nh)
-  auth_key = Expand(randomized_pwd, concat(envelope_nonce, "AuthKey"), Nh)
-  export_key = Expand(randomized_pwd, concat(envelope_nonce, "ExportKey"), Nh)
-  seed = Expand(randomized_pwd, concat(envelope_nonce, "PrivateKey"), Nseed)
+  masking_key = Expand(randomized_password, "MaskingKey", Nh)
+  auth_key = Expand(randomized_password, concat(envelope_nonce, "AuthKey"), Nh)
+  export_key = Expand(randomized_password, concat(envelope_nonce, "ExportKey"), Nh)
+  seed = Expand(randomized_password, concat(envelope_nonce, "PrivateKey"), Nseed)
   (_, client_public_key) = DeriveAuthKeyPair(seed)
 
-  cleartext_creds =
+  cleartext_credentials =
     CreateCleartextCredentials(server_public_key, client_public_key,
                                server_identity, client_identity)
-  auth_tag = MAC(auth_key, concat(envelope_nonce, cleartext_creds))
+  auth_tag = MAC(auth_key, concat(envelope_nonce, cleartext_credentials))
 
   Create Envelope envelope with (envelope_nonce, auth_tag)
   return (envelope, client_public_key, masking_key, export_key)
@@ -659,7 +678,7 @@ defined below.
 Recover
 
 Input:
-- randomized_pwd, a randomized password.
+- randomized_password, a randomized password.
 - server_public_key, the encoded server public key for the AKE protocol.
 - envelope, the client's Envelope structure.
 - server_identity, the optional encoded server identity.
@@ -667,24 +686,25 @@ Input:
 
 Output:
 - client_private_key, the encoded client private key for the AKE protocol.
+- cleartext_credentials, a CleartextCredentials structure.
 - export_key, an additional client key.
 
 Exceptions:
 - EnvelopeRecoveryError, the envelope fails to be recovered.
 
-def Recover(randomized_pwd, server_public_key, envelope,
+def Recover(randomized_password, server_public_key, envelope,
             server_identity, client_identity):
-  auth_key = Expand(randomized_pwd, concat(envelope.nonce, "AuthKey"), Nh)
-  export_key = Expand(randomized_pwd, concat(envelope.nonce, "ExportKey"), Nh)
-  seed = Expand(randomized_pwd, concat(envelope.nonce, "PrivateKey"), Nseed)
+  auth_key = Expand(randomized_password, concat(envelope.nonce, "AuthKey"), Nh)
+  export_key = Expand(randomized_password, concat(envelope.nonce, "ExportKey"), Nh)
+  seed = Expand(randomized_password, concat(envelope.nonce, "PrivateKey"), Nseed)
   (client_private_key, client_public_key) = DeriveAuthKeyPair(seed)
 
-  cleartext_creds = CreateCleartextCredentials(server_public_key,
+  cleartext_credentials = CreateCleartextCredentials(server_public_key,
                       client_public_key, server_identity, client_identity)
-  expected_tag = MAC(auth_key, concat(envelope.nonce, cleartext_creds))
+  expected_tag = MAC(auth_key, concat(envelope.nonce, cleartext_credentials))
   If !ct_equal(envelope.auth_tag, expected_tag)
     raise EnvelopeRecoveryError
-  return (client_private_key, export_key)
+  return (client_private_key, cleartext_credentials, export_key)
 ~~~
 
 # Offline Registration {#offline-phase}
@@ -697,7 +717,6 @@ the following values:
 
 The server inputs the following values:
 
-- server_private_key: The server private key for the AKE protocol.
 - server_public_key: The server public key for the AKE protocol.
 - credential_identifier: A unique identifier for the client's
   credential, generated by the server.
@@ -884,11 +903,11 @@ def FinalizeRegistrationRequest(password, blind, response, server_identity, clie
   evaluated_element = DeserializeElement(response.evaluated_message)
   oprf_output = Finalize(password, blind, evaluated_element)
 
-  stretched_oprf_output = Stretch(oprf_output, params)
-  randomized_pwd = Extract("", concat(oprf_output, stretched_oprf_output))
+  stretched_oprf_output = Stretch(oprf_output)
+  randomized_password = Extract("", concat(oprf_output, stretched_oprf_output))
 
   (envelope, client_public_key, masking_key, export_key) =
-    Store(randomized_pwd, response.server_public_key,
+    Store(randomized_password, response.server_public_key,
           server_identity, client_identity)
   Create RegistrationRecord record with (client_public_key, masking_key, envelope)
   return (record, export_key)
@@ -939,12 +958,12 @@ The protocol runs as shown below:
 ~~~
   Client                                         Server
  ------------------------------------------------------
-  ke1 = ClientInit(password)
+  ke1 = GenerateKE1(password)
 
                          ke1
               ------------------------->
 
-  ke2 = ServerInit(server_identity, server_private_key,
+  ke2 = GenerateKE2(server_identity, server_private_key,
                     server_public_key, record,
                     credential_identifier, oprf_seed, ke1)
 
@@ -953,7 +972,7 @@ The protocol runs as shown below:
 
     (ke3,
     session_key,
-    export_key) = ClientFinish(client_identity,
+    export_key) = GenerateKE3(client_identity,
                                server_identity, ke2)
 
                          ke3
@@ -994,13 +1013,13 @@ and `AuthResponse`.
 ~~~
 struct {
   uint8 client_nonce[Nn];
-  uint8 client_keyshare[Npk];
+  uint8 client_public_keyshare[Npk];
 } AuthRequest;
 ~~~
 
 client_nonce: A fresh randomly generated nonce of length `Nn`.
 
-client_keyshare: A serialized client ephemeral public key of fixed size `Npk`.
+client_public_keyshare: A serialized client ephemeral public key of fixed size `Npk`.
 
 ~~~
 struct {
@@ -1016,14 +1035,14 @@ auth_request: An `AuthRequest` structure.
 ~~~
 struct {
   uint8 server_nonce[Nn];
-  uint8 server_keyshare[Npk];
+  uint8 server_public_keyshare[Npk];
   uint8 server_mac[Nm];
 } AuthResponse;
 ~~~
 
 server_nonce: A fresh randomly generated nonce of length `Nn`.
 
-server_keyshare: A server ephemeral public key of fixed size `Npk`, where `Npk`
+server_public_keyshare: A server ephemeral public key of fixed size `Npk`, where `Npk`
 depends on the corresponding prime order group.
 
 server_mac: An authentication tag computed over the handshake transcript
@@ -1060,13 +1079,13 @@ in later sections:
 - `AuthClientStart`, `AuthServerRespond`, `AuthClientFinalize`, and `AuthServerFinalize`
   defined in {{ake-client}} and {{ake-server}}
 
-### ClientInit
+### GenerateKE1
 
-The `ClientInit` function begins the AKE protocol and produces the client's `KE1`
+The `GenerateKE1` function begins the AKE protocol and produces the client's `KE1`
 output for the server.
 
 ~~~
-ClientInit
+GenerateKE1
 
 State:
 - state, a ClientState structure.
@@ -1077,7 +1096,7 @@ Input:
 Output:
 - ke1, a KE1 message structure.
 
-def ClientInit(password):
+def GenerateKE1(password):
   request, blind = CreateCredentialRequest(password)
   state.password = password
   state.blind = blind
@@ -1085,49 +1104,52 @@ def ClientInit(password):
   return ke1
 ~~~
 
-### ServerInit
+### GenerateKE2
 
-The `ServerInit` function continues the AKE protocol by processing the client's `KE1` message
+The `GenerateKE2` function continues the AKE protocol by processing the client's `KE1` message
 and producing the server's `KE2` output.
 
 ~~~
-ServerInit
+GenerateKE2
 
 State:
 - state, a ServerState structure.
 
 Input:
 - server_identity, the optional encoded server identity, which is set to
-  server_public_key if nil.
+  server_public_key if not specified.
 - server_private_key, the server's private key.
 - server_public_key, the server's public key.
 - record, the client's RegistrationRecord structure.
 - credential_identifier, an identifier that uniquely represents the credential.
 - oprf_seed, the server-side seed of Nh bytes used to generate an oprf_key.
 - ke1, a KE1 message structure.
-- client_identity, the encoded client identity.
+- client_identity, the optional encoded client identity, which is set to
+  client_public_key if not specified.
 
 Output:
 - ke2, a KE2 structure.
 
-def ServerInit(server_identity, server_private_key, server_public_key,
+def GenerateKE2(server_identity, server_private_key, server_public_key,
                record, credential_identifier, oprf_seed, ke1, client_identity):
-  credential_response = CreateCredentialResponse(ke1.request, server_public_key, record,
+  credential_response = CreateCredentialResponse(ke1.credential_request, server_public_key, record,
     credential_identifier, oprf_seed)
-  auth_response = AuthServerRespond(server_identity, server_private_key,
-    client_identity, record.client_public_key, ke1, credential_response)
+  cleartext_credentials = CreateCleartextCredentials(server_public_key,
+                      record.client_public_key, server_identity, client_identity)
+  auth_response = AuthServerRespond(cleartext_credentials, server_private_key,
+                      record.client_public_key, ke1, credential_response)
   Create KE2 ke2 with (credential_response, auth_response)
   return ke2
 ~~~
 
-### ClientFinish
+### GenerateKE3
 
-The `ClientFinish` function completes the AKE protocol for the client and
+The `GenerateKE3` function completes the AKE protocol for the client and
 produces the client's `KE3` output for the server, as well as the `session_key`
 and `export_key` outputs from the AKE.
 
 ~~~
-ClientFinish
+GenerateKE3
 
 State:
 - state, a ClientState structure.
@@ -1144,13 +1166,12 @@ Output:
 - session_key, the session's shared secret.
 - export_key, an additional client key.
 
-def ClientFinish(client_identity, server_identity, ke2):
-  (client_private_key, server_public_key, export_key) =
+def GenerateKE3(client_identity, server_identity, ke2):
+  (client_private_key, cleartext_credentials, server_public_key, export_key) =
     RecoverCredentials(state.password, state.blind, ke2.credential_response,
                        server_identity, client_identity)
   (ke3, session_key) =
-    AuthClientFinalize(client_identity, client_private_key, server_identity,
-                       server_public_key, ke2)
+    AuthClientFinalize(cleartext_credentials, client_private_key, ke2)
   return (ke3, session_key, export_key)
 ~~~
 
@@ -1335,7 +1356,8 @@ Input:
 - client_identity, The encoded client identity.
 
 Output:
-- client_private_key, the client's private key for the AKE protocol.
+- client_private_key, the encoded client private key for the AKE protocol.
+- cleartext_credentials, a CleartextCredentials structure.
 - server_public_key, the public key of the server.
 - export_key, an additional client key.
 
@@ -1347,20 +1369,20 @@ def RecoverCredentials(password, blind, response,
   evaluated_element = DeserializeElement(response.evaluated_message)
 
   oprf_output = Finalize(password, blind, evaluated_element)
-  stretched_oprf_output = Stretch(oprf_output, params)
-  randomized_pwd = Extract("", concat(oprf_output, stretched_oprf_output))
+  stretched_oprf_output = Stretch(oprf_output)
+  randomized_password = Extract("", concat(oprf_output, stretched_oprf_output))
 
-  masking_key = Expand(randomized_pwd, "MaskingKey", Nh)
+  masking_key = Expand(randomized_password, "MaskingKey", Nh)
   credential_response_pad = Expand(masking_key,
                                    concat(response.masking_nonce, "CredentialResponsePad"),
                                    Npk + Nn + Nm)
   concat(server_public_key, envelope) = xor(credential_response_pad,
                                               response.masked_response)
-  (client_private_key, export_key) =
-    Recover(randomized_pwd, server_public_key, envelope,
+  (client_private_key, cleartext_credentials, export_key) =
+    Recover(randomized_password, server_public_key, envelope,
             server_identity, client_identity)
 
-  return (client_private_key, server_public_key, export_key)
+  return (client_private_key, cleartext_credentials, server_public_key, export_key)
 ~~~
 
 ## AKE Protocol {#ake-protocol}
@@ -1377,6 +1399,7 @@ following fields:
 
 The server AKE state `ServerAkeState` mentioned in {{online-phase}} has the
 following fields:
+
 - expected_client_mac: An opaque byte string of length `Nm`.
 - session_key: An opaque byte string of length `Nx`.
 
@@ -1449,7 +1472,7 @@ Input:
   to server_public_key if not specified.
 - credential_response, the corresponding field on the KE2 structure.
 - server_nonce, the corresponding field on the AuthResponse structure.
-- server_keyshare, the corresponding field on the AuthResponse structure.
+- server_public_keyshare, the corresponding field on the AuthResponse structure.
 
 Output:
 - preamble, the protocol transcript with identities and messages.
@@ -1462,7 +1485,7 @@ def Preamble(client_identity, ke1, server_identity, ke2):
                      I2OSP(len(server_identity), 2), server_identity,
                      credential_response,
                      server_nonce,
-                     server_keyshare)
+                     server_public_keyshare)
   return preamble
 ~~~
 
@@ -1514,8 +1537,8 @@ Output:
 
 def AuthClientStart(credential_request):
   client_nonce = random(Nn)
-  (client_secret, client_keyshare) = GenerateAuthKeyPair()
-  Create AuthRequest auth_request with (client_nonce, client_keyshare)
+  (client_secret, client_public_keyshare) = GenerateAuthKeyPair()
+  Create AuthRequest auth_request with (client_nonce, client_public_keyshare)
   Create KE1 ke1 with (credential_request, auth_request)
   state.client_secret = client_secret
   state.ke1 = ke1
@@ -1533,12 +1556,8 @@ State:
 - state, a ClientAkeState structure.
 
 Input:
-- client_identity, the optional encoded client identity, which is
-  set to client_public_key if not specified.
+- cleartext_credentials, a CleartextCredentials structure.
 - client_private_key, the client's private key.
-- server_identity, the optional encoded server identity, which is
-  set to server_public_key if not specified.
-- server_public_key, the server's public key.
 - ke2, a KE2 message structure.
 
 Output:
@@ -1548,20 +1567,19 @@ Output:
 Exceptions:
 - ServerAuthenticationError, the handshake fails.
 
-def AuthClientFinalize(client_identity, client_private_key, server_identity,
-                       server_public_key, ke2):
+def AuthClientFinalize(cleartext_credentials, client_private_key, ke2):
 
-  dh1 = SerializeElement(state.client_secret * ke2.auth_response.server_keyshare)
-  dh2 = SerializeElement(state.client_secret * server_public_key)
-  dh3 = SerializeElement(client_private_key  * ke2.auth_response.server_keyshare)
+  dh1 = SerializeElement(state.client_secret * ke2.auth_response.server_public_keyshare)
+  dh2 = SerializeElement(state.client_secret * cleartext_credentials.server_public_key)
+  dh3 = SerializeElement(client_private_key  * ke2.auth_response.server_public_keyshare)
   ikm = concat(dh1, dh2, dh3)
 
-  preamble = Preamble(client_identity,
+  preamble = Preamble(cleartext_credentials.client_identity,
                       state.ke1,
-                      server_identity,
+                      cleartext_credentials.server_identity,
                       ke2.credential_response,
                       ke2.auth_response.server_nonce,
-                      ke2.auth_response.server_keyshare)
+                      ke2.auth_response.server_public_keyshare)
   Km2, Km3, session_key = DeriveKeys(ikm, preamble)
   expected_server_mac = MAC(Km2, Hash(preamble))
   if !ct_equal(ke2.server_mac, expected_server_mac),
@@ -1586,30 +1604,26 @@ State:
 - state, a ServerAkeState structure.
 
 Input:
-- server_identity, the optional encoded server identity, which is set to
-  server_public_key if not specified.
+- cleartext_credentials, a CleartextCredentials structure.
 - server_private_key, the server's private key.
-- client_identity, the optional encoded client identity, which is set to
-  client_public_key if not specified.
 - client_public_key, the client's public key.
 - ke1, a KE1 message structure.
 
 Output:
 - auth_response, an AuthResponse structure.
 
-def AuthServerRespond(server_identity, server_private_key, client_identity,
-                      client_public_key, ke1, credential_response):
+def AuthServerRespond(cleartext_credentials, server_private_key, client_public_key, ke1, credential_response):
   server_nonce = random(Nn)
-  (server_private_keyshare, server_keyshare) = GenerateAuthKeyPair()
-  preamble = Preamble(client_identity,
+  (server_private_keyshare, server_public_keyshare) = GenerateAuthKeyPair()
+  preamble = Preamble(cleartext_credentials.client_identity,
                       ke1,
-                      server_identity,
+                      cleartext_credentials.server_identity,
                       credential_response,
                       server_nonce,
-                      server_keyshare)
+                      server_public_keyshare)
 
-  dh1 = SerializeElement(server_private_keyshare * ke1.auth_request.client_keyshare)
-  dh2 = SerializeElement(server_private_key * ke1.auth_request.client_keyshare)
+  dh1 = SerializeElement(server_private_keyshare * ke1.auth_request.client_public_keyshare)
+  dh2 = SerializeElement(server_private_key * ke1.auth_request.client_public_keyshare)
   dh3 = SerializeElement(server_private_keyshare * client_public_key)
   ikm = concat(dh1, dh2, dh3)
 
@@ -1619,7 +1633,7 @@ def AuthServerRespond(server_identity, server_private_key, client_identity,
 
   state.expected_client_mac = MAC(Km3, Hash(concat(preamble, server_mac)))
   state.session_key = session_key
-  Create AuthResponse auth_response with (server_nonce, server_keyshare, server_mac)
+  Create AuthResponse auth_response with (server_nonce, server_public_keyshare, server_mac)
   return auth_response
 ~~~
 
@@ -1653,19 +1667,21 @@ An OPAQUE-3DH configuration is a tuple (OPRF, KDF, MAC, Hash, KSF, Group, Contex
 such that the following conditions are met:
 
 - The OPRF protocol uses the "base mode" variant of {{OPRF}} and implements
-  the interface in {{dependencies}}. Examples include OPRF(ristretto255, SHA-512) and
-  OPRF(P-256, SHA-256).
+  the interface in {{dependencies}}. Examples include ristretto255-SHA512 and
+  P256-SHA256.
 - The KDF, MAC, and Hash functions implement the interfaces in {{dependencies}}.
   Examples include HKDF {{RFC5869}} for the KDF, HMAC {{!RFC2104}} for the MAC,
   and SHA-256 and SHA-512 for the Hash functions. If an extensible output function
   such as SHAKE128 {{FIPS202}} is used then the output length `Nh` MUST be chosen
   to align with the target security level of the OPAQUE configuration. For example,
   if the target security parameter for the configuration is 128-bits, then `Nh` SHOULD be at least 32 bytes.
-- The KSF has fixed parameters, chosen by the application, and implements the
-  interface in {{dependencies}}. Examples include Argon2id {{?ARGON2=RFC9106}},
-  scrypt {{?SCRYPT=RFC7914}}, and PBKDF2 {{?PBKDF2=RFC2898}} with fixed parameter choices.
+- The KSF is determined by the application and implements the interface in
+  {{dependencies}}. As noted, collision resistance is required. Examples for KSF
+  include Argon2id {{?ARGON2=RFC9106}}, scrypt {{?SCRYPT=RFC7914}}, and PBKDF2
+  {{?PBKDF2=RFC2898}} with fixed parameter choices. See {{app-considerations}}
+  for more information about this choice of function.
 - The Group mode identifies the group used in the OPAQUE-3DH AKE. This SHOULD
-  match that of the OPRF. For example, if the OPRF is OPRF(ristretto255, SHA-512),
+  match that of the OPRF. For example, if the OPRF is ristretto255-SHA512,
   then Group SHOULD be ristretto255.
 
 Context is the shared parameter used to construct the preamble in {{transcript-functions}}.
@@ -1674,9 +1690,10 @@ parameters that are needed to prevent cross-protocol or downgrade attacks.
 
 Absent an application-specific profile, the following configurations are RECOMMENDED:
 
-- OPRF(ristretto255, SHA-512), HKDF-SHA-512, HMAC-SHA-512, SHA-512,
-    Argon2id(t=1, p=4, m=2^21), ristretto255
-- OPRF(P-256, SHA-256), HKDF-SHA-256, HMAC-SHA-256, SHA-256, Argon2id(t=1, p=4, m=2^21), P-256
+- ristretto255-SHA512, HKDF-SHA-512, HMAC-SHA-512, SHA-512,
+    Argon2id(S = zeroes(16), p = 4, T = Nh, m = 2^21, t = 1, v = 0x13, K = nil, X = nil, y = 2), ristretto255
+- P256-SHA256, HKDF-SHA-256, HMAC-SHA-256, SHA-256,
+    Argon2id(S = zeroes(16), p = 4, T = Nh, m = 2^21, t = 1, v = 0x13, K = nil, X = nil, y = 2), P-256
 
 Future configurations may specify different combinations of dependent algorithms,
 with the following considerations:
@@ -1712,6 +1729,18 @@ applications can use to control OPAQUE:
   servers may use a domain name instead of a public key as their identifier. Absent
   alternate notions of identity, applications SHOULD set these identities to nil
   and rely solely on public key information.
+- Configuration and envelope updates: Applications may wish to update or change their
+  configuration or other parameters which affect the client's RegistrationRecord over
+  time. Some reasons for changing these are to use different cryptographic algorithms,
+  e.g., a different KSF with improved parameters, or to update key material that is
+  cryptographically bound to the RegistrationRecord, such as the server's public key
+  (server_public_key). Any such change will require users to re-register to create a
+  new RegistrationRecord. Supporting these types of updates can be helpful for applications
+  which anticipate such changes in their deployment setting.
+- Password hardening parameters: Key stretching is done to help prevent password disclosure
+  in the event of server compromise; see {{key-stretch}}. There is no ideal or default
+  set of parameters, though relevant specifications for KSFs give some reasonable
+  defaults.
 - Enumeration prevention: As described in {{create-credential-response}}, if servers
   receive a credential request for a non-existent client, they SHOULD respond with a
   "fake" response to prevent active client enumeration attacks. Servers that
@@ -1877,6 +1906,17 @@ implementation considerations.
   of the derivation of OPRF keys via a single PRF. As long as the derivation
   of different OPRF keys from a single OPRF has different PRF inputs, the
   protocol is secure. The choice of such inputs is up to the application.
+- {{JKX18}} comments on a defense against offline
+  dictionary attacks upon server compromise or honest-but-curious servers.
+  The authors suggest implementing the OPRF phase as a threshold OPRF {{TOPPSS}},
+  effectively forcing an attacker to act online or to control at least t key
+  shares (among the total n), where t is the threshold number of shares necessary
+  to recombine the secret OPRF key, and only then be able to run an offline dictionary
+  attack. This implementation only affects the server and changes nothing for the client.
+  Furthermore, if the threshold OPRF servers holding these keys are separate from
+  the authentication server, then recovering all n shares would still not suffice
+  to run an offline dictionnary attack without access to the client record database.
+  However, this mechanism is out of scope for this document.
 
 The following list enumerates notable differences and refinements from the original
 cryptographic design in {{JKX18}} and the corresponding CFRG document
@@ -2042,15 +2082,16 @@ is on the curve, and that the point is not the point at infinity.
 Additionally, validation MUST ensure the Diffie-Hellman shared secret is
 not the point at infinity.
 
-## OPRF Key Stretching
+## OPRF Key Stretching {#key-stretch}
 
 Applying a key stretching function to the output of the OPRF greatly increases the cost of an offline
 attack upon the compromise of the credential file at the server. Applications
-SHOULD select parameters that balance cost and complexity. Note that in
-OPAQUE, the key stretching function is executed by the client, as opposed to
-the server. This means that applications must consider a tradeoff between the
-performance of the protocol on clients (specifically low-end devices) and
-protection against offline attacks after a server compromise.
+SHOULD select parameters for the KSF that balance cost and complexity across
+all possible client implementations and deployments. Note that in OPAQUE, the
+key stretching function is executed by the client, as opposed to the server in
+traditional password hashing scenarios. This means that applications must consider
+a tradeoff between the performance of the protocol on clients (specifically low-end
+devices) and protection against offline attacks after a server compromise.
 
 ## Client Enumeration {#preventing-client-enumeration}
 
@@ -2068,7 +2109,7 @@ OPAQUE prevents these attacks during the authentication flow. The first is
 prevented by requiring servers to act with unregistered client identities in a
 way that is indistinguishable from their behavior with existing registered clients.
 Servers do this by simulating a fake CredentialResponse as specified in
-{{create-credential-response}} for unregistered users, and also encrypting both
+{{create-credential-response}} for unregistered users, and also encrypting
 CredentialResponse using a masking key. In this way, real and fake CredentialResponse
 messages are indistinguishable from one another.
 Implementations must also take care to avoid side-channel leakage (e.g., timing
@@ -2124,12 +2165,10 @@ In OPAQUE, the OPRF key acts as the secret salt value that ensures the infeasibi
 of pre-computation attacks. No extra salt value is needed. Also, clients never
 disclose their passwords to the server, even during registration. Note that a corrupted
 server can run an exhaustive offline dictionary attack to validate guesses for the client's
-password; this is inevitable in any aPAKE protocol. (OPAQUE enables defense against such
-offline dictionary attacks by distributing the server so that an offline attack is only
-possible if all - or a minimal number of - servers are compromised {{JKX18}}.) Furthermore,
-if the server does not sample this OPRF key with sufficiently high entropy, or if it is not
-kept hidden from an adversary, then any derivatives from the client's password may also be
-susceptible to an offline dictionary attack to recover the original password.
+password; this is inevitable in any aPAKE protocol. Furthermore, if the server does not
+sample this OPRF key with sufficiently high entropy, or if it is not kept hidden from an
+adversary, then any derivatives from the client's password may also be susceptible to an
+offline dictionary attack to recover the original password.
 
 Some applications may require learning the client's password for enforcing password
 rules. Doing so invalidates this important security property of OPAQUE and is
@@ -2189,7 +2228,7 @@ OPAQUE may also be instantiated with any post-quantum (PQ) AKE protocol that has
 flow above and security properties (KCI resistance and forward secrecy) outlined
 in {{security-considerations}}. Note that such an instantiation is not quantum-safe unless
 the OPRF is quantum-safe. However, an OPAQUE instantiation where the AKE is quantum-safe,
-but the OPRF is not, would still ensure the confidentiality of application data encrypted
+but the OPRF is not, would still ensure the confidentiality and integrity of application data encrypted
 under session_key (or a key derived from it) with a quantum-safe encryption function.
 
 ## HMQV Instantiation Sketch {#hmqv-sketch}
@@ -2205,7 +2244,7 @@ preamble = concat("HMQV",
                   I2OSP(len(server_identity), 2), server_identity,
                   KE2.credential_response,
                   KE2.auth_response.server_nonce,
-                  KE2.auth_response.server_keyshare)
+                  KE2.auth_response.server_public_keyshare)
 ~~~
 
 Second, the IKM derivation would change. Assuming HMQV is instantiated with a cyclic
@@ -2273,7 +2312,9 @@ outputs computed during the authentication of an unknown or unregistered user. N
 All values are encoded in hexadecimal strings. The configuration information
 includes the (OPRF, Hash, KSF, KDF, MAC, Group, Context) tuple, where the Group
 matches that which is used in the OPRF. These test vectors were generated using
-draft-10 of {{OPRF}}.
+draft-21 of {{OPRF}}. The KSF used for each test vector is the identity function
+(denoted Identity), which returns as output the input message supplied to the function
+without any modification, i.e., msg = Stretch(msg).
 
 ## Real Test Vectors {#real-vectors}
 
@@ -2282,7 +2323,7 @@ draft-10 of {{OPRF}}.
 #### Configuration
 
 ~~~
-OPRF: 0001
+OPRF: ristretto255-SHA512
 Hash: SHA512
 KSF: Identity
 KDF: HKDF-SHA512
@@ -2317,10 +2358,8 @@ server_nonce: 71cd9960ecef2fe0d0f7494986fa3d8b2bb01963537e60efb13981e
 138e3d4a1
 client_nonce: da7e07376d6d6f034cfa9bb537d11b8c6b4238c334333d1f0aebb38
 0cae6a6cc
-server_keyshare: c8c39f573135474c51660b02425bca633e339cec4e1acc69c94d
-d48497fe4028
-client_keyshare: 0c3a00c961fead8a16f818929cc976f0475e4f723519318b96f4
-947a7a5f9663
+server_public_keyshare: c8c39f573135474c51660b02425bca633e339cec4e1ac
+c69c94dd48497fe4028
 server_private_keyshare: 2e842960258a95e28bcfef489cffd19d8ec99cc1375d
 840f96936da7dbb0b40d
 client_private_keyshare: 22c919134c9bdd9dc0c5ef3450f18b54820f43f646a9
@@ -2334,64 +2373,64 @@ b0790308
 #### Intermediate Values
 
 ~~~
-client_public_key: 8e5e5c04b2154336fa52ac691eb6df5f59ec7315b8467b0bba
-1ed4f413043b44
-auth_key: e1ff65c196e1c4b4bf46361798eec479b318831329680f33b4f77ad49d8
-c6e6ef49d87082d654d21f2e36454582353fefc23c07637bd8ca4aa88a4461ea96d6c
-randomized_pwd: 4386bf4b83db06f47672fd60b4cface554558da7be3c616c56b2e
-d29b544d1b50bc45893b1c05d8d6866a9bbe91395e4704740be58728e8872352f56d5
-319f8f
+client_public_key: 2ec892bdbf9b3e2ea834be9eb11f5d187e64ba661ec041c0a3
+b66db8b7d6cc30
+auth_key: 6cd32316f18d72a9a927a83199fa030663a38ce0c11fbaef82aa9003773
+0494fc555c4d49506284516edd1628c27965b7555a4ebfed2223199f6c67966dde822
+randomized_password: aac48c25ab036e30750839d31d6e73007344cb1155289fb7
+d329beb932e9adeea73d5d5c22a0ce1952f8aba6d66007615cd1698d4ac85ef1fcf15
+0031d1435d9
 envelope: ac13171b2f17bc2c74997f0fce1e1f35bec6b91fe2e12dbd323d23ba7a3
-8dfec8e8bde8d4eb9e171240b3d2dfb43ef93efe5cd15412614b3df11ecb58890047e
-2fa31c283e7c58c40495226cfa0ed7756e493431b85c464aad7fdaaf1ab41ac7
-handshake_secret: 885a0a7bd8e704d8fc26f62b8657f8c5d01ffb35b27ad538493
-968dcf6dba7a2d42d404d6ed6a87805a030ffafe791fb69fd044c1ac152ee0ee78853
-cebb0700
-server_mac_key: d29e33eb506fbf199c818d1300e7253404a7d5de9c660a90f79af
-e4cc15da2ae31e511c6eb1c4df95f47c9759606732781a3d1884a4d53cba690bdb9e9
-ac4d7c
-client_mac_key: 4d4d4c4b8b35501876ed01d07f5718357ff720163b84813b1bde4
-f3b6ca3e1de744a267e3d145e6095a0e5b1617714e10af7e10093d0ba8dd115e6bdb1
-f5ccd9
-oprf_key: 6c246eaa55e47d0490ffa8a6f784e803eed9384a250458def36a2acebf1
-5c905
+8dfecb9dbe7d48cf714fc3533becab6faf60b783c94d258477eb74ecc453413bf61c5
+3fd58f0fb3c1175410b674c02e1b59b2d729a865b709db3dc4ee2bb45703d5a8
+handshake_secret: 562564da0d4efdc73cb6efbb454388dabfa5052d4e7e83f4d02
+40c5afd8352881e762755c2f1a9110e36b05fe770f0f48658489c9730dcd365e6c2d4
+049c8fe3
+server_mac_key: 59473632c53a647f9f4ab4d6c3b81e241dd9cb19ca05f0eabed7e
+593f0407ff57e7f060621e5e48d5291be600a1959fbecbc26d4a7157bd227a993c37b
+645f73
+client_mac_key: f2d019bad603b45b2ac50376279a0a37d097723b5405aa4fb20a5
+9f60cdbdd52ec043372cedcdbbdb634c54483e1be51a88d13a5798180acb84c10b129
+7069fd
+oprf_key: 5d4c6a8b7c7138182afb4345d1fae6a9f18a1744afbcc3854f8f5a2b4b4
+c6d05
 ~~~
 
 #### Output Values
 
 ~~~
-registration_request: 62235332ae15911d69812e9eeb6ac8fe4fa0ffc7590831d
-5c5e1631e01049276
-registration_response: 6268d13fea98ebc8e6b88d0b3cc8a78d2ac8fa8efc741c
-d2e966940c52c31c71b2fe7af9f48cc502d016729d2fe25cdd433f2c4bc904660b2a3
+registration_request: 5059ff249eb1551b7ce4991f3336205bde44a105a032e74
+7d21bf382e75f7a71
+registration_response: 7408a268083e03abc7097fc05b587834539065e86fb0c7
+b6342fcf5e01e5b019b2fe7af9f48cc502d016729d2fe25cdd433f2c4bc904660b2a3
 82c9b79df1a78
-registration_upload: 8e5e5c04b2154336fa52ac691eb6df5f59ec7315b8467b0b
-ba1ed4f413043b449afea0ddedbbce5c083c5d5d02aa5218bcc7100f541d841bb5974
-f084f7aa0b929399feb39efd17e13ce1035cbb23251da3b5126a574b239c7b73519d8
-847e2fac13171b2f17bc2c74997f0fce1e1f35bec6b91fe2e12dbd323d23ba7a38dfe
-c8e8bde8d4eb9e171240b3d2dfb43ef93efe5cd15412614b3df11ecb58890047e2fa3
-1c283e7c58c40495226cfa0ed7756e493431b85c464aad7fdaaf1ab41ac7
-KE1: 1670c409ebb699a6012629451d218d42a34eddba1d2978536c45e199c60a0b4e
+registration_upload: 2ec892bdbf9b3e2ea834be9eb11f5d187e64ba661ec041c0
+a3b66db8b7d6cc301ac5844383c7708077dea41cbefe2fa15724f449e535dd7dd562e
+66f5ecfb95864eadddec9db5874959905117dad40a4524111849799281fefe3c51fa8
+2785c5ac13171b2f17bc2c74997f0fce1e1f35bec6b91fe2e12dbd323d23ba7a38dfe
+cb9dbe7d48cf714fc3533becab6faf60b783c94d258477eb74ecc453413bf61c53fd5
+8f0fb3c1175410b674c02e1b59b2d729a865b709db3dc4ee2bb45703d5a8
+KE1: c4dedb0ba6ed5d965d6f250fbe554cd45cba5dfcce3ce836e4aee778aa3cd44d
 da7e07376d6d6f034cfa9bb537d11b8c6b4238c334333d1f0aebb380cae6a6cc0c3a0
 0c961fead8a16f818929cc976f0475e4f723519318b96f4947a7a5f9663
-KE2: 36b4d06f413b72004392d7359cd6a998c667533203d6a671afe81ca09a282f72
-38fe59af0df2c79f57b8780278f5ae47355fe1f817119041951c80f612fdfc6d378cc
-6b0113bf0b6afd9e0728e62ba793d5d25bb97794c154d036bf09c98c472368bffc4e3
-5b7dc48f5a32dd3fede3b9e563f7a170d0e082d02c0a105cdf1ee0ea1928202076ff3
-7ce174f2c669d52d8adc424e925a3bc9a4ca5ce16d9b7a1791ff7e47a0d2fa42424e5
-476f8cfa7bb20b2796ad877295a996ffcb049313f4e971cd9960ecef2fe0d0f749498
+KE2: 7e308140890bcde30cbcea28b01ea1ecfbd077cff62c4def8efa075aabcbb471
+38fe59af0df2c79f57b8780278f5ae47355fe1f817119041951c80f612fdfc6dd6ec6
+0bcdb26dc455ddf3e718f1020490c192d70dfc7e403981179d8073d1146a4f9aa1ced
+4e4cd984c657eb3b54ced3848326f70331953d91b02535af44d9fe0610f003be80cb2
+098357928c8ea17bb065af33095f39d4e0b53b1687f02d522d96bad4ca354293d5c40
+1177ccbd302cf565b96c327f71bc9eaf2890675d2fbb71cd9960ecef2fe0d0f749498
 6fa3d8b2bb01963537e60efb13981e138e3d4a1c8c39f573135474c51660b02425bca
-633e339cec4e1acc69c94dd48497fe402848f3b062916ea7666973222944dabe1027e
-5bea84b1b5d46dab64b1c6eda3170d4c9adba8afa61eb4153061d528b39102f32ecda
-7d7625dbc229e6630a607e03
-KE3: 4e23f0f84a5261918a7fc23bf1978a935cf4e320d56984079f8c7f4a54847b9e
-979f519928c5898927cf6aa8d51ac42dc2d0f5840956caa3a34dbc55ce74415f
-export_key: 403a270110164ae0de7ea77c6824343211e8c1663ccaedde908dc9acf
-661039a379c8ac7e4b0cb23a8d1375ae94a772f91536de131d9d86633cb9445f773df
-ac
-session_key: d2dea308255aa3cecf72bcd6ac96ff7ab2e8bad0494b90180ad340b7
-d8942a36ee358e76c372790d4a5c1ac900997ea2abbf35f2d65510f8dfd668e593b8e
-1fe
+633e339cec4e1acc69c94dd48497fe40287f33611c2cf0eef57adbf48942737d9421e
+6b20e4b9d6e391d4168bf4bf96ea57aa42ad41c977605e027a9ef706a349f4b2919fe
+3562c8e86c4eeecf2f9457d4
+KE3: df9a13cd256091f90f0fcb2ef6b3411e4aebff07bb0813299c0ec7f5dedd33a7
+681231a001a82f1dece1777921f42abfeee551ee34392e1c9743c5cc1dc1ef8c
+export_key: 1ef15b4fa99e8a852412450ab78713aad30d21fa6966c9b8c9fb3262a
+970dc62950d4dd4ed62598229b1b72794fc0335199d9f7fcc6eaedde92cc04870e63f
+16
+session_key: 8a0f9f4928fc0c3b5bb261c4b7b3997600405424a8128632e85a5667
+b4b742484ed791933971be6d3fcf2b23c56b8e8f7e7edcae19a03b8fd87f5999fce12
+9d2
 ~~~
 
 ### OPAQUE-3DH Real Test Vector 2
@@ -2399,7 +2438,7 @@ d8942a36ee358e76c372790d4a5c1ac900997ea2abbf35f2d65510f8dfd668e593b8e
 #### Configuration
 
 ~~~
-OPRF: 0001
+OPRF: ristretto255-SHA512
 Hash: SHA512
 KSF: Identity
 KDF: HKDF-SHA512
@@ -2436,10 +2475,8 @@ server_nonce: 71cd9960ecef2fe0d0f7494986fa3d8b2bb01963537e60efb13981e
 138e3d4a1
 client_nonce: da7e07376d6d6f034cfa9bb537d11b8c6b4238c334333d1f0aebb38
 0cae6a6cc
-server_keyshare: c8c39f573135474c51660b02425bca633e339cec4e1acc69c94d
-d48497fe4028
-client_keyshare: 0c3a00c961fead8a16f818929cc976f0475e4f723519318b96f4
-947a7a5f9663
+server_public_keyshare: c8c39f573135474c51660b02425bca633e339cec4e1ac
+c69c94dd48497fe4028
 server_private_keyshare: 2e842960258a95e28bcfef489cffd19d8ec99cc1375d
 840f96936da7dbb0b40d
 client_private_keyshare: 22c919134c9bdd9dc0c5ef3450f18b54820f43f646a9
@@ -2453,64 +2490,64 @@ b0790308
 #### Intermediate Values
 
 ~~~
-client_public_key: 8e5e5c04b2154336fa52ac691eb6df5f59ec7315b8467b0bba
-1ed4f413043b44
-auth_key: e1ff65c196e1c4b4bf46361798eec479b318831329680f33b4f77ad49d8
-c6e6ef49d87082d654d21f2e36454582353fefc23c07637bd8ca4aa88a4461ea96d6c
-randomized_pwd: 4386bf4b83db06f47672fd60b4cface554558da7be3c616c56b2e
-d29b544d1b50bc45893b1c05d8d6866a9bbe91395e4704740be58728e8872352f56d5
-319f8f
+client_public_key: 2ec892bdbf9b3e2ea834be9eb11f5d187e64ba661ec041c0a3
+b66db8b7d6cc30
+auth_key: 6cd32316f18d72a9a927a83199fa030663a38ce0c11fbaef82aa9003773
+0494fc555c4d49506284516edd1628c27965b7555a4ebfed2223199f6c67966dde822
+randomized_password: aac48c25ab036e30750839d31d6e73007344cb1155289fb7
+d329beb932e9adeea73d5d5c22a0ce1952f8aba6d66007615cd1698d4ac85ef1fcf15
+0031d1435d9
 envelope: ac13171b2f17bc2c74997f0fce1e1f35bec6b91fe2e12dbd323d23ba7a3
-8dfec43084457c1ffa561c8f37fbad1b8de6c41e6df200e6ebe15d5ce4243fa973ef3
-e480644e56a6de865cc4d3d9e20e0510e63474e2b11f4b4c8f665cc439cc2d7d
-handshake_secret: 19d0d9f286f44f573dd61435690b0359c3a70e5c363ba4819ac
-fa113b0ddeab603f322185812ddcdd2abbfba77933cd5c3430ea6591e99c30a19884a
-80d25dab
-server_mac_key: 5096c1f1b295521bc8c5aeba462fc11e123eb710899f164dab737
-45f55f42b27a31f810efb06fc56890f3635a18f3f8c9ef7881f32a251a5f5a7354c82
-70f257
-client_mac_key: 1c284c2a22bfb415a5091c94726dd02ae9adb12d28db5207a87be
-0c3f75c1c37df549315f51e0dd2053271a477a45bf0adbc246f7f7e47e201785b6429
-e93a84
-oprf_key: 6c246eaa55e47d0490ffa8a6f784e803eed9384a250458def36a2acebf1
-5c905
+8dfec1ac902dc5589e9a5f0de56ad685ea8486210ef41449cd4d8712828913c5d2b68
+0b2b3af4a26c765cff329bfb66d38ecf1d6cfa9e7a73c222c6efe0d9520f7d7c
+handshake_secret: bc2abaa979af9cbb6859856b7d5d201a038fbdfa7e10f11d131
+d3f8f6fc3b263bde4db6d2d9207d4648ff80415a276d5f157f9d37a3eade559db2e5f
+3fa026b2
+server_mac_key: 2420461c589866700b08c8818cbf390c872629a14cf32a264dad3
+375f85f33188c8f04bdb71880b2d4613187a0e416808ab62b45858b88319882602371
+ef5f75
+client_mac_key: 156e4ab0b9f71ef994bbbb73928e6d14d7335cf9561f113d61ac6
+b41fab35f9c72fe827d3c4d7dd91d8398ee619810e4f9286e6b32f329eb6b1476ce18
+fa8500
+oprf_key: 5d4c6a8b7c7138182afb4345d1fae6a9f18a1744afbcc3854f8f5a2b4b4
+c6d05
 ~~~
 
 #### Output Values
 
 ~~~
-registration_request: 62235332ae15911d69812e9eeb6ac8fe4fa0ffc7590831d
-5c5e1631e01049276
-registration_response: 6268d13fea98ebc8e6b88d0b3cc8a78d2ac8fa8efc741c
-d2e966940c52c31c71b2fe7af9f48cc502d016729d2fe25cdd433f2c4bc904660b2a3
+registration_request: 5059ff249eb1551b7ce4991f3336205bde44a105a032e74
+7d21bf382e75f7a71
+registration_response: 7408a268083e03abc7097fc05b587834539065e86fb0c7
+b6342fcf5e01e5b019b2fe7af9f48cc502d016729d2fe25cdd433f2c4bc904660b2a3
 82c9b79df1a78
-registration_upload: 8e5e5c04b2154336fa52ac691eb6df5f59ec7315b8467b0b
-ba1ed4f413043b449afea0ddedbbce5c083c5d5d02aa5218bcc7100f541d841bb5974
-f084f7aa0b929399feb39efd17e13ce1035cbb23251da3b5126a574b239c7b73519d8
-847e2fac13171b2f17bc2c74997f0fce1e1f35bec6b91fe2e12dbd323d23ba7a38dfe
-c43084457c1ffa561c8f37fbad1b8de6c41e6df200e6ebe15d5ce4243fa973ef3e480
-644e56a6de865cc4d3d9e20e0510e63474e2b11f4b4c8f665cc439cc2d7d
-KE1: 1670c409ebb699a6012629451d218d42a34eddba1d2978536c45e199c60a0b4e
+registration_upload: 2ec892bdbf9b3e2ea834be9eb11f5d187e64ba661ec041c0
+a3b66db8b7d6cc301ac5844383c7708077dea41cbefe2fa15724f449e535dd7dd562e
+66f5ecfb95864eadddec9db5874959905117dad40a4524111849799281fefe3c51fa8
+2785c5ac13171b2f17bc2c74997f0fce1e1f35bec6b91fe2e12dbd323d23ba7a38dfe
+c1ac902dc5589e9a5f0de56ad685ea8486210ef41449cd4d8712828913c5d2b680b2b
+3af4a26c765cff329bfb66d38ecf1d6cfa9e7a73c222c6efe0d9520f7d7c
+KE1: c4dedb0ba6ed5d965d6f250fbe554cd45cba5dfcce3ce836e4aee778aa3cd44d
 da7e07376d6d6f034cfa9bb537d11b8c6b4238c334333d1f0aebb380cae6a6cc0c3a0
 0c961fead8a16f818929cc976f0475e4f723519318b96f4947a7a5f9663
-KE2: 36b4d06f413b72004392d7359cd6a998c667533203d6a671afe81ca09a282f72
-38fe59af0df2c79f57b8780278f5ae47355fe1f817119041951c80f612fdfc6d378cc
-6b0113bf0b6afd9e0728e62ba793d5d25bb97794c154d036bf09c98c472368bffc4e3
-5b7dc48f5a32dd3fede3b9e563f7a170d0e082d02c0a105cdf1ee0279ab2faaf30bb2
-722ef0dbb4c66632703c736dc6aeb163c467a60e0abb09bf4d4d49c1c65f522667cb4
-b6da94faa9d7835ad67e8e3198afb4e64d6fb06bc35371cd9960ecef2fe0d0f749498
+KE2: 7e308140890bcde30cbcea28b01ea1ecfbd077cff62c4def8efa075aabcbb471
+38fe59af0df2c79f57b8780278f5ae47355fe1f817119041951c80f612fdfc6dd6ec6
+0bcdb26dc455ddf3e718f1020490c192d70dfc7e403981179d8073d1146a4f9aa1ced
+4e4cd984c657eb3b54ced3848326f70331953d91b02535af44d9fea502150b67fe367
+95dd8914f164e49f81c7688a38928372134b7dccd50e09f8fed9518b7b2f94835b3c4
+fe4c8475e7513f20eb97ff0568a39caee3fd6251876f71cd9960ecef2fe0d0f749498
 6fa3d8b2bb01963537e60efb13981e138e3d4a1c8c39f573135474c51660b02425bca
-633e339cec4e1acc69c94dd48497fe4028dfe19d6cf6d292ae99a497f9ba41702a194
-5f5d9f3ab60ea801b5a691098c7af74956a5e1324322877b6d399583670e54dc90752
-5235fd47c8e396fab340beed
-KE3: 824fe89731cd47062819165662cd1c42c4b2d2321bd062e637fdd0361b0dad03
-02bd5e9a9d02c72452dc65298bf330071e061b8bb4e1c8762a350d99c8c003ac
-export_key: 403a270110164ae0de7ea77c6824343211e8c1663ccaedde908dc9acf
-661039a379c8ac7e4b0cb23a8d1375ae94a772f91536de131d9d86633cb9445f773df
-ac
-session_key: 5ea9a76f5f5cc59ba7871012836947c946f8c303cc94e048cdc83ada
-c89db7187cf5c718ffdd7cb6d8c3005dc0f77814d5f26011b584f9622c649a357cb17
-a4c
+633e339cec4e1acc69c94dd48497fe4028c463164503598ea84fab9005b9cd51b7bb3
+206fb22a412e8a86b9cb6ffca18f5ea6b4c24fdc94865e8bf74248e6be15b85b16041
+40ffad2175f9518452d381af
+KE3: a86ece659d90525e2476aa1756d313b067581cb7b0643b97be6b8ab8d0f10843
+57e514ecfaff9dc18f6cca37da630545f0048393f16bc175eb819653ebc45b60
+export_key: 1ef15b4fa99e8a852412450ab78713aad30d21fa6966c9b8c9fb3262a
+970dc62950d4dd4ed62598229b1b72794fc0335199d9f7fcc6eaedde92cc04870e63f
+16
+session_key: 0968e91efeb702d6aa09023a9a79803332d8bd3442a79b8ad09490b9
+267161013bf475bed945238a5e976ef7d7de7ff41ae30439fe2fc39758fb3e56f2683
+e60
 ~~~
 
 ### OPAQUE-3DH Real Test Vector 3
@@ -2518,7 +2555,7 @@ a4c
 #### Configuration
 
 ~~~
-OPRF: 0003
+OPRF: P256-SHA256
 Hash: SHA256
 KSF: Identity
 KDF: HKDF-SHA256
@@ -2552,10 +2589,8 @@ server_nonce: 71cd9960ecef2fe0d0f7494986fa3d8b2bb01963537e60efb13981e
 138e3d4a1
 client_nonce: ab3d33bde0e93eda72392346a7a73051110674bbf6b1b7ffab8be4f
 91fdaeeb1
-server_keyshare: 020e67941e94deba835214421d2d8c90de9b0f7f925d11e2032c
-e19b1832ae8e0f
-client_keyshare: 03493f36ca12467d1f5eaaabea67ca31377c4869c1e9a62346b6
-f01a991624b95d
+server_public_keyshare: 020e67941e94deba835214421d2d8c90de9b0f7f925d1
+1e2032ce19b1832ae8e0f
 server_private_keyshare: 9addab838c920fa7044f3a46b91ecaea24b0e7203992
 8ee7d4c37a5b9bc17349
 client_private_keyshare: 89d5a7e18567f255748a86beac13913df755a5adf776
@@ -2569,53 +2604,53 @@ blind_login: c497fddf6056d241e6cf9fb7ac37c384f49b357a221eb0a802c989b9
 #### Intermediate Values
 
 ~~~
-client_public_key: 03763748cc2dfe4f6f80f8e4f3087b2d2222a7c9ba7d3c3aa8
-e89c4975eed0999f
-auth_key: 1fa6020180e18dde869f4f8363fc1b6841dbbc9fc9d258ece830af7efc2
-5abdb
-randomized_pwd: 4138e29dc8398d8c83b89129cb29ee5dc962fcb5fb2dca25981cb
-351b83e0546
+client_public_key: 02dc91b178ba2c4bbf9b9403fca25457b906a7f507e59b6e70
+3031e09114ba2be0
+auth_key: 5bd4be1602516092dc5078f8d699f5721dc1720a49fb80d8e5c16377abd
+0987b
+randomized_password: 06be0a1a51d56557a3adad57ba29c5510565dcd8b5078fa3
+19151b9382258fb0
 envelope: a921f2a014513bd8a90e477a629794e89fec12d12206dde662ebdcf6567
-0e51fc82109537121d7c39d96f3e04732e1f0b8cc55d98bb4e5968ace317de1d42c3d
-handshake_secret: 21c9ee3561e6924110d86f99a624fe2fdc1aeea03f1b17c279f
-b94da851e3686
-server_mac_key: 87cab7092d3219b613459ea1ec2973be054367b331937d6973181
-2f418425082
-client_mac_key: 9dffe56b53981e86b37553beedb5d2226465a02d75d577bacef82
-9775494bd93
-oprf_key: 59984c44639e303cd46912ce722fc7d042023f25e264a3775667ea63c30
-add69
+0e51fe155412cb432898eda63529c3b2633521f770cccbd25d7548a4e20665a45e65a
+handshake_secret: c59197dd9269abfdb3037ea1c203a97627e2c0aa142000d1c3f
+06a2c8713077d
+server_mac_key: a431a5c1d3cb5772cbc66af0c2851e23dd9ad153a0c8b99081c7d
+0d543173fde
+client_mac_key: 7329ffd54df21db5532fce8794fca78b505fef9397aad28a424f6
+ea3f97c51ca
+oprf_key: 2dfb5cb9aa1476093be74ca0d43e5b02862a05f5d6972614d7433acdc66
+f7f31
 ~~~
 
 #### Output Values
 
 ~~~
-registration_request: 0271e8fd723a873d16ddbda1d3700b9a42eca179ba09a8f
-c2a2e40a8142fa35fe0
-registration_response: 03c6fe2c086fa5333a15c5718ddda1f15a61e9ea9a0c4a
-36f5f0dfe4f090250a70035f40ff9cf88aa1f5cd4fe5fd3da9ea65a4923a5594f84fd
+registration_request: 029e949a29cfa0bf7c1287333d2fb3dc586c41aa652f507
+0d26a5315a1b50229f8
+registration_response: 0350d3694c00978f00a5ce7cd08a00547e4ab5fb5fc2b2
+f6717cdaa6c89136efef035f40ff9cf88aa1f5cd4fe5fd3da9ea65a4923a5594f84fd
 9f2092d6067784874
-registration_upload: 03763748cc2dfe4f6f80f8e4f3087b2d2222a7c9ba7d3c3a
-a8e89c4975eed0999f5b042a53415b5db1161dacf9f9ef0c30ed6b0179038e5e8e5a0
-aa087c8bc0753a921f2a014513bd8a90e477a629794e89fec12d12206dde662ebdcf6
-5670e51fc82109537121d7c39d96f3e04732e1f0b8cc55d98bb4e5968ace317de1d42
-c3d
-KE1: 036514cf26a2578f1a45ea8faf540e52b237236ee97dc54948eca7b7f71ba9e1
-29ab3d33bde0e93eda72392346a7a73051110674bbf6b1b7ffab8be4f91fdaeeb1034
+registration_upload: 02dc91b178ba2c4bbf9b9403fca25457b906a7f507e59b6e
+703031e09114ba2be07f0ed53532d3ae8e505ecc70d42d2b814b6b0e48156def71ea0
+29148b2803aafa921f2a014513bd8a90e477a629794e89fec12d12206dde662ebdcf6
+5670e51fe155412cb432898eda63529c3b2633521f770cccbd25d7548a4e20665a45e
+65a
+KE1: 037342f0bcb3ecea754c1e67576c86aa90c1de3875f390ad599a26686cdfee6e
+07ab3d33bde0e93eda72392346a7a73051110674bbf6b1b7ffab8be4f91fdaeeb1034
 93f36ca12467d1f5eaaabea67ca31377c4869c1e9a62346b6f01a991624b95d
-KE2: 036ebcb79716cf2ecd0b3e5f3141709f72feb7369d2de41c61e0fa5695e78385
-3e38fe59af0df2c79f57b8780278f5ae47355fe1f817119041951c80f612fdfc6d286
-5751562662eea8de000fdfd4cd1bf506b137d12f28bffaf11a0d720c6ddfe532b2aff
-31acb0a8fbb89de1e29cc5a93a33f2e259cf59ad6c88a473d5f056aeb2b6b5eb03a0e
-21e32a309373ed45506c3f58bf3d9978925cbf35b337e8ae220be71cd9960ecef2fe0
+KE2: 0246da9fe4d41d5ba69faa6c509a1d5bafd49a48615a47a8dd4b0823cc147648
+1138fe59af0df2c79f57b8780278f5ae47355fe1f817119041951c80f612fdfc6d2f0
+c547f70deaeca54d878c14c1aa5e1ab405dec833777132eea905c2fbb12504a67dcbe
+0e66740c76b62c13b04a38a77926e19072953319ec65e41f9bfd2ae2687bd3348bfe3
+3cb0bb9864fdb3b307f7dd68a17f3f150074a0bfc830ab889717d71cd9960ecef2fe0
 d0f7494986fa3d8b2bb01963537e60efb13981e138e3d4a1020e67941e94deba83521
-4421d2d8c90de9b0f7f925d11e2032ce19b1832ae8e0fb6eda25f9a67e3930e862860
-02b8dd8b6339ddfdbaebaefe205fe474fb66884d
-KE3: 4fd2178c39492f816796db05aa2400204944d6bc5ed4a1e4d7b8b24b9f1894bc
-export_key: 00e1f2a1613c78183ec5127f805d320f31ce5dfef70d78f64d327d6c6
-e325ae1
-session_key: e39ed0c2a0b551bad5e9e8bb7017c66918d514b6412a4e30d4cac7a7
-08d35646
+4421d2d8c90de9b0f7f925d11e2032ce19b1832ae8e0fb5166145361a2c344d9737dd
+5c826fede3bbfafa418ad379ce4fa65fbb15db6e
+KE3: 272d04758b2b436bf0239ba7b9bd0a1686a9b6542ceaaf08732054beda956498
+export_key: c3c9a1b0e33ac84dd83d0b7e8af6794e17e7a3caadff289fbd9dc769a
+853c64b
+session_key: a224790a010afc0a3f37e23c1b7a5cb7f9e73e3d9a924116510d97d8
+0e2a1e0c
 ~~~
 
 ### OPAQUE-3DH Real Test Vector 4
@@ -2623,7 +2658,7 @@ session_key: e39ed0c2a0b551bad5e9e8bb7017c66918d514b6412a4e30d4cac7a7
 #### Configuration
 
 ~~~
-OPRF: 0003
+OPRF: P256-SHA256
 Hash: SHA256
 KSF: Identity
 KDF: HKDF-SHA256
@@ -2659,10 +2694,8 @@ server_nonce: 71cd9960ecef2fe0d0f7494986fa3d8b2bb01963537e60efb13981e
 138e3d4a1
 client_nonce: ab3d33bde0e93eda72392346a7a73051110674bbf6b1b7ffab8be4f
 91fdaeeb1
-server_keyshare: 020e67941e94deba835214421d2d8c90de9b0f7f925d11e2032c
-e19b1832ae8e0f
-client_keyshare: 03493f36ca12467d1f5eaaabea67ca31377c4869c1e9a62346b6
-f01a991624b95d
+server_public_keyshare: 020e67941e94deba835214421d2d8c90de9b0f7f925d1
+1e2032ce19b1832ae8e0f
 server_private_keyshare: 9addab838c920fa7044f3a46b91ecaea24b0e7203992
 8ee7d4c37a5b9bc17349
 client_private_keyshare: 89d5a7e18567f255748a86beac13913df755a5adf776
@@ -2676,53 +2709,53 @@ blind_login: c497fddf6056d241e6cf9fb7ac37c384f49b357a221eb0a802c989b9
 #### Intermediate Values
 
 ~~~
-client_public_key: 03763748cc2dfe4f6f80f8e4f3087b2d2222a7c9ba7d3c3aa8
-e89c4975eed0999f
-auth_key: 1fa6020180e18dde869f4f8363fc1b6841dbbc9fc9d258ece830af7efc2
-5abdb
-randomized_pwd: 4138e29dc8398d8c83b89129cb29ee5dc962fcb5fb2dca25981cb
-351b83e0546
+client_public_key: 02dc91b178ba2c4bbf9b9403fca25457b906a7f507e59b6e70
+3031e09114ba2be0
+auth_key: 5bd4be1602516092dc5078f8d699f5721dc1720a49fb80d8e5c16377abd
+0987b
+randomized_password: 06be0a1a51d56557a3adad57ba29c5510565dcd8b5078fa3
+19151b9382258fb0
 envelope: a921f2a014513bd8a90e477a629794e89fec12d12206dde662ebdcf6567
-0e51f6f7b04d6f92795c9bdb72da5ebe7745b8a6c38fc64c391b1be60b4f49ff2ce67
-handshake_secret: 2bbe0da5102418c041884e9d42e62c946255138d74ea3d69acd
-013bf2240c849
-server_mac_key: 2b23b08101bbecc22352f1580cd73c1678affdca160ec8cfccbe0
-e808029d192
-client_mac_key: e279a0b44ae7c1ffb57e7cf179369c6282a18e38e6d1d070eee81
-a44062d59e5
-oprf_key: 59984c44639e303cd46912ce722fc7d042023f25e264a3775667ea63c30
-add69
+0e51f4d7773a36a208a866301dbb2858e40dc5638017527cf91aef32d3848eebe0971
+handshake_secret: 0ee4a82c4a34992f72bfbcb5d2ce64044477dfe200b9d8c92bf
+1759b219b3485
+server_mac_key: 77ebd7511216a51e9c2f3368ce6c1e40513f24b6f42085ef18e7f
+737b427aab5
+client_mac_key: e48e2064cf570dbd18eb42550d4459c58ac4ae4e28881d1aefbab
+d668f7f1df9
+oprf_key: 2dfb5cb9aa1476093be74ca0d43e5b02862a05f5d6972614d7433acdc66
+f7f31
 ~~~
 
 #### Output Values
 
 ~~~
-registration_request: 0271e8fd723a873d16ddbda1d3700b9a42eca179ba09a8f
-c2a2e40a8142fa35fe0
-registration_response: 03c6fe2c086fa5333a15c5718ddda1f15a61e9ea9a0c4a
-36f5f0dfe4f090250a70035f40ff9cf88aa1f5cd4fe5fd3da9ea65a4923a5594f84fd
+registration_request: 029e949a29cfa0bf7c1287333d2fb3dc586c41aa652f507
+0d26a5315a1b50229f8
+registration_response: 0350d3694c00978f00a5ce7cd08a00547e4ab5fb5fc2b2
+f6717cdaa6c89136efef035f40ff9cf88aa1f5cd4fe5fd3da9ea65a4923a5594f84fd
 9f2092d6067784874
-registration_upload: 03763748cc2dfe4f6f80f8e4f3087b2d2222a7c9ba7d3c3a
-a8e89c4975eed0999f5b042a53415b5db1161dacf9f9ef0c30ed6b0179038e5e8e5a0
-aa087c8bc0753a921f2a014513bd8a90e477a629794e89fec12d12206dde662ebdcf6
-5670e51f6f7b04d6f92795c9bdb72da5ebe7745b8a6c38fc64c391b1be60b4f49ff2c
-e67
-KE1: 036514cf26a2578f1a45ea8faf540e52b237236ee97dc54948eca7b7f71ba9e1
-29ab3d33bde0e93eda72392346a7a73051110674bbf6b1b7ffab8be4f91fdaeeb1034
+registration_upload: 02dc91b178ba2c4bbf9b9403fca25457b906a7f507e59b6e
+703031e09114ba2be07f0ed53532d3ae8e505ecc70d42d2b814b6b0e48156def71ea0
+29148b2803aafa921f2a014513bd8a90e477a629794e89fec12d12206dde662ebdcf6
+5670e51f4d7773a36a208a866301dbb2858e40dc5638017527cf91aef32d3848eebe0
+971
+KE1: 037342f0bcb3ecea754c1e67576c86aa90c1de3875f390ad599a26686cdfee6e
+07ab3d33bde0e93eda72392346a7a73051110674bbf6b1b7ffab8be4f91fdaeeb1034
 93f36ca12467d1f5eaaabea67ca31377c4869c1e9a62346b6f01a991624b95d
-KE2: 036ebcb79716cf2ecd0b3e5f3141709f72feb7369d2de41c61e0fa5695e78385
-3e38fe59af0df2c79f57b8780278f5ae47355fe1f817119041951c80f612fdfc6d286
-5751562662eea8de000fdfd4cd1bf506b137d12f28bffaf11a0d720c6ddfe532b2aff
-31acb0a8fbb89de1e29cc5a93a33f2e259cf59ad6c88a473d5f056aeb211efe68628e
-45c388328e97b78809368c72b9efc78fe51ecc7f5b6f7f4c4c2e471cd9960ecef2fe0
+KE2: 0246da9fe4d41d5ba69faa6c509a1d5bafd49a48615a47a8dd4b0823cc147648
+1138fe59af0df2c79f57b8780278f5ae47355fe1f817119041951c80f612fdfc6d2f0
+c547f70deaeca54d878c14c1aa5e1ab405dec833777132eea905c2fbb12504a67dcbe
+0e66740c76b62c13b04a38a77926e19072953319ec65e41f9bfd2ae268d7f10604202
+1c80300e4c6f585980cf39fc51a4a6bba41b0729f9b240c729e5671cd9960ecef2fe0
 d0f7494986fa3d8b2bb01963537e60efb13981e138e3d4a1020e67941e94deba83521
-4421d2d8c90de9b0f7f925d11e2032ce19b1832ae8e0f182fa038ada128f4440131f9
-8adc14cfbdf9045d95b6a55db9b38ffd0aa539f7
-KE3: a9a61a2442845e83b86c22d56ff038893208fcb0e2026d65e2a04f87497e873f
-export_key: 00e1f2a1613c78183ec5127f805d320f31ce5dfef70d78f64d327d6c6
-e325ae1
-session_key: 9d15a7020c089b7c7ab7d6341e34a16260279b59dda8d63cabd3da0b
-a14da32c
+4421d2d8c90de9b0f7f925d11e2032ce19b1832ae8e0fdca637d2a5390f4c809a67b4
+6977c536fe9f643f703178a17a413d14e4bb523c
+KE3: 298cd0077d018f122bc95d706e5fef06537814c567f08d5e40b0c0ae918f9287
+export_key: c3c9a1b0e33ac84dd83d0b7e8af6794e17e7a3caadff289fbd9dc769a
+853c64b
+session_key: 0c59872e9bcdde274f4f52f6ba0fd1acca211d6eb7db98677b457a73
+9ef1f0d8
 ~~~
 
 ## Fake Test Vectors {#fake-vectors}
@@ -2732,7 +2765,7 @@ a14da32c
 #### Configuration
 
 ~~~
-OPRF: 0001
+OPRF: ristretto255-SHA512
 Hash: SHA512
 KSF: Identity
 KDF: HKDF-SHA512
@@ -2768,14 +2801,14 @@ server_public_key: 825f832667480f08b0c9069da5083ac4d0e9ee31b49c4e0310
 031fea04d52966
 server_nonce: 1e10f6eeab2a7a420bf09da9b27a4639645622c46358de9cf7ae813
 055ae2d12
-server_keyshare: 5236e2e06d49f0b496db2a786f6ee1016f15b4fd6c0dbd95d6b1
-17055d914157
+server_public_keyshare: 5236e2e06d49f0b496db2a786f6ee1016f15b4fd6c0db
+d95d6b117055d914157
 server_private_keyshare: 6d8fba9741a357584770f85294430bce2252fe212a8a
 372152a73c7ffe414503
 masking_key: 39ebd51f0e39a07a1c2d2431995b0399bca9996c5d10014d6ebab445
 3dc10ce5cef38ed3df6e56bfff40c2d8dd4671c2b4cf63c3d54860f31fe40220d690b
 b71
-KE1: 20098d3321812eab08e9f3ccd5640d26194cb5cf73f4c5d551f9fea8f5a5765f
+KE1: b0a26dcaca2230b8f5e4b1bcab9c84b586140221bb8b2848486874b0be448905
 42d4e61ed3f8d64cdd3b9d153343eca15b9b0d5e388232793c6376bd2d9cfd0a0e4ed
 8bcc15f3dd01a30365c97c0c0de0a3dd3fbf5d3cbec55fb6ac1d3bf740f
 ~~~
@@ -2783,16 +2816,16 @@ KE1: 20098d3321812eab08e9f3ccd5640d26194cb5cf73f4c5d551f9fea8f5a5765f
 #### Output Values
 
 ~~~
-KE2: e891a2527f657f5a72d723c735e9c3ae9179275f8e74f89a81418561b1db5670
+KE2: 928f79ad8df21963e91411b9f55165ba833dea918f441db967cdc09521d22925
 9c035896a043e70f897d87180c543e7a063b83c1bb728fbd189c619e27b6e5a632b5a
 b1bff96636144faa4f9f9afaac75dd88ea99cf5175902ae3f3b2195693f165f11929b
 a510a5978e64dcdabecbd7ee1e4380ce270e58fea58e6462d92964a1aaef72698bca1
 c673baeb04cc2bf7de5f3c2f5553464552d3a0f7698a9ca7f9c5e70c6cb1f706b2f17
 5ab9d04bbd13926e816b6811a50b4aafa9799d5ed7971e10f6eeab2a7a420bf09da9b
 27a4639645622c46358de9cf7ae813055ae2d125236e2e06d49f0b496db2a786f6ee1
-016f15b4fd6c0dbd95d6b117055d9141571ef6a1ac9c84f21e6914ecb5d2020fe50c2
-5b3c026b9f7a877c7526c13309cc4dd4d33050932c627813a67ceb1d3a8e0065fd55a
-054296ef3097c6a8a04ac33c
+016f15b4fd6c0dbd95d6b117055d914157cb5e11625c701e642293ad32bfcf88da653
+c9b6e71efc8a89607fd46ed5e7b9bf7cc7dbb997a4fd41194a04bcd0c5d88052e080a
+2f02c68d8d9e9c0ce15c92ff
 ~~~
 
 ### OPAQUE-3DH Fake Test Vector 2
@@ -2800,7 +2833,7 @@ c673baeb04cc2bf7de5f3c2f5553464552d3a0f7698a9ca7f9c5e70c6cb1f706b2f17
 #### Configuration
 
 ~~~
-OPRF: 0003
+OPRF: P256-SHA256
 Hash: SHA256
 KSF: Identity
 KDF: HKDF-SHA256
@@ -2835,26 +2868,26 @@ server_public_key: 0221e034c0e202fe883dcfc96802a7624166fed4cfcab4ae30
 cf5f3290d01c88bf
 server_nonce: 1e10f6eeab2a7a420bf09da9b27a4639645622c46358de9cf7ae813
 055ae2d12
-server_keyshare: 03f42965d5bcba2a590a49eb2418061effe40b5c29a34b8e5163
-e0ef32044b2e4c
+server_public_keyshare: 03f42965d5bcba2a590a49eb2418061effe40b5c29a34
+b8e5163e0ef32044b2e4c
 server_private_keyshare: 1a2a0ff27f3ca75221378a2a21fe5222ce0b439452f8
 70475857a34197ba8f6d
 masking_key: caecc6ccb4cae27cb54d8f3a1af1bac52a3d53107ce08497cdd362b1
 992e4e5e
-KE1: 0223afb7e2362271bdf2e20c62e25819e65d379308dfa4d9911f2fc7ada2296f
-7f42d4e61ed3f8d64cdd3b9d153343eca15b9b0d5e388232793c6376bd2d9cfd0a039
+KE1: 0396875da2b4f7749bba411513aea02dc514a48d169d8a9531bd61d3af3fa9ba
+ae42d4e61ed3f8d64cdd3b9d153343eca15b9b0d5e388232793c6376bd2d9cfd0a039
 94d4f1221bfd205063469e92ea4d492f7cc76a327223633ab74590c30cf7285
 ~~~
 
 #### Output Values
 
 ~~~
-KE2: 029c5324a734851923b27ea573dce1c2ed10c497ee222c5500763c96c5209db0
-cd9c035896a043e70f897d87180c543e7a063b83c1bb728fbd189c619e27b6e5a6fac
+KE2: 0201198dcd13f9792eb75dcfa815f61b049abfe2e3e9456d4bbbceec5f442efd
+049c035896a043e70f897d87180c543e7a063b83c1bb728fbd189c619e27b6e5a6fac
 da65ce0a97b9085e7af07f61fd3fdd046d257cbf2183ce8766090b8041a8bf28d79dd
 4c9031ddc75bb6ddb4c291e639937840e3d39fc0d5a3d6e7723c09f7945df485bcf9a
 efe3fe82d149e84049e259bb5b33d6a2ff3b25e4bfb7eff0962821e10f6eeab2a7a42
 0bf09da9b27a4639645622c46358de9cf7ae813055ae2d1203f42965d5bcba2a590a4
-9eb2418061effe40b5c29a34b8e5163e0ef32044b2e4c1bf93ad07640bc9ed22e2a33
-8734d55d0d22f5cc16d179e5aa4cce845b9a04a8
+9eb2418061effe40b5c29a34b8e5163e0ef32044b2e4c196137813ed8ec48627f0b0d
+90d9427f4ec137f8360769df167c25836eae5d91
 ~~~
