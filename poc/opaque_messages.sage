@@ -23,7 +23,7 @@ class CleartextCredentials(object):
         return self.server_public_key_bytes + encode_vector(self.server_identity) + encode_vector(self.client_identity)
 
     def __str__(self):
-        return f"CleartextCredentials(pkS={self.pkS.hex()}, idU={self.idU.hex()}, idS={self.idS.hex()})"
+        return f"CleartextCredentials(pkS={self.server_public_key_bytes.hex()}, idU={self.client_identity.hex()}, idS={self.server_identity.hex()})"
 
 class Credentials(object):
     def __init__(self, client_private_key, client_public_key, client_identity = None, server_identity = None):
@@ -33,7 +33,7 @@ class Credentials(object):
         self.server_identity = server_identity
 
     def __str__(self):
-        return f"Credentials(skU={self.skU.hex()}, pkU={self.pkU.hex()}, idU={self.idU.hex()}, idS={self.idS.hex()})"
+        return f"Credentials(skU={self.client_private_key.hex()}, pkU={self.client_public_key.hex()}, idU={self.client_identity.hex()}, idS={self.server_identity.hex()})"
 
 # struct {
 #   opaque nonce[Nn];
@@ -126,7 +126,7 @@ class RegistrationResponse(ProtocolMessage):
         return self.data + self.server_public_key
 
     def __str__(self):
-        return f"RegistrationResponse(data={self.data.hex()}, pkS={self.pkS.hex()})"
+        return f"RegistrationResponse(data={self.data.hex()}, pkS={self.server_public_key.hex()})"
 
 # struct {
 #     opaque client_public_key[Npk];
@@ -156,7 +156,7 @@ class RegistrationUpload(ProtocolMessage):
         return self.client_public_key + self.masking_key + self.envU.serialize()
 
     def __str__(self):
-        return f"RegistrationUpload(pkU={self.pkU.hex()}, masking_key={self.masking_key.hex()}, envU={self.envU})"
+        return f"RegistrationUpload(pkU={self.client_public_key.hex()}, masking_key={self.masking_key.hex()}, envU={self.envU})"
 
 # struct {
 #     opaque blinded_message[Noe];

@@ -241,7 +241,7 @@ class TripleDHMessageInit(object):
         return self.client_nonce + self.client_public_keyshare
 
     def __str__(self):
-        return f"TripleDHMessageInit(nonceU={self.nonceU.hex()}, epkU={self.epkU.hex()})"
+        return f"TripleDHMessageInit(nonceU={self.client_nonce.hex()}, epkU={self.client_public_keyshare.hex()})"
 
 # struct {
 #      opaque server_nonce[32];
@@ -267,7 +267,7 @@ class TripleDHMessageRespond(object):
         return self.server_nonce + self.server_public_keyshare_bytes + self.mac
 
     def __str__(self):
-        return f"TripleDHMessageRespond(nonceS={self.nonceS.hex()}, epkS={self.epkS.hex()}, macS={self.mac.hex()})"
+        return f"TripleDHMessageRespond(nonceS={self.server_nonce.hex()}, epkS={self.server_public_keyshare_bytes.hex()}, macS={self.mac.hex()})"
 
 # struct {
 #      opaque mac[LH];
